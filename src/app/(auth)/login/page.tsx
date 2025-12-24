@@ -4,12 +4,11 @@ import { useState, useEffect } from "react";
 import { useFormState } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
-import logo from "../../../public/images/frontforest-logo.svg";
+import Image from "next/image";
 import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth";
 import { AuthCard, MobileForm, OtpForm } from "@/app/_components/auth";
-import Image from "next/image";
-
+import logo from "../../../../public/images/frontforest-logo.svg";
+import { Trees } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -63,13 +62,19 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-1 mb-4 group">
-          <Image
-    src={logo}
-    alt="Logo"
-    
-  />
-          </Link>
+        <Link href="/" className="flex items-center justify-center gap-2 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                <Trees className="w-6 h-6 text-white" />
+              </div>
+              <div className="hidden sm:flex items-center">
+                <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
+               فرانت
+                </span>
+                <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
+                 فارست
+                </span>
+              </div>
+            </Link>
         </div>
 
         {/* Auth Card */}

@@ -11,6 +11,9 @@ const cookieBase = {
   secure: process.env.NODE_ENV === "production",
 };
 
+// ========================
+// Send OTP
+// ========================
 export async function sendOtpAction(prevState: any, formData: FormData) {
   const mobile = formData.get("mobile") as string;
 
@@ -49,6 +52,9 @@ export async function sendOtpAction(prevState: any, formData: FormData) {
   }
 }
 
+// ========================
+// Verify OTP
+// ========================
 export async function verifyOtpAction(prevState: any, formData: FormData) {
   const mobile = formData.get("mobile") as string;
   const code = formData.get("code") as string;
@@ -95,6 +101,73 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
     });
 
     return { isSuccess: true, error: "", isNewUser: data.is_new_user };
+  } catch {
+    return { isSuccess: false, error: "خطا در برقراری ارتباط با سرور" };
+  }
+}
+
+// ========================
+// Logout
+// ========================
+export async function logoutAction() {
+  const c = await cookies();
+  const accessToken = c.get("access_token")?.value;
+  const refreshToken = c.get("refresh_token")?.value;
+
+  try {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+  } catch {
+    // Ignore
+  }
+
+  c.delete("access_token");
+  c.delete("refresh_token");
+
+  return { isSuccess: true };
+}
+
+// ========================
+// Update Profile
+// ========================
+export async function updateProfileAction(prevState: any, formData: FormData) {
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+
+  const c = await cookies();
+  const accessToken = c.get("access_token")?.value;
+
+  if (!accessToken) {
+    return { isSuccess: false, error: "لطفا دوباره وارد شوید" };
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ name, email }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.status === 401) {
+      return { isSuccess: false, error: "لطفا دوباره وارد شوید" };
+    }
+
+    if (!res.ok) {
+      return { isSuccess: false, error: data.message || "خطا در ذخیره اطلاعات" };
+    }
+
+    return { isSuccess: true, error: "" };
   } catch {
     return { isSuccess: false, error: "خطا در برقراری ارتباط با سرور" };
   }
