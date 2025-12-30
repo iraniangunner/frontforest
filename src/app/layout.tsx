@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 
@@ -55,6 +56,15 @@ export default function RootLayout({
         className={`${yekanbakh.variable} antialiased`}
       >
         {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              fontFamily: "Vazirmatn, sans-serif",
+            },
+          }}
+        />
       </body>
     </html>
   );
