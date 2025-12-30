@@ -116,15 +116,19 @@ export default function CategoriesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-
+  
     try {
       const data = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== "" && value !== null) {
-          data.append(key, typeof value === "boolean" ? (value ? "1" : "0") : String(value));
-        }
-      });
-
+  
+      data.append("name", formData.name);
+      data.append("name_en", formData.name_en || "");
+      data.append("slug", formData.slug);
+      data.append("icon", formData.icon || "");
+      data.append("color", formData.color);
+      data.append("parent_id", formData.parent_id || "");
+      data.append("description", formData.description || "");
+      data.append("is_active", formData.is_active ? "1" : "0");
+  
       if (editingCategory) {
         data.append("_method", "PUT");
         await categoriesAPI.update(editingCategory.id, data);
@@ -133,6 +137,7 @@ export default function CategoriesPage() {
         await categoriesAPI.create(data);
         toast.success("دسته‌بندی ایجاد شد");
       }
+  
       closeModal();
       loadCategories();
     } catch (error: any) {
@@ -141,6 +146,7 @@ export default function CategoriesPage() {
       setSaving(false);
     }
   };
+  
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("آیا مطمئن هستید؟")) return;

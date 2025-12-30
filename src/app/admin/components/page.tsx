@@ -70,7 +70,8 @@ export default function ComponentsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingComponent, setEditingComponent] = useState<ComponentItem | null>(null);
+  const [editingComponent, setEditingComponent] =
+    useState<ComponentItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
 
@@ -172,19 +173,24 @@ export default function ComponentsPage() {
 
     try {
       const data = new FormData();
+
       data.append("category_id", formData.category_id);
       data.append("title", formData.title);
       data.append("slug", formData.slug);
       data.append("short_description", formData.short_description);
       data.append("description", formData.description);
-      data.append("price", formData.price.toString());
-      if (formData.sale_price) data.append("sale_price", formData.sale_price);
-      if (formData.preview_url) data.append("preview_url", formData.preview_url);
-      if (formData.demo_url) data.append("demo_url", formData.demo_url);
+
+      data.append("price", String(formData.is_free ? 0 : formData.price || 0));
+      data.append("sale_price", formData.sale_price);
+      data.append("preview_url", formData.preview_url);
+      data.append("demo_url", formData.demo_url);
+
       formData.tags.forEach((tag) => data.append("tags[]", tag.toString()));
+
       data.append("is_free", formData.is_free ? "1" : "0");
       data.append("is_featured", formData.is_featured ? "1" : "0");
       data.append("is_active", formData.is_active ? "1" : "0");
+
       if (formData.thumbnail) data.append("thumbnail", formData.thumbnail);
       if (formData.file) data.append("file", formData.file);
 
@@ -195,6 +201,7 @@ export default function ComponentsPage() {
         await componentsAPI.create(data);
         toast.success("کامپوننت ایجاد شد");
       }
+
       closeModal();
       loadData();
     } catch (error: any) {
@@ -278,7 +285,9 @@ export default function ComponentsPage() {
           {row.is_free ? (
             <Badge variant="success">رایگان</Badge>
           ) : (
-            <span className="font-medium">{formatPrice(row.current_price)}</span>
+            <span className="font-medium">
+              {formatPrice(row.current_price)}
+            </span>
           )}
         </div>
       ),
