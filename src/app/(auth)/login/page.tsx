@@ -9,6 +9,7 @@ import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth";
 import { AuthCard, MobileForm, OtpForm } from "@/app/_components/auth";
 import logo from "../../../../public/images/frontforest-logo.svg";
 import { Trees } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,8 @@ export default function LoginPage() {
   const [mobile, setMobile] = useState("");
   const [code, setCode] = useState("");
   const [countdown, setCountdown] = useState(0);
+
+  // const { setUser } = useAuth();
 
   const [sendState, sendAction] = useFormState(sendOtpAction, {
     isSuccess: false,
@@ -37,9 +40,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (verifyState.isSuccess) {
-      router.push(verifyState.isNewUser ? "/complete-profile" : "/dashboard");
+      // const target = verifyState.isNewUser ? "/complete-profile" : "/dashboard";
+      router.push("/profile");
+      router.refresh(); // 🔥 Header + Layout دوباره render میشه
     }
   }, [verifyState, router]);
+  
 
   useEffect(() => {
     if (countdown > 0) {

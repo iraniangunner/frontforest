@@ -107,9 +107,9 @@ api.interceptors.response.use(
       processQueue(err, null);
       isRefreshing = false;
 
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
+      // if (typeof window !== "undefined") {
+      //   window.location.href = "/login";
+      // }
 
       return Promise.reject(err);
     }

@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Header from "./_components/layout/Header";
+import { AuthProvider } from "@/context/AuthContext";
 
 
 const yekanbakh = localFont({
@@ -57,20 +58,20 @@ export default function RootLayout({
       <body
         className={`${yekanbakh.variable} antialiased`}
       >
-        <CartProvider>
-        <Header />
-        {children}
+         {/* <AuthProvider> */}
+          <CartProvider>
+            <Header />
+            {children}
 
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              fontFamily: "Vazirmatn, sans-serif",
-            },
-          }}
-        />
-      </CartProvider>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: { fontFamily: "Vazirmatn, sans-serif" },
+              }}
+            />
+          </CartProvider>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );
