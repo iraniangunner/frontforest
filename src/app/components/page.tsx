@@ -2,12 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  HiViewGrid,
-  HiViewList,
-  HiFilter,
-  HiX,
-} from "react-icons/hi";
+import { HiViewGrid, HiViewList, HiFilter, HiX } from "react-icons/hi";
 import ComponentCard from "../_components/ui/ComponentCard";
 import FilterSidebar from "../_components/ui/FilterSidebar";
 import SearchBar from "../_components/ui/SearchBar";
@@ -18,7 +13,13 @@ import {
   publicCategoriesAPI,
   publicTagsAPI,
 } from "../../lib/api";
-import { Component, Category, Tag, FilterParams, PaginationMeta } from "@/types";
+import {
+  Component,
+  Category,
+  Tag,
+  FilterParams,
+  PaginationMeta,
+} from "@/types";
 
 const SORT_OPTIONS = [
   { value: "best-selling", label: "پرفروش‌ترین" },
@@ -101,28 +102,39 @@ export default function ComponentsPage() {
   const [filters, setFilters] = useState<FilterParams>(getFiltersFromUrl());
 
   // Update URL when filters change
-  const updateUrl = useCallback((newFilters: FilterParams) => {
-    const params = new URLSearchParams();
+  const updateUrl = useCallback(
+    (newFilters: FilterParams) => {
+      const params = new URLSearchParams();
 
-    newFilters.categories?.forEach((c) => params.append("categories[]", c));
-    newFilters.frameworks?.forEach((f) => params.append("frameworks[]", f));
-    newFilters.stylings?.forEach((s) => params.append("stylings[]", s));
-    newFilters.features?.forEach((f) => params.append("features[]", f));
+      newFilters.categories?.forEach((c) => params.append("categories[]", c));
+      newFilters.frameworks?.forEach((f) => params.append("frameworks[]", f));
+      newFilters.stylings?.forEach((s) => params.append("stylings[]", s));
+      newFilters.features?.forEach((f) => params.append("features[]", f));
 
-    if (newFilters.free) params.set("free", "1");
-    if (newFilters.featured) params.set("featured", "1");
-    if (newFilters.on_sale) params.set("on_sale", "1");
-    if (newFilters.min_price) params.set("min_price", String(newFilters.min_price));
-    if (newFilters.max_price) params.set("max_price", String(newFilters.max_price));
-    if (newFilters.min_rating) params.set("min_rating", String(newFilters.min_rating));
-    if (newFilters.q) params.set("q", newFilters.q);
-    if (newFilters.sort && newFilters.sort !== "best-selling") params.set("sort", newFilters.sort);
-    if (newFilters.page && newFilters.page > 1) params.set("page", String(newFilters.page));
-    if (newFilters.per_page && newFilters.per_page !== 12) params.set("per_page", String(newFilters.per_page));
+      if (newFilters.free) params.set("free", "1");
+      if (newFilters.featured) params.set("featured", "1");
+      if (newFilters.on_sale) params.set("on_sale", "1");
+      if (newFilters.min_price)
+        params.set("min_price", String(newFilters.min_price));
+      if (newFilters.max_price)
+        params.set("max_price", String(newFilters.max_price));
+      if (newFilters.min_rating)
+        params.set("min_rating", String(newFilters.min_rating));
+      if (newFilters.q) params.set("q", newFilters.q);
+      if (newFilters.sort && newFilters.sort !== "best-selling")
+        params.set("sort", newFilters.sort);
+      if (newFilters.page && newFilters.page > 1)
+        params.set("page", String(newFilters.page));
+      if (newFilters.per_page && newFilters.per_page !== 12)
+        params.set("per_page", String(newFilters.per_page));
 
-    const queryString = params.toString();
-    router.push(queryString ? `/components?${queryString}` : "/components", { scroll: false });
-  }, [router]);
+      const queryString = params.toString();
+      router.push(queryString ? `/components?${queryString}` : "/components", {
+        scroll: false,
+      });
+    },
+    [router]
+  );
 
   // Load initial data
   useEffect(() => {
@@ -158,8 +170,10 @@ export default function ComponentsPage() {
     try {
       const params: Record<string, unknown> = {};
 
-      if (filters.categories?.length) params["categories[]"] = filters.categories;
-      if (filters.frameworks?.length) params["frameworks[]"] = filters.frameworks;
+      if (filters.categories?.length)
+        params["categories[]"] = filters.categories;
+      if (filters.frameworks?.length)
+        params["frameworks[]"] = filters.frameworks;
       if (filters.stylings?.length) params["stylings[]"] = filters.stylings;
       if (filters.features?.length) params["features[]"] = filters.features;
       if (filters.free) params.free = 1;
@@ -236,16 +250,6 @@ export default function ComponentsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold text-gray-900">کامپوننت‌ها</h1>
-          <p className="text-gray-500 mt-1">
-            بیش از {meta.total} کامپوننت آماده استفاده
-          </p>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex gap-6">
           {/* Desktop Sidebar */}
@@ -265,10 +269,7 @@ export default function ComponentsPage() {
             {/* Search & Toolbar */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
               {/* Search Bar */}
-              <SearchBar
-                value={filters.q || ""}
-                onChange={handleSearch}
-              />
+              <SearchBar value={filters.q || ""} onChange={handleSearch} />
 
               {/* Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
@@ -304,7 +305,9 @@ export default function ComponentsPage() {
                   {/* Per Page */}
                   <select
                     value={filters.per_page || 12}
-                    onChange={(e) => handlePerPageChange(parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handlePerPageChange(parseInt(e.target.value))
+                    }
                     className="px-3 py-2 bg-gray-100 border-0 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-blue-500"
                   >
                     {PER_PAGE_OPTIONS.map((num) => (

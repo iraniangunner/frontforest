@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import { CartProvider } from "@/context/CartContext";
+import Header from "./_components/layout/Header";
 
 
 const yekanbakh = localFont({
@@ -55,7 +57,10 @@ export default function RootLayout({
       <body
         className={`${yekanbakh.variable} antialiased`}
       >
+        <CartProvider>
+        <Header />
         {children}
+
         <Toaster
           position="top-center"
           toastOptions={{
@@ -65,6 +70,7 @@ export default function RootLayout({
             },
           }}
         />
+      </CartProvider>
       </body>
     </html>
   );

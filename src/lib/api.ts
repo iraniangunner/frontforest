@@ -287,9 +287,77 @@ export const publicTagsAPI = {
 
 
 
+export const cartAPI = {
+  get: () =>
+    api.get("/cart", { requiresAuth: true }),
+
+  count: () =>
+    api.get("/cart/count", { requiresAuth: true }),
+
+  add: (componentId: number) =>
+    api.post(`/cart/${componentId}`, {}, { requiresAuth: true }),
+
+  remove: (componentId: number) =>
+    api.delete(`/cart/${componentId}`, { requiresAuth: true }),
+
+  clear: () =>
+    api.delete("/cart", { requiresAuth: true }),
+};
+
+
+
+export const authAPI = {
+  sendOtp: (mobile: string) =>
+    api.post("/auth/send-otp", { mobile }),
+
+  verifyOtp: (mobile: string, otp: string) =>
+    api.post("/auth/verify-otp", { mobile, otp }),
+
+  me: () =>
+    api.get("/auth/me", { requiresAuth: true }),
+
+  logout: () =>
+    api.post("/auth/logout", {}, { requiresAuth: true }),
+};
+
+
+// Checkout API
+export const checkoutAPI = {
+  checkout: () =>
+    api.post("/checkout", {}, { requiresAuth: true }),
+
+  verify: (authority: string, status: string) =>
+    api.get("/payment/verify", { params: { Authority: authority, Status: status } }),
+};
+
+// Orders API
+export const ordersAPI = {
+  getAll: (params?: Record<string, unknown>) =>
+    api.get("/orders", { params, requiresAuth: true }),
+
+  getOne: (id: number) =>
+    api.get(`/orders/${id}`, { requiresAuth: true }),
+
+  getPurchases: (params?: Record<string, unknown>) =>
+    api.get("/purchases", { params, requiresAuth: true }),
+};
 
 
 
 
+// Favorites API
+export const favoritesAPI = {
+  getAll: (params?: Record<string, unknown>) =>
+    api.get("/favorites", { params, requiresAuth: true }),
+
+  add: (componentId: number) =>
+    api.post(`/favorites/${componentId}`, {}, { requiresAuth: true }),
+
+  remove: (componentId: number) =>
+    api.delete(`/favorites/${componentId}`, { requiresAuth: true }),
+
+  toggle: (componentId: number) =>
+    api.post(`/favorites/${componentId}/toggle`, {}, { requiresAuth: true }),
+};
 
 
