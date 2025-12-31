@@ -21,15 +21,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshCart = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setCartCount(0);
-      return;
-    }
-
     try {
       const response = await cartAPI.count();
-      setCartCount(response.data.count);
+      setCartCount(response.data.count ?? 0);
     } catch (error) {
       setCartCount(0);
     }

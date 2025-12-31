@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { HiShoppingCart, HiTrash, HiArrowLeft } from "react-icons/hi";
 import { cartAPI, checkoutAPI } from "@/lib/api";
 import toast from "react-hot-toast";
+import { useCart } from "@/context/CartContext";
 
 interface CartItem {
   id: number;
@@ -28,6 +29,8 @@ interface CartSummary {
 
 export default function CartPage() {
   const router = useRouter();
+  const { refreshCart, clearCart } = useCart();
+
   const [items, setItems] = useState<CartItem[]>([]);
   const [summary, setSummary] = useState<CartSummary>({
     count: 0,
@@ -48,6 +51,7 @@ export default function CartPage() {
       const response = await cartAPI.get();
       setItems(response.data.data);
       setSummary(response.data.summary);
+      refreshCart(); // Header آپدیت میشه
     } catch (error) {
       toast.error("خطا در دریافت سبد خرید");
     } finally {
@@ -60,7 +64,7 @@ export default function CartPage() {
       await cartAPI.remove(componentId);
       setItems((prev) => prev.filter((i) => i.id !== componentId));
       toast.success("از سبد خرید حذف شد");
-      loadCart(); // Reload to update summary
+      loadCart(); // آپدیت summary و Header
     } catch (error) {
       toast.error("خطا در حذف");
     }
@@ -73,6 +77,7 @@ export default function CartPage() {
       await cartAPI.clear();
       setItems([]);
       setSummary({ count: 0, subtotal: 0, discount: 0, total: 0 });
+      clearCart(); // Header آپدیت میشه
       toast.success("سبد خرید خالی شد");
     } catch (error) {
       toast.error("خطا در خالی کردن سبد");
@@ -85,7 +90,6 @@ export default function CartPage() {
       const response = await checkoutAPI.checkout();
       
       if (response.data.success && response.data.data.payment_url) {
-        // Redirect to payment gateway
         window.location.href = response.data.data.payment_url;
       } else {
         toast.error("خطا در ایجاد سفارش");
@@ -97,14 +101,11 @@ export default function CartPage() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString() + " تومان";
-  };
+  const formatPrice = (price: number) => price.toLocaleString() + " تومان";
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">سبد خرید</h1>
           {items.length > 0 && (
@@ -139,22 +140,13 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Items List */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-xl shadow-sm p-4 flex gap-4"
-                >
+                <div key={item.id} className="bg-white rounded-xl shadow-sm p-4 flex gap-4">
                   <Link href={`/components/${item.slug}`}>
                     <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
                       {item.thumbnail ? (
-                        <Image
-                          src={item.thumbnail}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={item.thumbnail} alt={item.title} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                           <span className="text-gray-400 text-xs">بدون تصویر</span>
@@ -169,19 +161,13 @@ export default function CartPage() {
                         {item.title}
                       </h3>
                     </Link>
-                    <p className="text-sm text-gray-500 mb-2">
-                      {item.category?.name}
-                    </p>
+                    <p className="text-sm text-gray-500 mb-2">{item.category?.name}</p>
 
                     <div className="flex items-center gap-2">
                       {item.sale_price && (
-                        <span className="text-sm text-gray-400 line-through">
-                          {formatPrice(item.price)}
-                        </span>
+                        <span className="text-sm text-gray-400 line-through">{formatPrice(item.price)}</span>
                       )}
-                      <span className="font-bold text-gray-900">
-                        {formatPrice(item.current_price)}
-                      </span>
+                      <span className="font-bold text-gray-900">{formatPrice(item.current_price)}</span>
                     </div>
                   </div>
 
@@ -195,7 +181,6 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
                 <h3 className="font-semibold text-gray-900 mb-4">خلاصه سفارش</h3>
