@@ -25,6 +25,7 @@ export interface Category {
     slug: string;
     has_file:boolean;
     can_download:boolean;
+    images:any;
     file_size_formatted:string;
     short_description: string | null;
     category: {
