@@ -165,7 +165,7 @@ export default function ComponentDetailPage() {
               <ComponentInfo component={component} />
               <ActionButtons
                 component={component}
-                initialIsFavorite={component.is_favorited || false}
+                // initialIsFavorite={component.is_favorited || false}
               />
             </div>
 

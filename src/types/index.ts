@@ -23,6 +23,9 @@ export interface Category {
     id: number;
     title: string;
     slug: string;
+    has_file:boolean;
+    can_download:boolean;
+    file_size_formatted:string;
     short_description: string | null;
     category: {
       id: number;
@@ -35,6 +38,7 @@ export interface Category {
     sale_price: number | null;
     current_price: number;
     discount_percent: number;
+    description:string;
     is_free: boolean;
     is_on_sale: boolean;
     thumbnail: string | null;

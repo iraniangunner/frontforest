@@ -20,7 +20,7 @@ export function ImageGallery({ component }: ImageGalleryProps) {
   const getAllImages = () => {
     const images: string[] = [];
     if (component.thumbnail) images.push(component.thumbnail);
-    if (component.images) images.push(...component.images);
+    // if (component.images) images.push(...component.images);
     return images;
   };
 
