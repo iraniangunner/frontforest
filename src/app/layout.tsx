@@ -58,7 +58,7 @@ export default function RootLayout({
       <body
         className={`${yekanbakh.variable} antialiased`}
       >
-         {/* <AuthProvider> */}
+         <AuthProvider>
           <CartProvider>
             <Header />
             {children}
@@ -71,7 +71,7 @@ export default function RootLayout({
               }}
             />
           </CartProvider>
-        {/* </AuthProvider> */}
+        </AuthProvider>
       </body>
     </html>
   );

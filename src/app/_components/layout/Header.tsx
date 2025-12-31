@@ -14,33 +14,20 @@ import {
   HiDownload,
 } from "react-icons/hi";
 import { useCart } from "@/context/CartContext";
-import { authAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import { logoutAction } from "@/app/_actions/auth";
 import { useAuth } from "@/context/AuthContext";
-
-interface User {
-  id: number;
-  name: string;
-  mobile: string;
-}
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { cartCount, refreshCart, clearCart } = useCart();
 
-  const [user, setUser] = useState<User | null>(null);
-  // const { user, setUser } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, setUser, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
 
   useEffect(() => {
     if (user) {
@@ -65,32 +52,8 @@ export default function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const checkAuth = async () => {
-    try {
-      // This uses axios with refresh token interceptor
-      const response = await authAPI.me();
-
-      // Check structure
-      if (response.data.data) {
-        setUser(response.data.data);
-      } else if (response.data.user) {
-        setUser(response.data.user);
-      } else {
-        setUser(response.data);
-      }
-    } catch (error: any) {
-      // If 401 and refresh failed, user will be redirected to login by interceptor
-      // Otherwise just set user to null
-      console.error("Auth check error:", error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     try {
-      // This uses axios with token
       await logoutAction();
       setUser(null);
       setUserMenuOpen(false);

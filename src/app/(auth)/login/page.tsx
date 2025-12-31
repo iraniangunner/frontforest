@@ -20,6 +20,8 @@ export default function LoginPage() {
 
   // const { setUser } = useAuth();
 
+  const { refreshUser } = useAuth();
+
   const [sendState, sendAction] = useFormState(sendOtpAction, {
     isSuccess: false,
     error: "",
@@ -38,14 +40,20 @@ export default function LoginPage() {
     }
   }, [sendState]);
 
+  // useEffect(() => {
+  //   if (verifyState.isSuccess) {
+  //     // const target = verifyState.isNewUser ? "/complete-profile" : "/dashboard";
+  //     router.push("/profile");
+  //     router.refresh(); // 🔥 Header + Layout دوباره render میشه
+  //   }
+  // }, [verifyState, router]);
   useEffect(() => {
     if (verifyState.isSuccess) {
-      // const target = verifyState.isNewUser ? "/complete-profile" : "/dashboard";
-      router.push("/profile");
-      router.refresh(); // 🔥 Header + Layout دوباره render میشه
+      refreshUser().then(() => {
+        router.push("/profile");
+      });
     }
-  }, [verifyState, router]);
-  
+  }, [verifyState, router, refreshUser]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -68,19 +76,22 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-        <Link href="/" className="flex items-center justify-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                <Trees className="w-6 h-6 text-white" />
-              </div>
-              <div className="hidden sm:flex items-center">
-                <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-               فرانت
-                </span>
-                <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
-                 فارست
-                </span>
-              </div>
-            </Link>
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-2 group"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+              <Trees className="w-6 h-6 text-white" />
+            </div>
+            <div className="hidden sm:flex items-center">
+              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
+                فرانت
+              </span>
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
+                فارست
+              </span>
+            </div>
+          </Link>
         </div>
 
         {/* Auth Card */}
