@@ -1,24 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useFormState } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth";
 import { AuthCard, MobileForm, OtpForm } from "@/app/_components/auth";
-import logo from "../../../../public/images/frontforest-logo.svg";
 import { Trees } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // ✅ Get redirect URL from query params (default to /profile)
+  const redirectUrl = searchParams.get("redirect") || "/profile";
+
   const [step, setStep] = useState<"mobile" | "otp">("mobile");
   const [mobile, setMobile] = useState("");
   const [code, setCode] = useState("");
   const [countdown, setCountdown] = useState(0);
-
-  // const { setUser } = useAuth();
 
   const { refreshUser } = useAuth();
 
@@ -40,21 +41,14 @@ export default function LoginPage() {
     }
   }, [sendState]);
 
-  // useEffect(() => {
-  //   if (verifyState.isSuccess) {
-  //     // const target = verifyState.isNewUser ? "/complete-profile" : "/dashboard";
-  //     router.push("/profile");
-  //     router.refresh(); // 🔥 Header + Layout دوباره render میشه
-  //   }
-  // }, [verifyState, router]);
-  
   useEffect(() => {
     if (verifyState.isSuccess) {
       refreshUser().then(() => {
-        router.push("/profile");
+        // ✅ Redirect to the URL from query params
+        router.push(redirectUrl);
       });
     }
-  }, [verifyState, router, refreshUser]);
+  }, [verifyState, router, refreshUser, redirectUrl]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -119,5 +113,20 @@ export default function LoginPage() {
         </AuthCard>
       </div>
     </div>
+  );
+}
+
+// ✅ Wrap with Suspense for useSearchParams
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
