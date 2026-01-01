@@ -7,6 +7,7 @@ interface User {
   id: number;
   name: string;
   mobile: string;
+  is_admin:boolean;
 }
 
 interface AuthContextType {
