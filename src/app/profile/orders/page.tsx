@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { HiShoppingBag, HiArrowRight, HiCheck, HiX, HiClock } from "react-icons/hi";
+import { HiShoppingBag, HiArrowRight, HiCheck, HiX, HiClock, HiBan } from "react-icons/hi";
 import { ordersAPI } from "@/lib/api";
 import Pagination from "@/app/_components/ui/Pagination";
 import toast from "react-hot-toast";
@@ -54,27 +54,39 @@ export default function OrdersPage() {
     return price.toLocaleString() + " تومان";
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "paid":
-        return <HiCheck className="w-5 h-5 text-green-500" />;
-      case "failed":
-        return <HiX className="w-5 h-5 text-red-500" />;
-      default:
-        return <HiClock className="w-5 h-5 text-yellow-500" />;
-    }
-  };
+ const getStatusIcon = (status: string) => {
+  switch (status) {
+    case "paid":
+    case "success":
+      return <HiCheck className="w-5 h-5 text-green-500" />;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-700";
-      case "failed":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-yellow-100 text-yellow-700";
-    }
-  };
+    case "failed":
+      return <HiX className="w-5 h-5 text-red-500" />;
+
+    case "cancelled":
+      return <HiBan className="w-5 h-5 text-gray-500" />;
+
+    default:
+      return <HiClock className="w-5 h-5 text-yellow-500" />;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "paid":
+    case "success":
+      return "bg-green-100 text-green-700";
+
+    case "failed":
+      return "bg-red-100 text-red-700";
+
+    case "cancelled":
+      return "bg-gray-100 text-gray-700";
+
+    default:
+      return "bg-yellow-100 text-yellow-700";
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">

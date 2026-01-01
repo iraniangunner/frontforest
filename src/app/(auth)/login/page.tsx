@@ -47,6 +47,7 @@ export default function LoginPage() {
   //     router.refresh(); // 🔥 Header + Layout دوباره render میشه
   //   }
   // }, [verifyState, router]);
+  
   useEffect(() => {
     if (verifyState.isSuccess) {
       refreshUser().then(() => {

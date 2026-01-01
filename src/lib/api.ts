@@ -321,29 +321,61 @@ export const authAPI = {
 };
 
 
-// Checkout API
-export const checkoutAPI = {
-  checkout: () =>
-    api.post("/checkout", {}, { requiresAuth: true }),
+// // Checkout API
+// export const checkoutAPI = {
+//   checkout: () =>
+//     api.post("/checkout", {}, { requiresAuth: true }),
 
+//   verify: (authority: string, status: string) =>
+//     api.get("/payment/verify", { params: { Authority: authority, Status: status } }),
+// };
+
+// // Orders API
+// export const ordersAPI = {
+//   getAll: (params?: Record<string, unknown>) =>
+//     api.get("/orders", { params, requiresAuth: true }),
+
+//   getOne: (id: number) =>
+//     api.get(`/orders/${id}`, { requiresAuth: true }),
+
+//   getPurchases: (params?: Record<string, unknown>) =>
+//     api.get("/purchases", { params, requiresAuth: true }),
+// };
+
+export const checkoutAPI = {
+  // Create order from cart
+  checkout: (data?: { coupon_code?: string }) =>
+    api.post("/checkout", data || {}, { requiresAuth: true } as any),
+
+  // Verify payment callback
   verify: (authority: string, status: string) =>
-    api.get("/payment/verify", { params: { Authority: authority, Status: status } }),
+    api.get("/payment/verify", {
+      params: { Authority: authority, Status: status },
+    }),
 };
 
 // Orders API
 export const ordersAPI = {
+  // Get all orders
   getAll: (params?: Record<string, unknown>) =>
-    api.get("/orders", { params, requiresAuth: true }),
+    api.get("/orders", { params, requiresAuth: true } as any),
 
-  getOne: (id: number) =>
-    api.get(`/orders/${id}`, { requiresAuth: true }),
+  // Get single order
+  getOne: (id: number | string) =>
+    api.get(`/orders/${id}`, { requiresAuth: true } as any),
 
+  // Pay for pending order
+  pay: (id: number | string) =>
+    api.post(`/orders/${id}/pay`, {}, { requiresAuth: true } as any),
+
+  // Cancel pending order
+  cancel: (id: number | string) =>
+    api.post(`/orders/${id}/cancel`, {}, { requiresAuth: true } as any),
+
+  // Get purchases
   getPurchases: (params?: Record<string, unknown>) =>
-    api.get("/purchases", { params, requiresAuth: true }),
+    api.get("/purchases", { params, requiresAuth: true } as any),
 };
-
-
-
 
 // Favorites API
 export const favoritesAPI = {

@@ -19,7 +19,6 @@ import {
 import { ordersAPI, publicComponentsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
-// ✅ Fixed interface to match API response
 interface OrderItem {
   id: number;
   component_id: string;
@@ -93,6 +92,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadingItem, setDownloadingItem] = useState<number | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (orderId) {
@@ -103,8 +103,7 @@ export default function OrderDetailPage() {
   const loadOrder = async () => {
     setLoading(true);
     try {
-      const response = await ordersAPI.getOne(orderId as any);
-      console.log("Order data:", response.data.data); // Debug
+      const response = await ordersAPI.getOne(orderId);
       setOrder(response.data.data);
     } catch (error: any) {
       console.error("Error loading order:", error);
@@ -126,6 +125,11 @@ export default function OrderDetailPage() {
   };
 
   const handleDownload = async (item: OrderItem) => {
+    if (!item.component_slug) {
+      toast.error("اطلاعات کامپوننت موجود نیست");
+      return;
+    }
+
     setDownloadingItem(item.id);
     try {
       const response = await publicComponentsAPI.download(item.component_slug);
@@ -148,6 +152,29 @@ export default function OrderDetailPage() {
       }
     } finally {
       setDownloadingItem(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!order) return;
+
+    const confirmed = window.confirm("آیا از لغو این سفارش اطمینان دارید؟");
+    if (!confirmed) return;
+
+    setCancelling(true);
+    try {
+      await ordersAPI.cancel(order.id);
+      toast.success("سفارش با موفقیت لغو شد");
+      loadOrder(); // Reload to show updated status
+    } catch (error: any) {
+      console.error("Cancel error:", error);
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.message || "این سفارش قابل لغو نیست");
+      } else {
+        toast.error("خطا در لغو سفارش");
+      }
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -180,10 +207,7 @@ export default function OrderDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">سفارش یافت نشد</h1>
-          <Link
-            href="/profile/orders"
-            className="text-blue-600 hover:text-blue-700"
-          >
+          <Link href="/profile/orders" className="text-blue-600 hover:text-blue-700">
             بازگشت به لیست سفارشات
           </Link>
         </div>
@@ -226,14 +250,29 @@ export default function OrderDetailPage() {
               </p>
             </div>
 
+            {/* Action Buttons for Pending Orders */}
             {order.status === "pending" && (
-              <Link
-                href={`/checkout/pay/${order.id}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-              >
-                <HiCreditCard className="w-5 h-5" />
-                پرداخت سفارش
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/payment/pay/${order.id}`}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                >
+                  <HiCreditCard className="w-5 h-5" />
+                  پرداخت سفارش
+                </Link>
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors disabled:opacity-50"
+                >
+                  {cancelling ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+                  ) : (
+                    <HiXCircle className="w-5 h-5" />
+                  )}
+                  <span className="hidden sm:inline">لغو</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -242,7 +281,7 @@ export default function OrderDetailPage() {
           {/* Order Items */}
           <div className="lg:col-span-2 space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              آیتم‌های سفارش ({order.items_count})
+              آیتم‌های سفارش ({order.items_count || order.items?.length || 0})
             </h2>
 
             {order.items && order.items.length > 0 ? (
@@ -277,13 +316,11 @@ export default function OrderDetailPage() {
                     </Link>
 
                     <div className="flex items-center gap-2 mt-1">
-                      {/* Show original price if there's a sale */}
                       {item.sale_price && item.sale_price < item.price && (
                         <span className="text-sm text-gray-400 line-through">
                           {formatPrice(item.price)}
                         </span>
                       )}
-                      {/* ✅ Fixed: Use paid_price instead of final_price */}
                       <span className="font-medium text-gray-900">
                         {formatPrice(item.paid_price)}
                       </span>
@@ -305,13 +342,15 @@ export default function OrderDetailPage() {
                           {downloadingItem === item.id ? "در حال دانلود..." : "دانلود"}
                         </button>
                       )}
-                      <Link
-                        href={`/components/${item.component_slug}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-                      >
-                        <HiExternalLink className="w-4 h-4" />
-                        مشاهده
-                      </Link>
+                      {item.component_slug && (
+                        <Link
+                          href={`/components/${item.component_slug}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                        >
+                          <HiExternalLink className="w-4 h-4" />
+                          مشاهده
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -329,13 +368,11 @@ export default function OrderDetailPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="font-semibold text-gray-900 mb-4">خلاصه سفارش</h3>
               <div className="space-y-3">
-                {/* ✅ Fixed: Use subtotal instead of total_amount */}
                 <div className="flex items-center justify-between text-gray-600">
                   <span>جمع کل</span>
                   <span>{formatPrice(order.subtotal)}</span>
                 </div>
-                {/* ✅ Fixed: Use discount instead of discount_amount */}
-                {order.discount > 0 && (
+                {(order.discount || 0) > 0 && (
                   <div className="flex items-center justify-between text-green-600">
                     <span>تخفیف</span>
                     <span>-{formatPrice(order.discount)}</span>
@@ -344,7 +381,6 @@ export default function OrderDetailPage() {
                 <div className="border-t border-gray-100 pt-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-gray-900">مبلغ قابل پرداخت</span>
-                    {/* ✅ Fixed: Use total instead of final_amount */}
                     <span className="font-bold text-lg text-gray-900">
                       {formatPrice(order.total)}
                     </span>
@@ -363,7 +399,9 @@ export default function OrderDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">شماره سفارش</p>
-                    <p className="font-medium text-gray-900">{order.order_number}</p>
+                    <p className="font-medium text-gray-900">
+                      {order.order_number}
+                    </p>
                   </div>
                 </div>
 
@@ -393,31 +431,15 @@ export default function OrderDetailPage() {
                   </div>
                 )}
 
-                {/* ✅ Fixed: Use transaction.ref_id instead of transaction_id */}
                 {order.transaction?.ref_id && (
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <HiCreditCard className="w-5 h-5 text-blue-500" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">شماره تراکنش</p>
+                      <p className="text-sm text-gray-500">کد پیگیری</p>
                       <p className="font-medium text-gray-900 font-mono text-sm">
                         {order.transaction.ref_id}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Payment Gateway */}
-                {order.transaction?.gateway && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <HiCreditCard className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">درگاه پرداخت</p>
-                      <p className="font-medium text-gray-900 capitalize">
-                        {order.transaction.gateway}
                       </p>
                     </div>
                   </div>

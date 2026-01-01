@@ -89,8 +89,8 @@ export default function CartPage() {
     try {
       const response = await checkoutAPI.checkout();
       
-      if (response.data.success && response.data.data.payment_url) {
-        window.location.href = response.data.data.payment_url;
+      if (response.data.success && response.data.payment_url) {
+        window.location.href = response.data.payment_url;
       } else {
         toast.error("خطا در ایجاد سفارش");
       }
