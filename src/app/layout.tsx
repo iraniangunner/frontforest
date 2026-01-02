@@ -5,7 +5,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Header from "./_components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
-
+import Footer from "./_components/layout/Footer";
 
 const yekanbakh = localFont({
   src: [
@@ -55,10 +55,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl">
-      <body
-        className={`${yekanbakh.variable} antialiased`}
-      >
-         <AuthProvider>
+      <body className={`${yekanbakh.variable} antialiased`}>
+        <AuthProvider>
           <CartProvider>
             <Header />
             {children}
@@ -70,6 +68,7 @@ export default function RootLayout({
                 style: { fontFamily: "Vazirmatn, sans-serif" },
               }}
             />
+            <Footer />
           </CartProvider>
         </AuthProvider>
       </body>
