@@ -15,7 +15,9 @@ export default function SearchBar({
   placeholder = "جستجو در کامپوننت‌ها...",
 }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
+  const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLocalValue(value);
@@ -36,25 +38,86 @@ export default function SearchBar({
   const handleClear = () => {
     setLocalValue("");
     onChange("");
+    inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      handleClear();
+      inputRef.current?.blur();
+    }
   };
 
   return (
-    <div className="relative">
-      <HiSearch className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-      <input
-        type="text"
-        value={localValue}
-        onChange={(e) => handleChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full pr-12 pl-10 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+    <div className="relative group">
+      {/* Glow effect on focus */}
+      <div
+        className={`absolute -inset-1 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl blur-lg transition-opacity duration-300 ${
+          isFocused ? "opacity-20" : "opacity-0"
+        }`}
       />
-      {localValue && (
-        <button
-          onClick={handleClear}
-          className="absolute left-4 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+
+      {/* Search container */}
+      <div
+        className={`relative flex items-center bg-white rounded-xl border-2 transition-all duration-300 ${
+          isFocused
+            ? "border-teal-500 shadow-lg shadow-teal-500/10"
+            : "border-gray-200 hover:border-gray-300"
+        }`}
+      >
+        {/* Search icon */}
+        <div
+          className={`flex items-center justify-center w-12 h-12 transition-colors duration-200 ${
+            isFocused ? "text-teal-500" : "text-gray-400"
+          }`}
         >
-          <HiX className="w-4 h-4" />
-        </button>
+          <HiSearch className="w-5 h-5" />
+        </div>
+
+        {/* Input */}
+        <input
+          ref={inputRef}
+          type="text"
+          value={localValue}
+          onChange={(e) => handleChange(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="flex-1 py-3.5 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+        />
+
+        {/* Clear button & keyboard hint */}
+        <div className="flex items-center gap-2 pl-3">
+          {/* Clear button */}
+          {localValue && (
+            <button
+              onClick={handleClear}
+              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              type="button"
+            >
+              <HiX className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Keyboard shortcut hint - hidden on mobile */}
+          {!localValue && (
+            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400">
+              <kbd className="px-2 py-1 bg-gray-100 rounded-md font-mono text-gray-500">
+                ESC
+              </kbd>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Searching indicator */}
+      {localValue && localValue !== value && (
+        <div className="absolute left-14 top-1/2 -translate-y-1/2">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -3,9 +3,18 @@
 import { useState } from "react";
 import {
   HiChevronDown,
-  HiChevronUp,
   HiX,
   HiCheck,
+  HiSparkles,
+  HiTag,
+  HiCurrencyDollar,
+  HiStar,
+  HiCollection,
+  HiCode,
+  HiColorSwatch,
+  HiLightningBolt,
+  HiFilter,
+  HiTrash,
 } from "react-icons/hi";
 import { Category, Tag, FilterParams } from "@/types";
 
@@ -109,28 +118,81 @@ export default function FilterSidebar({
     );
   };
 
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.categories) count += filters.categories.length;
+    if (filters.frameworks) count += filters.frameworks.length;
+    if (filters.stylings) count += filters.stylings.length;
+    if (filters.features) count += filters.features.length;
+    if (filters.free) count++;
+    if (filters.featured) count++;
+    if (filters.on_sale) count++;
+    if (filters.min_price || filters.max_price) count++;
+    if (filters.min_rating) count++;
+    return count;
+  };
+
+  const sectionIcons: Record<string, React.ElementType> = {
+    categories: HiCollection,
+    frameworks: HiCode,
+    styling: HiColorSwatch,
+    features: HiLightningBolt,
+    price: HiCurrencyDollar,
+    rating: HiStar,
+  };
+
   const SectionHeader = ({
     title,
     section,
+    count,
   }: {
     title: string;
     section: string;
-  }) => (
-    <button
-      type="button"
-      onClick={() => toggleSection(section)}
-      className="flex items-center justify-between w-full py-3 text-gray-900 font-medium"
-    >
-      {title}
-      {expandedSections.includes(section) ? (
-        <HiChevronUp className="w-5 h-5 text-gray-500" />
-      ) : (
-        <HiChevronDown className="w-5 h-5 text-gray-500" />
-      )}
-    </button>
-  );
+    count?: number;
+  }) => {
+    const Icon = sectionIcons[section];
+    const isExpanded = expandedSections.includes(section);
 
-  // ✅ FIXED: Changed from label to button with onClick
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSection(section)}
+        className="flex items-center justify-between w-full py-3.5 group"
+      >
+        <div className="flex items-center gap-2.5">
+          {Icon && (
+            <div
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                isExpanded
+                  ? "bg-gradient-to-br from-teal-500 to-emerald-500 shadow-md shadow-emerald-500/20"
+                  : "bg-gray-100 group-hover:bg-gray-200"
+              }`}
+            >
+              <Icon
+                className={`w-4 h-4 transition-colors ${
+                  isExpanded ? "text-white" : "text-gray-500"
+                }`}
+              />
+            </div>
+          )}
+          <span className="font-semibold text-gray-900">{title}</span>
+          {count !== undefined && count > 0 && (
+            <span className="px-2 py-0.5 text-xs font-bold bg-teal-100 text-teal-700 rounded-full">
+              {count}
+            </span>
+          )}
+        </div>
+        <div
+          className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
+            isExpanded ? "bg-gray-100 rotate-180" : "bg-gray-50"
+          }`}
+        >
+          <HiChevronDown className="w-4 h-4 text-gray-400" />
+        </div>
+      </button>
+    );
+  };
+
   const CheckboxItem = ({
     label,
     checked,
@@ -147,29 +209,72 @@ export default function FilterSidebar({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-3 py-1.5 cursor-pointer group w-full text-right"
+      className={`flex items-center gap-3 py-2.5 px-3 rounded-xl cursor-pointer group w-full text-right transition-all duration-200 ${
+        checked
+          ? "bg-teal-50 border border-teal-200"
+          : "hover:bg-gray-50 border border-transparent"
+      }`}
     >
       <div
-        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+        className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 flex-shrink-0 ${
           checked
-            ? "bg-blue-600 border-blue-600"
-            : "border-gray-300 group-hover:border-blue-400"
+            ? "bg-gradient-to-br from-teal-500 to-emerald-500 shadow-md shadow-emerald-500/30"
+            : "border-2 border-gray-300 group-hover:border-teal-400 group-hover:bg-teal-50"
         }`}
       >
-        {checked && <HiCheck className="w-3 h-3 text-white" />}
+        {checked && <HiCheck className="w-3.5 h-3.5 text-white" />}
       </div>
-      <span className="flex-1 text-gray-700 group-hover:text-gray-900 flex items-center">
+      <span
+        className={`flex-1 flex items-center gap-2 transition-colors ${
+          checked
+            ? "text-teal-700 font-medium"
+            : "text-gray-600 group-hover:text-gray-900"
+        }`}
+      >
         {color && (
           <span
-            className="inline-block w-2.5 h-2.5 rounded-full ml-2 flex-shrink-0"
+            className="inline-block w-3 h-3 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
             style={{ backgroundColor: color }}
           />
         )}
         {label}
       </span>
       {count !== undefined && (
-        <span className="text-sm text-gray-400 flex-shrink-0">{count}</span>
+        <span
+          className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+            checked ? "bg-teal-200/50 text-teal-700" : "bg-gray-100 text-gray-400"
+          }`}
+        >
+          {count}
+        </span>
       )}
+    </button>
+  );
+
+  const QuickFilterButton = ({
+    label,
+    icon: Icon,
+    active,
+    onClick,
+    activeColor,
+  }: {
+    label: string;
+    icon: React.ElementType;
+    active: boolean;
+    onClick: () => void;
+    activeColor: string;
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+        active
+          ? `${activeColor} shadow-md hover:shadow-lg transform hover:-translate-y-0.5`
+          : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-700"
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      {label}
     </button>
   );
 
@@ -178,107 +283,140 @@ export default function FilterSidebar({
       className={`bg-white ${
         isMobile
           ? "h-full overflow-y-auto"
-          : "rounded-xl shadow-sm border border-gray-100"
+          : "rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100"
       }`}
+      dir="rtl"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900">فیلترها</h3>
-        <div className="flex items-center gap-2">
-          {hasActiveFilters() && (
-            <button
-              type="button"
-              onClick={clearAllFilters}
-              className="text-sm text-red-600 hover:text-red-700"
-            >
-              پاک کردن همه
-            </button>
-          )}
-          {isMobile && onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1 text-gray-500 hover:text-gray-700"
-            >
-              <HiX className="w-5 h-5" />
-            </button>
-          )}
+      <div
+        className={`sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 ${
+          isMobile ? "px-5 py-4" : "px-5 py-4 rounded-t-2xl"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+              <HiFilter className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">فیلترها</h3>
+              {hasActiveFilters() && (
+                <p className="text-xs text-gray-500">
+                  {getActiveFiltersCount()} فیلتر فعال
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {hasActiveFilters() && (
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-200"
+              >
+                <HiTrash className="w-4 h-4" />
+                <span className="hidden sm:inline">پاک کردن</span>
+              </button>
+            )}
+            {isMobile && onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                <HiX className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-1">
+      <div className="p-5 space-y-2">
         {/* Quick Filters */}
-        <div className="pb-4 border-b border-gray-100">
+        <div className="pb-5 border-b border-gray-100">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            فیلتر سریع
+          </p>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
+            <QuickFilterButton
+              label="رایگان"
+              icon={HiTag}
+              active={!!filters.free}
               onClick={() => handleBooleanToggle("free")}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filters.free
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              رایگان
-            </button>
-            <button
-              type="button"
+              activeColor="bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-emerald-500/30"
+            />
+            <QuickFilterButton
+              label="تخفیف‌دار"
+              icon={HiCurrencyDollar}
+              active={!!filters.on_sale}
               onClick={() => handleBooleanToggle("on_sale")}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filters.on_sale
-                  ? "bg-red-100 text-red-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              تخفیف‌دار
-            </button>
-            <button
-              type="button"
+              activeColor="bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-rose-500/30"
+            />
+            <QuickFilterButton
+              label="ویژه"
+              icon={HiSparkles}
+              active={!!filters.featured}
               onClick={() => handleBooleanToggle("featured")}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                filters.featured
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              ویژه
-            </button>
+              activeColor="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-amber-500/30"
+            />
           </div>
         </div>
 
         {/* Categories */}
         <div className="border-b border-gray-100">
-          <SectionHeader title="دسته‌بندی" section="categories" />
-          {expandedSections.includes("categories") && (
-            <div className="pb-4 space-y-1 max-h-64 overflow-y-auto">
+          <SectionHeader
+            title="دسته‌بندی"
+            section="categories"
+            count={filters.categories?.length}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("categories")
+                ? "max-h-[500px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="pb-4 space-y-1 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
               {categories.map((category) => (
-                <div key={category.id}>
+                <div key={category.id} className="mb-3">
                   {/* Parent Category */}
-                  <p className="text-sm font-medium text-gray-500 mt-2 mb-1">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">
                     {category.name}
                   </p>
                   {/* Children */}
-                  {category.children?.map((child) => (
-                    <CheckboxItem
-                      key={child.id}
-                      label={child.name}
-                      checked={
-                        filters.categories?.includes(child.slug) || false
-                      }
-                      onClick={() => handleCategoryToggle(child.slug)}
-                      count={child.components_count}
-                    />
-                  ))}
+                  <div className="space-y-1">
+                    {category.children?.map((child) => (
+                      <CheckboxItem
+                        key={child.id}
+                        label={child.name}
+                        checked={
+                          filters.categories?.includes(child.slug) || false
+                        }
+                        onClick={() => handleCategoryToggle(child.slug)}
+                        count={child.components_count}
+                      />
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Frameworks */}
         <div className="border-b border-gray-100">
-          <SectionHeader title="فریم‌ورک" section="frameworks" />
-          {expandedSections.includes("frameworks") && (
+          <SectionHeader
+            title="فریم‌ورک"
+            section="frameworks"
+            count={filters.frameworks?.length}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("frameworks")
+                ? "max-h-[400px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
             <div className="pb-4 space-y-1">
               {tags.frameworks.map((tag) => (
                 <CheckboxItem
@@ -290,13 +428,23 @@ export default function FilterSidebar({
                 />
               ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Styling */}
         <div className="border-b border-gray-100">
-          <SectionHeader title="استایل" section="styling" />
-          {expandedSections.includes("styling") && (
+          <SectionHeader
+            title="استایل"
+            section="styling"
+            count={filters.stylings?.length}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("styling")
+                ? "max-h-[400px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
             <div className="pb-4 space-y-1">
               {tags.styling.map((tag) => (
                 <CheckboxItem
@@ -308,13 +456,23 @@ export default function FilterSidebar({
                 />
               ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Features */}
         <div className="border-b border-gray-100">
-          <SectionHeader title="ویژگی‌ها" section="features" />
-          {expandedSections.includes("features") && (
+          <SectionHeader
+            title="ویژگی‌ها"
+            section="features"
+            count={filters.features?.length}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("features")
+                ? "max-h-[400px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
             <div className="pb-4 space-y-1">
               {tags.features.map((tag) => (
                 <CheckboxItem
@@ -326,64 +484,118 @@ export default function FilterSidebar({
                 />
               ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Price Range */}
         <div className="border-b border-gray-100">
-          <SectionHeader title="محدوده قیمت" section="price" />
-          {expandedSections.includes("price") && (
+          <SectionHeader
+            title="محدوده قیمت"
+            section="price"
+            count={filters.min_price || filters.max_price ? 1 : undefined}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("price")
+                ? "max-h-[200px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
             <div className="pb-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="از"
-                  value={filters.min_price || ""}
-                  onChange={(e) =>
-                    handlePriceChange("min_price", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <span className="text-gray-400">-</span>
-                <input
-                  type="number"
-                  placeholder="تا"
-                  value={filters.max_price || ""}
-                  onChange={(e) =>
-                    handlePriceChange("max_price", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <div className="flex-1 relative">
+                  <input
+                    type="number"
+                    placeholder="از"
+                    value={filters.min_price || ""}
+                    onChange={(e) =>
+                      handlePriceChange("min_price", e.target.value)
+                    }
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200"
+                  />
+                </div>
+                <div className="w-8 h-0.5 bg-gray-300 rounded-full flex-shrink-0" />
+                <div className="flex-1 relative">
+                  <input
+                    type="number"
+                    placeholder="تا"
+                    value={filters.max_price || ""}
+                    onChange={(e) =>
+                      handlePriceChange("max_price", e.target.value)
+                    }
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200"
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-400 mt-1">قیمت به تومان</p>
+              <p className="text-xs text-gray-400 mt-2 px-1 flex items-center gap-1">
+                <HiCurrencyDollar className="w-3.5 h-3.5" />
+                قیمت به تومان
+              </p>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Rating */}
         <div>
-          <SectionHeader title="حداقل امتیاز" section="rating" />
-          {expandedSections.includes("rating") && (
-            <div className="pb-4 flex items-center gap-2">
-              {[4, 3, 2, 1].map((rating) => (
-                <button
-                  type="button"
-                  key={rating}
-                  onClick={() => handleRatingChange(rating)}
-                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                    filters.min_rating === rating
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {rating}+
-                  <span className="text-yellow-400">★</span>
-                </button>
-              ))}
+          <SectionHeader
+            title="حداقل امتیاز"
+            section="rating"
+            count={filters.min_rating ? 1 : undefined}
+          />
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-out ${
+              expandedSections.includes("rating")
+                ? "max-h-[100px] opacity-100"
+                : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="pb-4">
+              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl">
+                {[4, 3, 2, 1].map((rating) => (
+                  <button
+                    type="button"
+                    key={rating}
+                    onClick={() => handleRatingChange(rating)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-1 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                      filters.min_rating === rating
+                        ? "bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900 shadow-lg shadow-amber-500/25 transform scale-105"
+                        : "bg-white text-gray-600 hover:bg-amber-50 hover:text-amber-700 border border-gray-200"
+                    }`}
+                  >
+                    <span>{rating}+</span>
+                    <HiStar
+                      className={`w-4 h-4 ${
+                        filters.min_rating === rating
+                          ? "text-amber-900"
+                          : "text-amber-400"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
+
+      {/* Mobile Apply Button */}
+      {isMobile && (
+        <div className="sticky bottom-0 p-4 bg-white/95 backdrop-blur-sm border-t border-gray-100">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-4 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <HiCheck className="w-5 h-5" />
+            اعمال فیلترها
+            {hasActiveFilters() && (
+              <span className="px-2 py-0.5 bg-white/20 rounded-full text-sm">
+                {getActiveFiltersCount()}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

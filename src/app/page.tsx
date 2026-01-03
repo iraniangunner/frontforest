@@ -64,7 +64,7 @@ export default async function HomePage() {
     >
       <HeroSection />
 
-      <StatsSection />
+      {/* <StatsSection /> */}
 
       {categories.length > 0 && <CategoriesSection categories={categories} />}
 

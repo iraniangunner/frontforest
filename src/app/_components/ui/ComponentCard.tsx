@@ -3,14 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   HiStar,
   HiDownload,
   HiEye,
-  HiExternalLink,
+  HiArrowLeft,
   HiHeart,
-  HiOutlineHeart,
   HiShoppingCart,
   HiCheck,
   HiPlay,
@@ -41,7 +39,7 @@ export default function ComponentCard({
   const [inCart, setInCart] = useState(initialInCart);
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [loadingCart, setLoadingCart] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const formatPrice = (price: number) => {
     if (price === 0) return "رایگان";
@@ -117,162 +115,117 @@ export default function ComponentCard({
   // ==================== GRID VIEW ====================
   if (view === "grid") {
     return (
-      <div
-        className="group relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-2"
-        style={{
-          boxShadow: isHovered
-            ? "0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)"
-            : "0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03)",
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-1">
         {/* Image Container */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <Link href={`/components/${component.slug}`}>
             {component.thumbnail ? (
-              <Image
-                src={component.thumbnail}
-                alt={component.title}
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
+              <>
+                {/* Skeleton loader */}
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+                )}
+                <Image
+                  src={component.thumbnail}
+                  alt={component.title}
+                  fill
+                  className={`object-cover transition-all duration-500 group-hover:scale-105 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                />
+              </>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center">
-                  <HiEye className="w-8 h-8 text-gray-400" />
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                <div className="w-14 h-14 rounded-xl bg-gray-200 flex items-center justify-center">
+                  <HiEye className="w-7 h-7 text-gray-400" />
                 </div>
               </div>
             )}
           </Link>
 
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay" />
+          {/* Hover Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
 
-          {/* Top Row - Badges & Favorite */}
-          <div className="absolute top-0 left-0 right-0 p-4 flex items-start justify-between">
-            {/* Badges */}
-            <div className="flex flex-col gap-2">
-              {component.is_free && (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-full shadow-lg shadow-emerald-500/30">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  رایگان
-                </span>
-              )}
-              {component.is_on_sale && !component.is_free && (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg shadow-rose-500/30">
-                  {component.discount_percent}% تخفیف
-                </span>
-              )}
-              {component.is_new && (
-                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold rounded-full shadow-lg shadow-blue-500/30">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                  جدید
-                </span>
-              )}
-            </div>
+          {/* Top Row - Badges */}
+          <div className="absolute top-3 right-3 flex flex-wrap gap-1.5">
+            {component.is_free && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/25">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                رایگان
+              </span>
+            )}
+            {component.is_on_sale && !component.is_free && (
+              <span className="inline-flex items-center px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-rose-500/25">
+                {component.discount_percent}%
+              </span>
+            )}
+            {component.is_new && (
+              <span className="inline-flex items-center px-2.5 py-1 bg-blue-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-500/25">
+                جدید
+              </span>
+            )}
+          </div>
 
-            {/* Favorite Button */}
-            <button
-              onClick={handleToggleFavorite}
-              disabled={loadingFavorite}
-              className={`relative p-3 rounded-2xl backdrop-blur-xl transition-all duration-300 ${
-                isFavorite
-                  ? "bg-rose-500 text-white shadow-lg shadow-rose-500/40 scale-110"
-                  : "bg-white/80 text-gray-600 hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-500/40 hover:scale-110"
-              }`}
+          {/* Favorite Button */}
+          <button
+            onClick={handleToggleFavorite}
+            disabled={loadingFavorite}
+            className={`absolute top-3 left-3 p-2.5 rounded-xl backdrop-blur-md transition-all duration-300 ${
+              isFavorite
+                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
+                : "bg-white/80 text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-rose-500 hover:text-white"
+            }`}
+          >
+            {loadingFavorite ? (
+              <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <HiHeart className="w-5 h-5" />
+            )}
+          </button>
+
+          {/* Preview Button - Show on Hover */}
+          {component.preview_url && (
+            <a
+              href={component.preview_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="absolute bottom-3 left-3 p-2.5 bg-white/90 backdrop-blur-md text-gray-700 hover:bg-purple-500 hover:text-white rounded-xl transition-all duration-200 opacity-0 group-hover:opacity-100"
             >
-              {loadingFavorite ? (
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <HiHeart
-                  className={`w-5 h-5 transition-transform duration-300 ${
-                    isFavorite ? "scale-110" : ""
-                  }`}
-                />
-              )}
-              {isFavorite && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-400 rounded-full animate-ping" />
-              )}
-            </button>
-          </div>
-
-          {/* Bottom Row - Actions (Show on Hover) */}
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-3 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
-              {/* Add to Cart Button */}
-              {!component.is_free && (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={loadingCart}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-medium text-sm backdrop-blur-xl transition-all duration-300 ${
-                    inCart
-                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/40"
-                      : "bg-white/90 text-gray-800 hover:bg-blue-500 hover:text-white hover:shadow-lg hover:shadow-blue-500/40"
-                  }`}
-                >
-                  {loadingCart ? (
-                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : inCart ? (
-                    <>
-                      <HiCheck className="w-5 h-5" />
-                      <span>در سبد خرید</span>
-                    </>
-                  ) : (
-                    <>
-                      <HiShoppingCart className="w-5 h-5" />
-                      <span>افزودن به سبد</span>
-                    </>
-                  )}
-                </button>
-              )}
-
-              {/* Preview Button */}
-              {component.preview_url && (
-                <a
-                  href={component.preview_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-3 bg-white/90 backdrop-blur-xl text-gray-800 hover:bg-purple-500 hover:text-white rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/40"
-                >
-                  <HiPlay className="w-5 h-5" />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Category Pill */}
-          <div className="absolute bottom-4 right-4 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-            <span
-              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold text-white backdrop-blur-xl shadow-lg"
-              style={{
-                backgroundColor: component.category.color || "#6366f1",
-              }}
-            >
-              {component.category.name}
-            </span>
-          </div>
+              <HiPlay className="w-5 h-5" />
+            </a>
+          )}
         </div>
 
         {/* Content */}
-        <div className="p-5">
+        <div className="p-4">
+          {/* Category */}
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className="inline-block w-2 h-2 rounded-full"
+              style={{ backgroundColor: component.category.color || "#6366f1" }}
+            />
+            <span className="text-xs font-medium text-gray-500">
+              {component.category.name}
+            </span>
+          </div>
+
           {/* Title */}
           <Link href={`/components/${component.slug}`}>
-            <h3 className="font-bold text-gray-900 text-lg leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors duration-300">
+            <h3 className="font-bold text-gray-900 leading-snug line-clamp-1 group-hover:text-teal-600 transition-colors duration-200">
               {component.title}
             </h3>
           </Link>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {component.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag.id}
-                className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
                 style={{
-                  backgroundColor: `${tag.color}15`,
+                  backgroundColor: `${tag.color}10`,
                   color: tag.color,
                 }}
               >
@@ -280,67 +233,80 @@ export default function ComponentCard({
               </span>
             ))}
             {component.tags.length > 3 && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">
                 +{component.tags.length - 3}
               </span>
             )}
           </div>
 
-          {/* Stats Row */}
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-yellow-50">
-                <HiStar className="w-4 h-4 text-yellow-500" />
-              </div>
-              <span className="text-sm font-semibold text-gray-700">
-                {component.rating}
-              </span>
+          {/* Stats */}
+          <div className="flex items-center gap-3 mt-4 text-sm text-gray-500">
+            <div className="flex items-center gap-1">
+              <HiStar className="w-4 h-4 text-amber-400" />
+              <span className="font-medium text-gray-700">{component.rating}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50">
-                <HiEye className="w-4 h-4 text-blue-500" />
-              </div>
-              <span className="text-sm text-gray-500">
-                {component.views_count}
-              </span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <div className="flex items-center gap-1">
+              <HiDownload className="w-4 h-4 text-gray-400" />
+              <span>{component.sales_count}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50">
-                <HiDownload className="w-4 h-4 text-emerald-500" />
-              </div>
-              <span className="text-sm text-gray-500">
-                {component.sales_count}
-              </span>
+            <span className="w-1 h-1 rounded-full bg-gray-300" />
+            <div className="flex items-center gap-1">
+              <HiEye className="w-4 h-4 text-gray-400" />
+              <span>{component.views_count}</span>
             </div>
           </div>
 
-          {/* Price & CTA */}
+          {/* Price & Actions */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-            <div className="flex flex-col">
+            <div className="flex items-baseline gap-2">
+              <span
+                className={`text-lg font-bold ${
+                  component.is_free ? "text-emerald-600" : "text-gray-900"
+                }`}
+              >
+                {formatPrice(component.current_price)}
+              </span>
               {component.is_on_sale && !component.is_free && (
                 <span className="text-sm text-gray-400 line-through">
                   {formatPrice(component.price)}
                 </span>
               )}
-              <span
-                className={`text-xl font-bold ${
-                  component.is_free
-                    ? "text-emerald-600"
-                    : "text-gray-900"
-                }`}
-              >
-                {formatPrice(component.current_price)}
-              </span>
             </div>
 
-            <Link
-              href={`/components/${component.slug}`}
-              className="relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-xl overflow-hidden group/btn hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
-            >
-              <span className="relative z-10">مشاهده</span>
-              <HiExternalLink className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-            </Link>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {/* Cart Button - Always Visible */}
+              {!component.is_free && (
+                <button
+                  onClick={handleAddToCart}
+                  disabled={loadingCart}
+                  className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    inCart
+                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                      : "bg-gray-100 text-gray-600 hover:bg-teal-500 hover:text-white"
+                  }`}
+                  title={inCart ? "در سبد خرید" : "افزودن به سبد"}
+                >
+                  {loadingCart ? (
+                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : inCart ? (
+                    <HiCheck className="w-5 h-5" />
+                  ) : (
+                    <HiShoppingCart className="w-5 h-5" />
+                  )}
+                </button>
+              )}
+
+              {/* View Button */}
+              <Link
+                href={`/components/${component.slug}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gray-900 hover:bg-teal-600 text-white text-sm font-medium rounded-xl transition-all duration-200 hover:gap-2"
+              >
+                <span>مشاهده</span>
+                <HiArrowLeft className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -349,67 +315,63 @@ export default function ComponentCard({
 
   // ==================== LIST VIEW ====================
   return (
-    <div
-      className="group relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
-      style={{
-        boxShadow: isHovered
-          ? "0 25px 50px -12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)"
-          : "0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03)",
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-xl hover:shadow-gray-200/50">
       <div className="flex flex-col sm:flex-row">
         {/* Image */}
-        <div className="relative sm:w-72 h-52 sm:h-auto overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 flex-shrink-0">
+        <div className="relative sm:w-64 lg:w-72 h-48 sm:h-auto overflow-hidden bg-gray-100 flex-shrink-0">
           <Link href={`/components/${component.slug}`}>
             {component.thumbnail ? (
-              <Image
-                src={component.thumbnail}
-                alt={component.title}
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
+              <>
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+                )}
+                <Image
+                  src={component.thumbnail}
+                  alt={component.title}
+                  fill
+                  className={`object-cover transition-all duration-500 group-hover:scale-105 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                />
+              </>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 rounded-2xl bg-gray-200 flex items-center justify-center">
-                  <HiEye className="w-8 h-8 text-gray-400" />
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                <div className="w-14 h-14 rounded-xl bg-gray-200 flex items-center justify-center">
+                  <HiEye className="w-7 h-7 text-gray-400" />
                 </div>
               </div>
             )}
           </Link>
 
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
           {/* Badges */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2">
+          <div className="absolute top-3 right-3 flex flex-wrap gap-1.5">
             {component.is_free && (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-full shadow-lg shadow-emerald-500/30">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-emerald-500/25">
                 <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                 رایگان
               </span>
             )}
             {component.is_on_sale && !component.is_free && (
-              <span className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg shadow-rose-500/30">
+              <span className="inline-flex items-center px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-rose-500/25">
                 {component.discount_percent}% تخفیف
               </span>
             )}
             {component.is_new && (
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold rounded-full shadow-lg shadow-blue-500/30">
+              <span className="inline-flex items-center px-2.5 py-1 bg-blue-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-500/25">
                 جدید
               </span>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
             <button
               onClick={handleToggleFavorite}
               disabled={loadingFavorite}
-              className={`p-3 rounded-2xl backdrop-blur-xl transition-all duration-300 ${
+              className={`p-2.5 rounded-xl backdrop-blur-md transition-all duration-200 ${
                 isFavorite
-                  ? "bg-rose-500 text-white shadow-lg shadow-rose-500/40"
+                  ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
                   : "bg-white/90 text-gray-600 hover:bg-rose-500 hover:text-white"
               }`}
             >
@@ -426,44 +388,41 @@ export default function ComponentCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="p-3 bg-white/90 backdrop-blur-xl text-gray-600 hover:bg-purple-500 hover:text-white rounded-2xl transition-all duration-300"
+                className="p-2.5 bg-white/90 backdrop-blur-md text-gray-600 hover:bg-purple-500 hover:text-white rounded-xl transition-all duration-200"
               >
                 <HiPlay className="w-5 h-5" />
               </a>
             )}
           </div>
-
-          {/* Category */}
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
-            <span
-              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold text-white backdrop-blur-xl shadow-lg"
-              style={{ backgroundColor: component.category.color || "#6366f1" }}
-            >
-              {component.category.name}
-            </span>
-          </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-6 flex flex-col">
+        <div className="flex-1 p-5 flex flex-col">
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
+              {/* Category */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span
+                  className="inline-block w-2 h-2 rounded-full"
+                  style={{ backgroundColor: component.category.color || "#6366f1" }}
+                />
+                <span className="text-xs font-medium text-gray-500">
+                  {component.category.parent?.name && (
+                    <span className="text-gray-400">
+                      {component.category.parent.name} /&nbsp;
+                    </span>
+                  )}
+                  {component.category.name}
+                </span>
+              </div>
+
+              {/* Title */}
               <Link href={`/components/${component.slug}`}>
-                <h3 className="font-bold text-gray-900 text-xl leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors duration-300">
+                <h3 className="font-bold text-gray-900 text-lg leading-snug line-clamp-1 group-hover:text-teal-600 transition-colors duration-200">
                   {component.title}
                 </h3>
               </Link>
-              <p className="text-gray-500 text-sm mt-1">
-                {component.category.parent?.name && (
-                  <span className="text-gray-400">
-                    {component.category.parent.name} /{" "}
-                  </span>
-                )}
-                <span style={{ color: component.category.color }}>
-                  {component.category.name}
-                </span>
-              </p>
             </div>
 
             {/* Price */}
@@ -474,7 +433,7 @@ export default function ComponentCard({
                 </span>
               )}
               <span
-                className={`text-2xl font-bold ${
+                className={`text-xl font-bold ${
                   component.is_free ? "text-emerald-600" : "text-gray-900"
                 }`}
               >
@@ -485,19 +444,19 @@ export default function ComponentCard({
 
           {/* Description */}
           {component.short_description && (
-            <p className="text-gray-600 text-sm mt-4 line-clamp-2 leading-relaxed">
+            <p className="text-gray-500 text-sm mt-3 line-clamp-2 leading-relaxed">
               {component.short_description}
             </p>
           )}
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {component.tags.slice(0, 5).map((tag) => (
               <span
                 key={tag.id}
-                className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium"
+                className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium"
                 style={{
-                  backgroundColor: `${tag.color}12`,
+                  backgroundColor: `${tag.color}10`,
                   color: tag.color,
                 }}
               >
@@ -505,74 +464,68 @@ export default function ComponentCard({
               </span>
             ))}
             {component.tags.length > 5 && (
-              <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-500">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500">
                 +{component.tags.length - 5}
               </span>
             )}
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between mt-auto pt-5 border-t border-gray-100">
+          <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
             {/* Stats */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-yellow-50">
-                  <HiStar className="w-5 h-5 text-yellow-500" />
+                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                  <HiStar className="w-4 h-4 text-amber-500" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-400">امتیاز</span>
-                  <span className="text-sm font-bold text-gray-700">
-                    {component.rating}
-                  </span>
+                  <span className="text-sm font-bold text-gray-700">{component.rating}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50">
-                  <HiEye className="w-5 h-5 text-blue-500" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-400">بازدید</span>
-                  <span className="text-sm font-bold text-gray-700">
-                    {component.views_count}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-50">
-                  <HiDownload className="w-5 h-5 text-emerald-500" />
+                <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                  <HiDownload className="w-4 h-4 text-teal-500" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-400">فروش</span>
-                  <span className="text-sm font-bold text-gray-700">
-                    {component.sales_count}
-                  </span>
+                  <span className="text-sm font-bold text-gray-700">{component.sales_count}</span>
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <HiEye className="w-4 h-4 text-blue-500" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-400">بازدید</span>
+                  <span className="text-sm font-bold text-gray-700">{component.views_count}</span>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            {/* Actions */}
+            <div className="flex items-center gap-2">
               {!component.is_free && (
                 <button
                   onClick={handleAddToCart}
                   disabled={loadingCart}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                     inCart
-                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30"
-                      : "bg-gray-100 text-gray-700 hover:bg-blue-500 hover:text-white hover:shadow-lg hover:shadow-blue-500/30"
+                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
+                      : "bg-gray-100 text-gray-700 hover:bg-teal-500 hover:text-white"
                   }`}
                 >
                   {loadingCart ? (
-                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : inCart ? (
                     <>
-                      <HiCheck className="w-5 h-5" />
-                      <span>در سبد</span>
+                      <HiCheck className="w-4 h-4" />
+                      <span className="hidden sm:inline">در سبد</span>
                     </>
                   ) : (
                     <>
-                      <HiShoppingCart className="w-5 h-5" />
-                      <span>افزودن</span>
+                      <HiShoppingCart className="w-4 h-4" />
+                      <span className="hidden sm:inline">افزودن</span>
                     </>
                   )}
                 </button>
@@ -580,11 +533,10 @@ export default function ComponentCard({
 
               <Link
                 href={`/components/${component.slug}`}
-                className="relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-2xl overflow-hidden group/btn hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-teal-600 text-white text-sm font-medium rounded-xl transition-all duration-200 hover:gap-3"
               >
-                <span className="relative z-10">مشاهده جزئیات</span>
-                <HiExternalLink className="w-5 h-5 relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                <span>مشاهده</span>
+                <HiArrowLeft className="w-4 h-4" />
               </Link>
             </div>
           </div>

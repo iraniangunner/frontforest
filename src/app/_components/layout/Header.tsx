@@ -1,5 +1,3 @@
-// components/Header.tsx
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -100,7 +98,7 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/components?search=${encodeURIComponent(searchQuery)}`);
+      router.push(`/components?q=${encodeURIComponent(searchQuery)}`);
       setSearchOpen(false);
       setSearchQuery("");
     }

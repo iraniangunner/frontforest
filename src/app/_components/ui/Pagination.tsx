@@ -1,6 +1,6 @@
 "use client";
 
-import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
+import { HiChevronRight, HiChevronLeft, HiDotsHorizontal } from "react-icons/hi";
 
 interface PaginationProps {
   currentPage: number;
@@ -48,45 +48,96 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex items-center justify-center gap-1">
-      {/* Previous */}
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <HiChevronRight className="w-5 h-5" />
-      </button>
+    <div className="flex flex-col items-center gap-4">
+      {/* Page Info */}
+      <p className="text-sm text-gray-500">
+        صفحه{" "}
+        <span className="font-bold text-gray-700">{currentPage.toLocaleString("fa-IR")}</span>
+        {" "}از{" "}
+        <span className="font-bold text-gray-700">{lastPage.toLocaleString("fa-IR")}</span>
+      </p>
 
-      {/* Page Numbers */}
-      {getPageNumbers().map((page, index) =>
-        page === "..." ? (
-          <span key={`dots-${index}`} className="px-2 text-gray-400">
-            ...
-          </span>
-        ) : (
-          <button
-            key={page}
-            onClick={() => onPageChange(page as number)}
-            className={`min-w-[40px] h-10 rounded-lg font-medium transition-colors ${
-              currentPage === page
-                ? "bg-blue-600 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            {page}
-          </button>
-        )
+      {/* Pagination Controls */}
+      <div className="inline-flex items-center gap-1 p-1.5 bg-white rounded-2xl border border-gray-200 shadow-sm">
+        {/* Previous */}
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+        >
+          <HiChevronRight className="w-5 h-5" />
+          <span className="hidden sm:inline">قبلی</span>
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        {/* Page Numbers */}
+        <div className="flex items-center gap-1">
+          {getPageNumbers().map((page, index) =>
+            page === "..." ? (
+              <span
+                key={`dots-${index}`}
+                className="w-10 h-10 flex items-center justify-center text-gray-400"
+              >
+                <HiDotsHorizontal className="w-5 h-5" />
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => onPageChange(page as number)}
+                className={`relative min-w-[40px] h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  currentPage === page
+                    ? "text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {/* Active Background */}
+                {currentPage === page && (
+                  <span className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-lg shadow-emerald-500/30" />
+                )}
+                <span className="relative z-10">{page.toLocaleString("fa-IR")}</span>
+              </button>
+            )
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        {/* Next */}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === lastPage}
+          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+        >
+          <span className="hidden sm:inline">بعدی</span>
+          <HiChevronLeft className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Quick Jump (for many pages) */}
+      {lastPage > 10 && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">رفتن به صفحه:</span>
+          <input
+            type="number"
+            min={1}
+            max={lastPage}
+            placeholder="..."
+            className="w-16 px-3 py-1.5 text-sm text-center border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const value = parseInt((e.target as HTMLInputElement).value);
+                if (value >= 1 && value <= lastPage) {
+                  onPageChange(value);
+                  (e.target as HTMLInputElement).value = "";
+                }
+              }
+            }}
+          />
+        </div>
       )}
-
-      {/* Next */}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === lastPage}
-        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <HiChevronLeft className="w-5 h-5" />
-      </button>
     </div>
   );
 }
