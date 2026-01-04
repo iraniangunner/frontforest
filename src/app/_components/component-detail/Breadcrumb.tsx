@@ -1,43 +1,41 @@
+// components/[slug]/components/Breadcrumb.tsx
+
+"use client";
+
 import Link from "next/link";
-import { HiChevronLeft } from "react-icons/hi";
-import { Component } from "@/types";
+import { HiChevronRight } from "react-icons/hi";
 
 interface BreadcrumbProps {
-  component: Component;
+  categoryName: string;
+  categorySlug: string;
+  componentTitle: string;
 }
 
-export function Breadcrumb({ component }: BreadcrumbProps) {
+export function Breadcrumb({ 
+  categoryName, 
+  categorySlug, 
+  componentTitle 
+}: BreadcrumbProps) {
   return (
-    <div className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-3">
-        <nav className="flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/" className="hover:text-blue-600">
+    <div className="bg-white border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <nav className="flex items-center gap-2 text-sm">
+          <Link href="/" className="text-gray-500 hover:text-gray-700">
             خانه
           </Link>
-          <HiChevronLeft className="w-4 h-4" />
-          <Link href="/components" className="hover:text-blue-600">
+          <HiChevronRight className="w-4 h-4 text-gray-400 rotate-180" />
+          <Link href="/components" className="text-gray-500 hover:text-gray-700">
             کامپوننت‌ها
           </Link>
-          <HiChevronLeft className="w-4 h-4" />
-          {component.category.parent && (
-            <>
-              <Link
-                href={`/components?category=${component.category.parent.slug}`}
-                className="hover:text-blue-600"
-              >
-                {component.category.parent.name}
-              </Link>
-              <HiChevronLeft className="w-4 h-4" />
-            </>
-          )}
+          <HiChevronRight className="w-4 h-4 text-gray-400 rotate-180" />
           <Link
-            href={`/components?categories[]=${component.category.slug}`}
-            className="hover:text-blue-600"
+            href={`/components?category=${categorySlug}`}
+            className="text-gray-500 hover:text-gray-700"
           >
-            {component.category.name}
+            {categoryName}
           </Link>
-          <HiChevronLeft className="w-4 h-4" />
-          <span className="text-gray-900">{component.title}</span>
+          <HiChevronRight className="w-4 h-4 text-gray-400 rotate-180" />
+          <span className="text-gray-900 font-medium">{componentTitle}</span>
         </nav>
       </div>
     </div>

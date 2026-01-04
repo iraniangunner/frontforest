@@ -1,6 +1,7 @@
+
 export { ImageGallery } from "./ImageGallery";
 export { ActionButtons } from "./ActionButtons";
-export {Breadcrumb} from "./Breadcrumb";
+export {Breadcrumb} from "./Breadcrumb"
 export { ComponentInfo } from "./ComponentInfo";
 export { FileInfoCard } from "./FileInfoCard";
 export { TagsCard } from "./TagsCard";
