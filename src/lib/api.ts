@@ -185,6 +185,7 @@ export const componentsAPI = {
   getOne: (id: number) =>
     api.get(`/admin/components/${id}`, { requiresAuth: true }),
 
+
   getStatistics: () =>
     api.get("/admin/components/statistics", { requiresAuth: true }),
 
@@ -208,6 +209,12 @@ export const componentsAPI = {
 
   toggleFeatured: (id: number) =>
     api.patch(`/admin/components/${id}/toggle-featured`, {}, { requiresAuth: true }),
+
+  download: (slug: string) =>
+    api.get(`/components/${slug}/download`, { 
+      responseType: 'blob',
+      requiresAuth: true 
+    }),
 };
 
 // Reviews API

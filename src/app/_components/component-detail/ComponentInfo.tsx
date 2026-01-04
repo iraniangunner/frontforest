@@ -44,7 +44,7 @@ export function ComponentInfo({ component }: ComponentInfoProps) {
         </div>
         <div className="flex items-center gap-1 text-gray-500">
           <HiDownload className="w-5 h-5" />
-          <span>{component.sales_count}</span>
+          <span>{component.downloads_count}</span>
         </div>
       </div>
 

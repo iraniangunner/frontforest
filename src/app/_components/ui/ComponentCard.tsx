@@ -251,7 +251,7 @@ export default function ComponentCard({
             <span className="w-1 h-1 rounded-full bg-gray-300" />
             <div className="flex items-center gap-1">
               <HiDownload className="w-4 h-4 text-gray-400" />
-              <span>{component.sales_count}</span>
+              <span>{component.downloads_count}</span>
             </div>
             <span className="w-1 h-1 rounded-full bg-gray-300" />
             <div className="flex items-center gap-1">

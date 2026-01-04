@@ -24,6 +24,7 @@ export function ImageGallery({ component }: ImageGalleryProps) {
     return images;
   };
 
+
   const allImages = getAllImages();
 
   const openLightbox = (index: number) => {

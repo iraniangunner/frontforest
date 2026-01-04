@@ -25,6 +25,7 @@ export interface Category {
     slug: string;
     has_file:boolean;
     can_download:boolean;
+    downloads_count:string;
     images:any;
     file_size_formatted:string;
     short_description: string | null;
@@ -52,6 +53,7 @@ export interface Category {
     is_new: boolean;
     tags: { id: number; name: string; slug: string; color: string; type: string }[];
     created_at: string;
+    updated_at:string;
   }
   
   export interface FilterParams {

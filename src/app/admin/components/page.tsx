@@ -9,7 +9,7 @@ import Input from "@/app/_components/admin/Input";
 import Badge from "@/app/_components/admin/Badge";
 import Pagination from "@/app/_components/admin/Pagination";
 import { componentsAPI, categoriesAPI, tagsAPI } from "../../../lib/api";
-import { HiPlus, HiPencil, HiTrash, HiStar, HiEye } from "react-icons/hi";
+import { HiPlus, HiPencil, HiTrash, HiStar, HiEye, HiDownload } from "react-icons/hi";
 import toast from "react-hot-toast";
 
 interface ComponentItem {
@@ -73,6 +73,7 @@ export default function ComponentsPage() {
   const [editingComponent, setEditingComponent] =
     useState<ComponentItem | null>(null);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
 
   const [formData, setFormData] = useState<FormData>({
@@ -248,6 +249,26 @@ export default function ComponentsPage() {
         ? prev.tags.filter((id) => id !== tagId)
         : [...prev.tags, tagId],
     }));
+  };
+
+  const handleDownload = async (slug: string) => {
+    setDownloading(true);
+    try {
+      const response = await componentsAPI.download(slug);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${slug}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("دانلود شروع شد");
+    } catch (error) {
+      toast.error("خطا در دانلود فایل");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -528,6 +549,31 @@ export default function ComponentsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 تصویر
               </label>
+
+              {/* Show current thumbnail in edit mode */}
+              {editingComponent?.thumbnail && !formData.thumbnail && (
+                <div className="mb-2">
+                  <img
+                    src={editingComponent.thumbnail}
+                    alt="تصویر فعلی"
+                    className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">تصویر فعلی</p>
+                </div>
+              )}
+
+              {/* Show preview of new selected image */}
+              {formData.thumbnail && (
+                <div className="mb-2">
+                  <img
+                    src={URL.createObjectURL(formData.thumbnail)}
+                    alt="تصویر جدید"
+                    className="w-24 h-24 rounded-lg object-cover border border-blue-200"
+                  />
+                  <p className="text-xs text-blue-500 mt-1">تصویر جدید</p>
+                </div>
+              )}
+
               <input
                 type="file"
                 accept="image/*"
@@ -540,10 +586,43 @@ export default function ComponentsPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 فایل ZIP
               </label>
+
+              {/* Show download button for existing file in edit mode */}
+              {editingComponent && !formData.file && (
+                <div className="mb-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(editingComponent.slug)}
+                    disabled={downloading}
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <HiDownload className="w-4 h-4" />
+                    {downloading ? "در حال دانلود..." : "دانلود فایل فعلی"}
+                  </button>
+                </div>
+              )}
+
+              {/* Show new file name if selected */}
+              {formData.file && (
+                <div className="mb-2 p-2 bg-blue-50 rounded-lg flex items-center justify-between">
+                  <p className="text-xs text-blue-600">
+                    فایل جدید: {formData.file.name}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, file: null })}
+                    className="text-red-500 hover:text-red-700 text-xs"
+                  >
+                    حذف
+                  </button>
+                </div>
+              )}
+
               <input
                 type="file"
                 accept=".zip,.rar"

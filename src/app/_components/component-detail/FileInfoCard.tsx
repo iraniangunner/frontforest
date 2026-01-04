@@ -24,8 +24,12 @@ export function FileInfoCard({ component }: FileInfoCardProps) {
           <span className="font-medium">ZIP</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">تاریخ آپدیت</span>
+          <span className="text-gray-500">تاریخ ایجاد</span>
           <span className="font-medium">{formatDate(component.created_at)}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-500">تاریخ آپدیت</span>
+          <span className="font-medium">{formatDate(component.updated_at)}</span>
         </div>
       </div>
     </div>
