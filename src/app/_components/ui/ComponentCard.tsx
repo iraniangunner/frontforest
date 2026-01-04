@@ -104,6 +104,9 @@ export default function ComponentCard({
       } else if (error.response?.status === 409) {
         setInCart(true);
         toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" });
+       } else if (error.response?.status === 400) {
+        
+          toast.error("شما قبلاً این کامپوننت را خریداری کرده‌اید");
       } else {
         toast.error("خطا در افزودن به سبد خرید");
       }
