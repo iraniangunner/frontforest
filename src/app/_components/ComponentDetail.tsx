@@ -27,10 +27,11 @@ import {
 } from "react-icons/hi";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { cartAPI, favoritesAPI } from "@/lib/api";
+import { cartAPI, favoritesAPI, publicComponentsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import ComponentCard from "./ui/ComponentCard";
 import { Component } from "@/types";
+import router from "next/navigation";
 
 type DeviceSize = "desktop" | "tablet" | "mobile";
 
@@ -121,23 +122,34 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
   };
 
   const handleDownload = async () => {
-    if (!component.can_download && !component.is_free) {
-      toast.error("برای دانلود ابتدا خریداری کنید");
-      return;
-    }
-
     setLoadingDownload(true);
     try {
-      window.open(
-        `${process.env.NEXT_PUBLIC_API_URL}/components/${component.slug}/download`,
-        "_blank"
-      );
-    } catch (error) {
-      toast.error("خطا در دانلود");
+      const response = await publicComponentsAPI.download(component.slug);
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${component.slug}.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("دانلود شروع شد");
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        toast.error("برای دانلود ابتدا وارد شوید");
+        // router.push("/login");
+      } else if (error.response?.status === 403) {
+        toast.error("برای دانلود ابتدا خریداری کنید");
+      } else {
+        toast.error("خطا در دانلود فایل");
+      }
     } finally {
       setLoadingDownload(false);
     }
   };
+
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);

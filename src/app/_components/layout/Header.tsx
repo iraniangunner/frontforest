@@ -435,7 +435,7 @@ export default function Header() {
             </form>
 
             {/* Quick Links */}
-            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+            {/* <div className="mt-4 flex flex-wrap gap-2 justify-center">
               <span className="text-sm text-white/70">پرطرفدار:</span>
               {["فرم ورود", "دکمه", "کارت", "نوار ناوبری"].map((tag) => (
                 <button
@@ -449,7 +449,7 @@ export default function Header() {
                   {tag}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       )}
