@@ -97,24 +97,19 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
   };
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast.error("لطفاً ابتدا وارد شوید");
-      return;
-    }
-
-    if (component.is_free || inCart) return;
-
     setLoadingCart(true);
     try {
       await cartAPI.add(component.id);
-      setInCart(true);
       incrementCart();
       toast.success("به سبد خرید اضافه شد");
     } catch (error: any) {
-      if (error.response?.status === 409) {
-        setInCart(true);
+      if (error.response?.status === 401) {
+        toast.error("برای افزودن به سبد ابتدا وارد شوید");
+        // router.push("/login");
+      } else if (error.response?.status === 409) {
+        toast.error("این کامپوننت در سبد خرید موجود است");
       } else {
-        toast.error("خطا در افزودن به سبد خرید");
+        toast.error(error.response?.data?.message || "خطا در افزودن به سبد خرید");
       }
     } finally {
       setLoadingCart(false);
