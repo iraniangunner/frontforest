@@ -20,9 +20,8 @@ import {
   HiCheck,
   HiChevronRight,
   HiRefresh,
-  HiZoomIn,
+  HiArrowsExpand,
   HiX,
-  HiShare,
   HiLink,
 } from "react-icons/hi";
 import { useAuth } from "@/context/AuthContext";
@@ -31,7 +30,6 @@ import { cartAPI, favoritesAPI, publicComponentsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import ComponentCard from "./ui/ComponentCard";
 import { Component } from "@/types";
-import router from "next/navigation";
 
 type DeviceSize = "desktop" | "tablet" | "mobile";
 
@@ -39,14 +37,13 @@ interface DeviceOption {
   id: DeviceSize;
   label: string;
   icon: React.ElementType;
-  width: string;
-  maxWidth: number;
+  width: number;
 }
 
 const deviceOptions: DeviceOption[] = [
-  { id: "desktop", label: "دسکتاپ", icon: HiDesktopComputer, width: "100%", maxWidth: 1200 },
-  { id: "tablet", label: "تبلت", icon: HiDeviceTablet, width: "768px", maxWidth: 768 },
-  { id: "mobile", label: "موبایل", icon: HiDeviceMobile, width: "375px", maxWidth: 375 },
+  { id: "desktop", label: "دسکتاپ", icon: HiDesktopComputer, width: 1200 },
+  { id: "tablet", label: "تبلت", icon: HiDeviceTablet, width: 768 },
+  { id: "mobile", label: "موبایل", icon: HiDeviceMobile, width: 375 },
 ];
 
 interface Props {
@@ -105,7 +102,6 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
     } catch (error: any) {
       if (error.response?.status === 401) {
         toast.error("برای افزودن به سبد ابتدا وارد شوید");
-        // router.push("/login");
       } else if (error.response?.status === 409) {
         toast.error("این کامپوننت در سبد خرید موجود است");
       } else {
@@ -134,7 +130,6 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
     } catch (error: any) {
       if (error.response?.status === 401) {
         toast.error("برای دانلود ابتدا وارد شوید");
-        // router.push("/login");
       } else if (error.response?.status === 403) {
         toast.error("برای دانلود ابتدا خریداری کنید");
       } else {
@@ -144,7 +139,6 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
       setLoadingDownload(false);
     }
   };
-
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -190,7 +184,7 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
             {/* Preview Container */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
               {/* Preview Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-200 bg-gray-50">
                 {/* Device Selector */}
                 <div className="flex items-center gap-1 p-1 bg-white rounded-xl border border-gray-200">
                   {deviceOptions.map((device) => (
@@ -224,7 +218,7 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                     className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                     title="تمام صفحه"
                   >
-                    <HiZoomIn className="w-5 h-5" />
+                    <HiArrowsExpand className="w-5 h-5" />
                   </button>
 
                   {component.preview_url && (
@@ -242,10 +236,10 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
               </div>
 
               {/* Preview Frame */}
-              <div className="relative bg-[#f8f9fa] overflow-hidden">
+              <div className="relative bg-[#f8f9fa] overflow-x-auto">
                 {/* Checkered Background Pattern */}
                 <div
-                  className="absolute inset-0 opacity-50"
+                  className="absolute inset-0 opacity-50 pointer-events-none"
                   style={{
                     backgroundImage: `
                       linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
@@ -259,14 +253,17 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                 />
 
                 {/* Preview Content */}
-                <div
-                  className="relative flex justify-center py-8 px-4 min-h-[500px] transition-all duration-500"
+                <div 
+                  className="relative flex justify-center py-8 px-4 min-h-[500px]"
+                  style={{
+                    minWidth: `${currentDevice.width + 32}px`,
+                  }}
                 >
                   <div
-                    className="relative bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-500 ease-out"
+                    className="relative bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-out"
                     style={{
-                      width: currentDevice.width,
-                      maxWidth: "100%",
+                      width: `${currentDevice.width}px`,
+                      minWidth: `${currentDevice.width}px`,
                     }}
                   >
                     {/* Browser Chrome */}
@@ -293,7 +290,7 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                         title={component.title}
                       />
                     ) : component.thumbnail ? (
-                      <div className="relative aspect-video">
+                      <div className="relative" style={{ height: "300px" }}>
                         <Image
                           src={component.thumbnail}
                           alt={component.title}
@@ -313,9 +310,12 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                 </div>
 
                 {/* Device Size Indicator */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                <div 
+                  className="sticky bottom-4 left-0 right-0 flex justify-center pointer-events-none"
+                  style={{ minWidth: `${currentDevice.width + 32}px` }}
+                >
                   <div className="px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-medium rounded-full">
-                    {currentDevice.maxWidth}px
+                    {currentDevice.label} — {currentDevice.width}px
                   </div>
                 </div>
               </div>
@@ -616,8 +616,6 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                 <ComponentCard
                   key={item.id}
                   component={item}
-                //   initialIsFavorite={item.is_favorite}
-                //   initialInCart={item.in_cart}
                 />
               ))}
             </div>
@@ -629,7 +627,8 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
       {showFullscreen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm" dir="rtl">
           {/* Header */}
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/50 to-transparent">
+          <div className="absolute top-0 left-0 right-0 flex flex-wrap items-center justify-between gap-3 px-6 py-4 bg-gradient-to-b from-black/50 to-transparent z-10">
+            {/* Device Selector */}
             <div className="flex items-center gap-1 p-1 bg-white/10 backdrop-blur-sm rounded-xl">
               {deviceOptions.map((device) => (
                 <button
@@ -647,6 +646,7 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
               ))}
             </div>
 
+            {/* Close Button */}
             <button
               onClick={() => setShowFullscreen(false)}
               className="p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
@@ -656,13 +656,12 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
           </div>
 
           {/* Preview */}
-          <div className="absolute inset-0 flex items-center justify-center p-8 pt-20">
+          <div className="absolute inset-0 flex items-center justify-center p-8 pt-24 pb-16 overflow-auto">
             <div
-              className="bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-500"
+              className="bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300"
               style={{
-                width: currentDevice.width,
-                maxWidth: "100%",
-                maxHeight: "100%",
+                width: `${currentDevice.width}px`,
+                minWidth: `${currentDevice.width}px`,
               }}
             >
               {/* Browser Chrome */}
@@ -682,13 +681,14 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
               {/* Content */}
               {component.preview_url ? (
                 <iframe
-                  key={iframeKey}
+                  key={`fullscreen-${iframeKey}`}
                   src={component.preview_url}
-                  className="w-full h-[70vh]"
+                  className="w-full"
+                  style={{ height: "70vh" }}
                   title={component.title}
                 />
               ) : component.thumbnail ? (
-                <div className="relative h-[70vh]">
+                <div className="relative" style={{ height: "70vh" }}>
                   <Image
                     src={component.thumbnail}
                     alt={component.title}
@@ -697,7 +697,7 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-[70vh] bg-gray-50">
+                <div className="flex items-center justify-center bg-gray-50" style={{ height: "70vh" }}>
                   <p className="text-gray-500">پیش‌نمایش در دسترس نیست</p>
                 </div>
               )}
@@ -705,9 +705,9 @@ export default function ComponentDetail({ component, relatedComponents }: Props)
           </div>
 
           {/* Size Indicator */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
             <div className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white text-sm font-medium rounded-full">
-              {currentDevice.label} — {currentDevice.maxWidth}px
+              {currentDevice.label} — {currentDevice.width}px
             </div>
           </div>
         </div>
