@@ -1,11 +1,15 @@
+// app/components/[slug]/component-detail/index.ts
 
-export { ImageGallery } from "./ImageGallery";
-export { ActionButtons } from "./ActionButtons";
-export {Breadcrumb} from "./Breadcrumb"
-export { ComponentInfo } from "./ComponentInfo";
-export { FileInfoCard } from "./FileInfoCard";
-export { TagsCard } from "./TagsCard";
-export { FeaturesCard } from "./FeaturesCard";
-export { ReviewsSection } from "./ReviewsSection";
+
+// Sub-components
+export { Breadcrumb } from "./Breadcrumb";
+export { ResponsivePreview } from "./ResponsivePerview";
+export { ContentTabs } from "./ContentTabs";
+export { ComponentTags } from "./ComponentTags";
+export { ComponentSidebar } from "./ComponentSidebar"
+export { FileInfo } from "./FileInfo";
+export { Features } from "./Features";
 export { RelatedComponents } from "./RelatedComponents";
-export { Lightbox } from "./Lightbox";
+
+// Named export
+export { ReviewsSection } from "./ReviewsSection";

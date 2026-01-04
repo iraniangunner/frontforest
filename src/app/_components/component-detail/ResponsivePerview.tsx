@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   HiDesktopComputer,
@@ -37,18 +37,43 @@ interface ResponsivePreviewProps {
   slug?: string;
 }
 
-export default function ResponsivePreview({
+export function ResponsivePreview({
   previewUrl,
   thumbnail,
   title,
   slug,
 }: ResponsivePreviewProps) {
-  const [activeDevice, setActiveDevice] = useState<DeviceSize>("desktop");
   const [showFullscreen, setShowFullscreen] = useState(false);
+  const [activeDevice, setActiveDevice] = useState<DeviceSize>("desktop");
   const [iframeKey, setIframeKey] = useState(0);
+  const [scale, setScale] = useState(1);
+  const fullscreenContainerRef = useRef<HTMLDivElement>(null);
 
   const currentDevice = deviceOptions.find((d) => d.id === activeDevice)!;
   const browserUrl = previewUrl || (slug ? `frontforest.ir/preview/${slug}` : "preview");
+
+  // Calculate scale for fullscreen responsive view
+  useEffect(() => {
+    if (!showFullscreen) return;
+
+    const calculateScale = () => {
+      if (fullscreenContainerRef.current) {
+        const containerWidth = fullscreenContainerRef.current.offsetWidth - 64;
+        const containerHeight = fullscreenContainerRef.current.offsetHeight - 64;
+        const deviceWidth = currentDevice.width;
+        const deviceHeight = 500;
+
+        const scaleX = containerWidth / deviceWidth;
+        const scaleY = containerHeight / deviceHeight;
+        const newScale = Math.min(1, scaleX, scaleY);
+        setScale(newScale);
+      }
+    };
+
+    calculateScale();
+    window.addEventListener("resize", calculateScale);
+    return () => window.removeEventListener("resize", calculateScale);
+  }, [showFullscreen, currentDevice.width]);
 
   const handleRefreshPreview = () => {
     setIframeKey((prev) => prev + 1);
@@ -56,28 +81,19 @@ export default function ResponsivePreview({
 
   return (
     <>
+      {/* Normal Preview */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-200 bg-gray-50">
-          {/* Device Selector */}
-          <div className="flex items-center gap-1 p-1 bg-white rounded-xl border border-gray-200">
-            {deviceOptions.map((device) => (
-              <button
-                key={device.id}
-                onClick={() => setActiveDevice(device.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  activeDevice === device.id
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
-              >
-                <device.icon className="w-4 h-4" />
-                <span className="hidden sm:inline">{device.label}</span>
-              </button>
-            ))}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200">
+            <div className="w-3 h-3 rounded-full bg-red-400" />
+            <div className="w-3 h-3 rounded-full bg-yellow-400" />
+            <div className="w-3 h-3 rounded-full bg-green-400" />
+            <span className="text-xs text-gray-500 font-mono mr-2 truncate max-w-[200px]">
+              {browserUrl}
+            </span>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2">
             <button
               onClick={handleRefreshPreview}
@@ -90,7 +106,7 @@ export default function ResponsivePreview({
             <button
               onClick={() => setShowFullscreen(true)}
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              title="تمام صفحه"
+              title="نمایش ریسپانسیو"
             >
               <HiArrowsExpand className="w-5 h-5" />
             </button>
@@ -100,104 +116,50 @@ export default function ResponsivePreview({
                 href={previewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                title="باز کردن در تب جدید"
               >
-                <HiExternalLink className="w-4 h-4" />
-                <span className="hidden sm:inline">باز کردن</span>
+                <HiExternalLink className="w-5 h-5" />
               </a>
             )}
           </div>
         </div>
 
-        {/* Preview Frame */}
-        <div className="relative bg-[#f8f9fa] overflow-x-auto">
-          {/* Checkered Background */}
-          <div
-            className="absolute inset-0 opacity-50 pointer-events-none"
-            style={{
-              backgroundImage: `
-                linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
-                linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
-                linear-gradient(-45deg, transparent 75%, #e5e7eb 75%)
-              `,
-              backgroundSize: "20px 20px",
-              backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
-            }}
-          />
-
-          {/* Content */}
-          <div
-            className="relative flex justify-center py-8 px-4 min-h-[500px]"
-            style={{ minWidth: `${currentDevice.width + 32}px` }}
-          >
-            <div
-              className="relative bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ease-out"
-              style={{
-                width: `${currentDevice.width}px`,
-                minWidth: `${currentDevice.width}px`,
-              }}
-            >
-              {/* Browser Chrome */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 border-b">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <div className="flex-1 mx-4">
-                  <div className="bg-white rounded-md px-3 py-1.5 text-xs text-gray-500 font-mono truncate border">
-                    {browserUrl}
-                  </div>
-                </div>
+        {/* Normal Preview Content */}
+        <div className="relative bg-gray-50">
+          {previewUrl ? (
+            <iframe
+              key={iframeKey}
+              src={previewUrl}
+              className="w-full bg-white"
+              style={{ height: "450px" }}
+              title={title}
+            />
+          ) : thumbnail ? (
+            <div className="relative" style={{ height: "300px" }}>
+              <Image
+                src={thumbnail}
+                alt={title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-[450px] bg-gray-50">
+              <div className="text-center">
+                <HiCode className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">پیش‌نمایش در دسترس نیست</p>
               </div>
-
-              {/* Preview Content */}
-              {previewUrl ? (
-                <iframe
-                  key={iframeKey}
-                  src={previewUrl}
-                  className="w-full bg-white"
-                  style={{ height: "450px" }}
-                  title={title}
-                />
-              ) : thumbnail ? (
-                <div className="relative" style={{ height: "300px" }}>
-                  <Image
-                    src={thumbnail}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-[450px] bg-gray-50">
-                  <div className="text-center">
-                    <HiCode className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">پیش‌نمایش در دسترس نیست</p>
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
-
-          {/* Device Size Indicator */}
-          <div
-            className="sticky bottom-4 left-0 right-0 flex justify-center pointer-events-none"
-            style={{ minWidth: `${currentDevice.width + 32}px` }}
-          >
-            <div className="px-3 py-1.5 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-medium rounded-full">
-              {currentDevice.label} — {currentDevice.width}px
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Fullscreen Modal */}
+      {/* Fullscreen Responsive Preview Modal */}
       {showFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm" dir="rtl">
+        <div className="fixed inset-0 z-50 bg-black/95" dir="rtl">
           {/* Header */}
-          <div className="absolute top-0 left-0 right-0 flex flex-wrap items-center justify-between gap-3 px-6 py-4 bg-gradient-to-b from-black/50 to-transparent z-10">
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
             {/* Device Selector */}
             <div className="flex items-center gap-1 p-1 bg-white/10 backdrop-blur-sm rounded-xl">
               {deviceOptions.map((device) => (
@@ -225,13 +187,17 @@ export default function ResponsivePreview({
             </button>
           </div>
 
-          {/* Preview */}
-          <div className="absolute inset-0 flex items-center justify-center p-8 pt-24 pb-16 overflow-auto">
+          {/* Responsive Preview - Scaled */}
+          <div 
+            ref={fullscreenContainerRef}
+            className="absolute inset-0 flex items-center justify-center pt-20 pb-16 px-8"
+          >
             <div
               className="bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300"
               style={{
                 width: `${currentDevice.width}px`,
-                minWidth: `${currentDevice.width}px`,
+                transform: `scale(${scale})`,
+                transformOrigin: "center center",
               }}
             >
               {/* Browser Chrome */}
@@ -248,27 +214,30 @@ export default function ResponsivePreview({
                 </div>
               </div>
 
-              {/* Content */}
+              {/* Preview Content */}
               {previewUrl ? (
                 <iframe
                   key={`fullscreen-${iframeKey}`}
                   src={previewUrl}
-                  className="w-full"
-                  style={{ height: "70vh" }}
+                  className="w-full bg-white"
+                  style={{ height: "450px" }}
                   title={title}
                 />
               ) : thumbnail ? (
-                <div className="relative" style={{ height: "70vh" }}>
+                <div className="relative" style={{ height: "300px" }}>
                   <Image
                     src={thumbnail}
                     alt={title}
                     fill
-                    className="object-contain"
+                    className="object-cover"
                   />
                 </div>
               ) : (
-                <div className="flex items-center justify-center bg-gray-50" style={{ height: "70vh" }}>
-                  <p className="text-gray-500">پیش‌نمایش در دسترس نیست</p>
+                <div className="flex items-center justify-center h-[450px] bg-gray-50">
+                  <div className="text-center">
+                    <HiCode className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">پیش‌نمایش در دسترس نیست</p>
+                  </div>
                 </div>
               )}
             </div>

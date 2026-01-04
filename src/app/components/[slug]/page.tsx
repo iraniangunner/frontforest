@@ -189,7 +189,7 @@
 
 import { notFound } from "next/navigation";
 import { componentsAPI } from "@/lib/api";
-import ComponentDetail from "@/app/_components/ComponentDetail";
+import ComponentDetail from "@/app/_components/component-detail/ComponentDetail";
 
 interface Props {
   params: { slug: string };
