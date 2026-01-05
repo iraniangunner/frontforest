@@ -38,7 +38,7 @@ export default function ProfilePage() {
         purchases: purchasesRes.data.meta?.total || 0,
         favorites: favoritesRes.data.meta?.total || 0,
         orders: ordersRes.data.meta?.total || 0,
-        totalSpent: 0,
+        totalSpent:purchasesRes.data.meta.total_spent || 0,
       })
     } catch (error) {
       console.error("Error loading stats:", error)
@@ -71,7 +71,7 @@ export default function ProfilePage() {
     },
     {
       label: "مجموع خرید",
-      value: `${stats.totalSpent.toLocaleString("fa-IR")} تومان`,
+      value: `${Number(stats.totalSpent).toLocaleString("fa-IR")} تومان`,
       icon: HiCreditCard,
       color: "from-amber-500 to-orange-500",
       bgPattern: "bg-amber-50",

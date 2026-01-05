@@ -157,7 +157,7 @@ export function ResponsivePreview({
 
       {/* Fullscreen Responsive Preview Modal */}
       {showFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black/95" dir="rtl">
+        <div className="fixed inset-0 z-50 bg-black/95 full-screen" dir="rtl">
           {/* Header */}
           <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
             {/* Device Selector */}

@@ -1,7 +1,4 @@
-import axios, {
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from "axios";
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -161,8 +158,7 @@ export const tagsAPI = {
   adminGetAll: (params?: Record<string, unknown>) =>
     api.get("/admin/tags", { params, requiresAuth: true }),
 
-  getOne: (id: number) =>
-    api.get(`/admin/tags/${id}`, { requiresAuth: true }),
+  getOne: (id: number) => api.get(`/admin/tags/${id}`, { requiresAuth: true }),
 
   create: (data: Record<string, unknown>) =>
     api.post("/admin/tags", data, { requiresAuth: true }),
@@ -184,7 +180,6 @@ export const componentsAPI = {
 
   getOne: (id: number) =>
     api.get(`/admin/components/${id}`, { requiresAuth: true }),
-
 
   getStatistics: () =>
     api.get("/admin/components/statistics", { requiresAuth: true }),
@@ -208,12 +203,16 @@ export const componentsAPI = {
     api.patch(`/admin/components/${id}/toggle`, {}, { requiresAuth: true }),
 
   toggleFeatured: (id: number) =>
-    api.patch(`/admin/components/${id}/toggle-featured`, {}, { requiresAuth: true }),
+    api.patch(
+      `/admin/components/${id}/toggle-featured`,
+      {},
+      { requiresAuth: true }
+    ),
 
   download: (slug: string) =>
-    api.get(`/components/${slug}/download`, { 
-      responseType: 'blob',
-      requiresAuth: true 
+    api.get(`/components/${slug}/download`, {
+      responseType: "blob",
+      requiresAuth: true,
     }),
 };
 
@@ -235,28 +234,20 @@ export const reviewsAPI = {
     api.delete(`/admin/reviews/${id}`, { requiresAuth: true }),
 };
 
-
-
-
 // Public Components API
 export const publicComponentsAPI = {
   getAll: (params?: Record<string, unknown>) =>
     api.get("/components", { params }),
 
-  getBySlug: (slug: string) =>
-    api.get(`/components/${slug}`),
+  getBySlug: (slug: string) => api.get(`/components/${slug}`),
 
-  getFeatured: () =>
-    api.get("/components/featured"),
+  getFeatured: () => api.get("/components/featured"),
 
-  getFree: () =>
-    api.get("/components/free"),
+  getFree: () => api.get("/components/free"),
 
-  getNewest: () =>
-    api.get("/components/newest"),
+  getNewest: () => api.get("/components/newest"),
 
-  getRelated: (slug: string) =>
-    api.get(`/components/${slug}/related`),
+  getRelated: (slug: string) => api.get(`/components/${slug}/related`),
 
   getReviews: (slug: string, params?: Record<string, unknown>) =>
     api.get(`/components/${slug}/reviews`, { params }),
@@ -292,14 +283,10 @@ export const publicTagsAPI = {
   getGrouped: () => api.get("/tags?grouped=1"),
 };
 
-
-
 export const cartAPI = {
-  get: () =>
-    api.get("/cart", { requiresAuth: true }),
+  get: () => api.get("/cart", { requiresAuth: true }),
 
-  count: () =>
-    api.get("/cart/count", { requiresAuth: true }),
+  count: () => api.get("/cart/count", { requiresAuth: true }),
 
   add: (componentId: number) =>
     api.post(`/cart/${componentId}`, {}, { requiresAuth: true }),
@@ -307,47 +294,23 @@ export const cartAPI = {
   remove: (componentId: number) =>
     api.delete(`/cart/${componentId}`, { requiresAuth: true }),
 
-  clear: () =>
-    api.delete("/cart", { requiresAuth: true }),
+  clear: () => api.delete("/cart", { requiresAuth: true }),
+
+  // Check if component is in cart
+  check: (componentId: number) =>
+    api.get(`/cart/check/${componentId}`, { requiresAuth: true }),
 };
 
-
-
 export const authAPI = {
-  sendOtp: (mobile: string) =>
-    api.post("/auth/send-otp", { mobile }),
+  sendOtp: (mobile: string) => api.post("/auth/send-otp", { mobile }),
 
   verifyOtp: (mobile: string, otp: string) =>
     api.post("/auth/verify-otp", { mobile, otp }),
 
-  me: () =>
-    api.get("/auth/me", { requiresAuth: true }),
+  me: () => api.get("/auth/me", { requiresAuth: true }),
 
-  logout: () =>
-    api.post("/auth/logout", {}, { requiresAuth: true }),
+  logout: () => api.post("/auth/logout", {}, { requiresAuth: true }),
 };
-
-
-// // Checkout API
-// export const checkoutAPI = {
-//   checkout: () =>
-//     api.post("/checkout", {}, { requiresAuth: true }),
-
-//   verify: (authority: string, status: string) =>
-//     api.get("/payment/verify", { params: { Authority: authority, Status: status } }),
-// };
-
-// // Orders API
-// export const ordersAPI = {
-//   getAll: (params?: Record<string, unknown>) =>
-//     api.get("/orders", { params, requiresAuth: true }),
-
-//   getOne: (id: number) =>
-//     api.get(`/orders/${id}`, { requiresAuth: true }),
-
-//   getPurchases: (params?: Record<string, unknown>) =>
-//     api.get("/purchases", { params, requiresAuth: true }),
-// };
 
 export const checkoutAPI = {
   // Create order from cart
@@ -382,6 +345,10 @@ export const ordersAPI = {
   // Get purchases
   getPurchases: (params?: Record<string, unknown>) =>
     api.get("/purchases", { params, requiresAuth: true } as any),
+
+  // Check if component is purchased
+  check: (componentId: number) =>
+    api.get(`/purchases/check/${componentId}`, { requiresAuth: true } as any),
 };
 
 // Favorites API
@@ -397,6 +364,8 @@ export const favoritesAPI = {
 
   toggle: (componentId: number) =>
     api.post(`/favorites/${componentId}/toggle`, {}, { requiresAuth: true }),
+
+  // Check if component is favorite
+  check: (componentId: number) =>
+    api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
 };
-
-
