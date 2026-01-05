@@ -1,16 +1,23 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { HiUser, HiShoppingBag, HiHeart, HiCog, HiArrowTrendingUp, HiCreditCard } from "react-icons/hi2"
-import { ordersAPI, favoritesAPI } from "@/lib/api"
-import { HiDownload } from "react-icons/hi"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  HiUser,
+  HiShoppingBag,
+  HiHeart,
+  HiCog,
+  HiArrowTrendingUp,
+  HiCreditCard,
+} from "react-icons/hi2";
+import { ordersAPI, favoritesAPI } from "@/lib/api";
+import { HiDownload } from "react-icons/hi";
 
 interface Stats {
-  purchases: number
-  favorites: number
-  orders: number
-  totalSpent: number
+  purchases: number;
+  favorites: number;
+  orders: number;
+  totalSpent: number;
 }
 
 export default function ProfilePage() {
@@ -19,12 +26,12 @@ export default function ProfilePage() {
     favorites: 0,
     orders: 0,
     totalSpent: 0,
-  })
-  const [loading, setLoading] = useState(true)
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats()
-  }, [])
+    loadStats();
+  }, []);
 
   const loadStats = async () => {
     try {
@@ -32,20 +39,20 @@ export default function ProfilePage() {
         ordersAPI.getPurchases({ per_page: 1 }),
         favoritesAPI.getAll({ per_page: 1 }),
         ordersAPI.getAll({ per_page: 1 }),
-      ])
+      ]);
 
       setStats({
         purchases: purchasesRes.data.meta?.total || 0,
         favorites: favoritesRes.data.meta?.total || 0,
         orders: ordersRes.data.meta?.total || 0,
-        totalSpent:purchasesRes.data.meta.total_spent || 0,
-      })
+        totalSpent: purchasesRes.data.meta.total_spent || 0,
+      });
     } catch (error) {
-      console.error("Error loading stats:", error)
+      console.error("Error loading stats:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const statCards = [
     {
@@ -76,7 +83,7 @@ export default function ProfilePage() {
       color: "from-amber-500 to-orange-500",
       bgPattern: "bg-amber-50",
     },
-  ]
+  ];
 
   const menuItems = [
     {
@@ -107,10 +114,13 @@ export default function ProfilePage() {
       description: "مدیریت حساب کاربری و تنظیمات",
       gradient: "from-slate-600 to-slate-800",
     },
-  ]
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50"
+      dir="rtl"
+    >
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header with Profile */}
         <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-xl p-8 mb-8">
@@ -127,7 +137,9 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-white mb-2">پروفایل من</h1>
-              <p className="text-slate-300 text-lg">به داشبورد حساب کاربری خود خوش آمدید</p>
+              <p className="text-slate-300 text-lg">
+                به داشبورد حساب کاربری خود خوش آمدید
+              </p>
             </div>
           </div>
         </div>
@@ -155,7 +167,9 @@ export default function ProfilePage() {
               <div className="relative">
                 <p className="text-slate-600 text-sm mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {typeof stat.value === "number" ? stat.value.toLocaleString("fa-IR") : stat.value}
+                  {typeof stat.value === "number"
+                    ? stat.value.toLocaleString("fa-IR")
+                    : stat.value}
                 </p>
               </div>
             </div>
@@ -164,7 +178,9 @@ export default function ProfilePage() {
 
         {/* Navigation Menu */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">دسترسی سریع</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">
+            دسترسی سریع
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {menuItems.map((item) => (
               <Link
@@ -197,7 +213,12 @@ export default function ProfilePage() {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </div>
               </Link>
@@ -206,5 +227,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

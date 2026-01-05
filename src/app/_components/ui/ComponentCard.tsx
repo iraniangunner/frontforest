@@ -1,6 +1,8 @@
+// components/ui/ComponentCard.tsx
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -17,29 +19,45 @@ import { Component } from "@/types";
 import { cartAPI, favoritesAPI } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useComponentStatus } from "@/hooks/useComponentStatus";
 import toast from "react-hot-toast";
 
 interface ComponentCardProps {
   component: Component;
   view?: "grid" | "list";
-  initialIsFavorite?: boolean;
-  initialInCart?: boolean;
 }
 
 export default function ComponentCard({
   component,
   view = "grid",
-  initialIsFavorite = false,
-  initialInCart = false,
 }: ComponentCardProps) {
   const { user } = useAuth();
   const { incrementCart } = useCart();
 
-  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
-  const [inCart, setInCart] = useState(initialInCart);
+  // Fetch user-specific status separately
+  const {
+    inCart: fetchedInCart,
+    isFavorite: fetchedFavorite,
+    purchased: fetchedPurchased,
+    loading: statusLoading,
+  } = useComponentStatus(component.id);
+
+  // Local state for optimistic updates
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [inCart, setInCart] = useState(false);
+  const [purchased, setPurchased] = useState(false);
+
+  // Action loading states
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [loadingCart, setLoadingCart] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Sync local state with fetched data
+  useEffect(() => {
+    setIsFavorite(fetchedFavorite);
+    setInCart(fetchedInCart);
+    setPurchased(fetchedPurchased);
+  }, [fetchedFavorite, fetchedInCart, fetchedPurchased]);
 
   const formatPrice = (price: number) => {
     if (price === 0) return "رایگان";
@@ -55,14 +73,17 @@ export default function ComponentCard({
       return;
     }
 
+    const previousState = isFavorite;
     setLoadingFavorite(true);
+    setIsFavorite(!isFavorite); // Optimistic update
+
     try {
       await favoritesAPI.toggle(component.id);
-      setIsFavorite(!isFavorite);
       toast.success(
-        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
+        previousState ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
       );
     } catch (error: any) {
+      setIsFavorite(previousState); // Revert on error
       if (error.response?.status === 401) {
         toast.error("لطفاً ابتدا وارد شوید");
       } else {
@@ -82,8 +103,8 @@ export default function ComponentCard({
       return;
     }
 
-    if (component.is_free) {
-      toast.error("کامپوننت‌های رایگان نیاز به خرید ندارند");
+    if (component.is_free || purchased) {
+      toast.error("این کامپوننت قابل دانلود است");
       return;
     }
 
@@ -104,9 +125,9 @@ export default function ComponentCard({
       } else if (error.response?.status === 409) {
         setInCart(true);
         toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" });
-       } else if (error.response?.status === 400) {
-        
-          toast.error("شما قبلاً این کامپوننت را خریداری کرده‌اید");
+      } else if (error.response?.status === 400) {
+        setPurchased(true);
+        toast.error("شما قبلاً این کامپوننت را خریداری کرده‌اید");
       } else {
         toast.error("خطا در افزودن به سبد خرید");
       }
@@ -114,6 +135,9 @@ export default function ComponentCard({
       setLoadingCart(false);
     }
   };
+
+  // Can download if free or purchased
+  const canDownload = component.is_free || purchased;
 
   // ==================== GRID VIEW ====================
   if (view === "grid") {
@@ -158,7 +182,13 @@ export default function ComponentCard({
                 رایگان
               </span>
             )}
-            {component.is_on_sale && !component.is_free && (
+            {purchased && !component.is_free && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-teal-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-teal-500/25">
+                <HiCheck className="w-3 h-3" />
+                خریداری شده
+              </span>
+            )}
+            {component.is_on_sale && !component.is_free && !purchased && (
               <span className="inline-flex items-center px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-rose-500/25">
                 {component.discount_percent}%
               </span>
@@ -173,14 +203,14 @@ export default function ComponentCard({
           {/* Favorite Button */}
           <button
             onClick={handleToggleFavorite}
-            disabled={loadingFavorite}
+            disabled={loadingFavorite || statusLoading}
             className={`absolute top-3 left-3 p-2.5 rounded-xl backdrop-blur-md transition-all duration-300 ${
               isFavorite
                 ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
                 : "bg-white/80 text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-rose-500 hover:text-white"
             }`}
           >
-            {loadingFavorite ? (
+            {loadingFavorite || statusLoading ? (
               <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
             ) : (
               <HiHeart className="w-5 h-5" />
@@ -263,27 +293,31 @@ export default function ComponentCard({
           {/* Price & Actions */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
             <div className="flex items-baseline gap-2">
-              <span
-                className={`text-lg font-bold ${
-                  component.is_free ? "text-emerald-600" : "text-gray-900"
-                }`}
-              >
-                {formatPrice(component.current_price)}
-              </span>
-              {component.is_on_sale && !component.is_free && (
-                <span className="text-sm text-gray-400 line-through">
-                  {formatPrice(component.price)}
+              {canDownload ? (
+                <span className="text-lg font-bold text-emerald-600">
+                  {component.is_free ? "رایگان" : "خریداری شده"}
                 </span>
+              ) : (
+                <>
+                  <span className="text-lg font-bold text-gray-900">
+                    {formatPrice(component.current_price)}
+                  </span>
+                  {component.is_on_sale && (
+                    <span className="text-sm text-gray-400 line-through">
+                      {formatPrice(component.price)}
+                    </span>
+                  )}
+                </>
               )}
             </div>
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              {/* Cart Button - Always Visible */}
-              {!component.is_free && (
+              {/* Cart Button - Show if not free and not purchased */}
+              {!canDownload && (
                 <button
                   onClick={handleAddToCart}
-                  disabled={loadingCart}
+                  disabled={loadingCart || statusLoading}
                   className={`p-2.5 rounded-xl transition-all duration-200 ${
                     inCart
                       ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
@@ -291,7 +325,7 @@ export default function ComponentCard({
                   }`}
                   title={inCart ? "در سبد خرید" : "افزودن به سبد"}
                 >
-                  {loadingCart ? (
+                  {loadingCart || statusLoading ? (
                     <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : inCart ? (
                     <HiCheck className="w-5 h-5" />
@@ -299,6 +333,17 @@ export default function ComponentCard({
                     <HiShoppingCart className="w-5 h-5" />
                   )}
                 </button>
+              )}
+
+              {/* Download Button - Show if free or purchased */}
+              {canDownload && (
+                <Link
+                  href={`/components/${component.slug}`}
+                  className="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all duration-200"
+                  title="دانلود"
+                >
+                  <HiDownload className="w-5 h-5" />
+                </Link>
               )}
 
               {/* View Button */}
@@ -355,7 +400,13 @@ export default function ComponentCard({
                 رایگان
               </span>
             )}
-            {component.is_on_sale && !component.is_free && (
+            {purchased && !component.is_free && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-teal-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-teal-500/25">
+                <HiCheck className="w-3 h-3" />
+                خریداری شده
+              </span>
+            )}
+            {component.is_on_sale && !component.is_free && !purchased && (
               <span className="inline-flex items-center px-2.5 py-1 bg-rose-500 text-white text-xs font-bold rounded-lg shadow-lg shadow-rose-500/25">
                 {component.discount_percent}% تخفیف
               </span>
@@ -371,14 +422,14 @@ export default function ComponentCard({
           <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
             <button
               onClick={handleToggleFavorite}
-              disabled={loadingFavorite}
+              disabled={loadingFavorite || statusLoading}
               className={`p-2.5 rounded-xl backdrop-blur-md transition-all duration-200 ${
                 isFavorite
                   ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
                   : "bg-white/90 text-gray-600 hover:bg-rose-500 hover:text-white"
               }`}
             >
-              {loadingFavorite ? (
+              {loadingFavorite || statusLoading ? (
                 <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
                 <HiHeart className="w-5 h-5" />
@@ -430,18 +481,22 @@ export default function ComponentCard({
 
             {/* Price */}
             <div className="text-left flex-shrink-0">
-              {component.is_on_sale && !component.is_free && (
-                <span className="text-sm text-gray-400 line-through block">
-                  {formatPrice(component.price)}
+              {canDownload ? (
+                <span className="text-xl font-bold text-emerald-600">
+                  {component.is_free ? "رایگان" : "خریداری شده"}
                 </span>
+              ) : (
+                <>
+                  {component.is_on_sale && (
+                    <span className="text-sm text-gray-400 line-through block">
+                      {formatPrice(component.price)}
+                    </span>
+                  )}
+                  <span className="text-xl font-bold text-gray-900">
+                    {formatPrice(component.current_price)}
+                  </span>
+                </>
               )}
-              <span
-                className={`text-xl font-bold ${
-                  component.is_free ? "text-emerald-600" : "text-gray-900"
-                }`}
-              >
-                {formatPrice(component.current_price)}
-              </span>
             </div>
           </div>
 
@@ -508,17 +563,18 @@ export default function ComponentCard({
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-              {!component.is_free && (
+              {/* Cart Button - Show if not free and not purchased */}
+              {!canDownload && (
                 <button
                   onClick={handleAddToCart}
-                  disabled={loadingCart}
+                  disabled={loadingCart || statusLoading}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                     inCart
                       ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
                       : "bg-gray-100 text-gray-700 hover:bg-teal-500 hover:text-white"
                   }`}
                 >
-                  {loadingCart ? (
+                  {loadingCart || statusLoading ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : inCart ? (
                     <>
@@ -532,6 +588,17 @@ export default function ComponentCard({
                     </>
                   )}
                 </button>
+              )}
+
+              {/* Download Button - Show if free or purchased */}
+              {canDownload && (
+                <Link
+                  href={`/components/${component.slug}`}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm bg-emerald-500 text-white hover:bg-emerald-600 transition-all duration-200"
+                >
+                  <HiDownload className="w-4 h-4" />
+                  <span className="hidden sm:inline">دانلود</span>
+                </Link>
               )}
 
               <Link
