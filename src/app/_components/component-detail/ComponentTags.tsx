@@ -32,7 +32,7 @@ export function ComponentTags({ tags }: ComponentTagsProps) {
         {tags.map((tag) => (
           <Link
             key={tag.id}
-            href={`/components?tag=${tag.slug}`}
+            href={`/components?${tag.type}s[]=${tag.slug}`}
             className="px-4 py-2 rounded-xl text-sm font-medium transition-all hover:scale-105 hover:shadow-md"
             style={{
               backgroundColor: `${tag.color}15`,

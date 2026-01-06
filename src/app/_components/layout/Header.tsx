@@ -31,7 +31,6 @@ import toast from "react-hot-toast";
 const navLinks = [
   { href: "/", label: "خانه", icon: HiHome },
   { href: "/components", label: "کامپوننت‌ها", icon: HiTemplate },
-  { href: "/blog", label: "بلاگ", icon: HiNewspaper },
   { href: "/about", label: "درباره ما", icon: HiInformationCircle },
   { href: "/contact", label: "تماس با ما", icon: HiPhone },
 ];
