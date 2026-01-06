@@ -488,7 +488,7 @@ export default function FilterSidebar({
         </div>
 
         {/* Price Range */}
-        <div className="border-b border-gray-100">
+        {/* <div className="border-b border-gray-100">
           <SectionHeader
             title="محدوده قیمت"
             section="price"
@@ -533,7 +533,7 @@ export default function FilterSidebar({
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Rating */}
         <div>
