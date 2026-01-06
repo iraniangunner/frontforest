@@ -6,6 +6,7 @@ import { CartProvider } from "@/context/CartContext";
 import Header from "./_components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import Footer from "./_components/layout/Footer";
+import { UserStatusProvider } from "@/context/UserStatusContext";
 
 const yekanbakh = localFont({
   src: [
@@ -58,17 +59,19 @@ export default function RootLayout({
       <body className={`${yekanbakh.variable} antialiased`}>
         <AuthProvider>
           <CartProvider>
-            <Header />
-            {children}
+            <UserStatusProvider>
+              <Header />
+              {children}
 
-            <Toaster
-              position="top-center"
-              toastOptions={{
-                duration: 3000,
-                style: { fontFamily: "Vazirmatn, sans-serif" },
-              }}
-            />
-            <Footer />
+              <Toaster
+                position="top-center"
+                toastOptions={{
+                  duration: 3000,
+                  style: { fontFamily: "Vazirmatn, sans-serif" },
+                }}
+              />
+              <Footer />
+            </UserStatusProvider>
           </CartProvider>
         </AuthProvider>
       </body>

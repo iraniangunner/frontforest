@@ -121,6 +121,13 @@ export default api;
 |--------------------------------------------------------------------------
 */
 
+
+
+export const userAPI = {
+  // Get all component statuses in one call
+  getComponentStatuses: () => api.get("/user/statuses", { requiresAuth: true }),
+};
+
 // Categories API
 export const categoriesAPI = {
   getMenu: () => api.get("/categories/menu"),
@@ -297,8 +304,8 @@ export const cartAPI = {
   clear: () => api.delete("/cart", { requiresAuth: true }),
 
   // Check if component is in cart
-  check: (componentId: number) =>
-    api.get(`/cart/check/${componentId}`, { requiresAuth: true }),
+  // check: (componentId: number) =>
+  //   api.get(`/cart/check/${componentId}`, { requiresAuth: true }),
 };
 
 export const authAPI = {
@@ -347,8 +354,8 @@ export const ordersAPI = {
     api.get("/purchases", { params, requiresAuth: true } as any),
 
   // Check if component is purchased
-  check: (componentId: number) =>
-    api.get(`/purchases/check/${componentId}`, { requiresAuth: true } as any),
+  // check: (componentId: number) =>
+  //   api.get(`/purchases/check/${componentId}`, { requiresAuth: true } as any),
 };
 
 // Favorites API
@@ -366,6 +373,6 @@ export const favoritesAPI = {
     api.post(`/favorites/${componentId}/toggle`, {}, { requiresAuth: true }),
 
   // Check if component is favorite
-  check: (componentId: number) =>
-    api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
+  // check: (componentId: number) =>
+  //   api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
 };

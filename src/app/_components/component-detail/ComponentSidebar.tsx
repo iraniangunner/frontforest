@@ -1,8 +1,6 @@
-// app/components/[slug]/component-detail/ComponentSidebar.tsx
-
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   HiDownload,
@@ -16,7 +14,7 @@ import {
 } from "react-icons/hi";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { useComponentStatus } from "@/hooks/useComponentStatus";
+import { useUserStatus } from "@/context/UserStatusContext";
 import { cartAPI, favoritesAPI, publicComponentsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import { Component } from "@/types";
@@ -29,30 +27,25 @@ export function ComponentSidebar({ component }: ComponentSidebarProps) {
   const { user } = useAuth();
   const { incrementCart } = useCart();
 
-  // Fetch user-specific status separately from component data
+  // Get status from context (single API call)
   const {
-    inCart: fetchedInCart,
-    purchased: fetchedPurchased,
-    isFavorite: fetchedFavorite,
+    isInCart,
+    isFavorite: checkFavorite,
+    isPurchased,
+    addToCart: addToCartContext,
+    toggleFavorite: toggleFavoriteContext,
     loading: statusLoading,
-  } = useComponentStatus(component.id);
+  } = useUserStatus();
 
-  // Local state for optimistic updates
-  const [inCart, setInCart] = useState(false);
-  const [purchased, setPurchased] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  // Get status for this component
+  const inCart = isInCart(component.id);
+  const isFavorite = checkFavorite(component.id);
+  const purchased = isPurchased(component.id);
 
   // Action loading states
   const [loadingFavorite, setLoadingFavorite] = useState(false);
   const [loadingCart, setLoadingCart] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
-
-  // Sync local state with fetched data
-  useEffect(() => {
-    setInCart(fetchedInCart);
-    setPurchased(fetchedPurchased);
-    setIsFavorite(fetchedFavorite);
-  }, [fetchedInCart, fetchedPurchased, fetchedFavorite]);
 
   // Format price
   const formatPrice = (price: number) => {
@@ -75,7 +68,7 @@ export function ComponentSidebar({ component }: ComponentSidebarProps) {
 
     const previousState = isFavorite;
     setLoadingFavorite(true);
-    setIsFavorite(!isFavorite); // Optimistic update
+    toggleFavoriteContext(component.id); // Optimistic update
 
     try {
       await favoritesAPI.toggle(component.id);
@@ -83,7 +76,7 @@ export function ComponentSidebar({ component }: ComponentSidebarProps) {
         previousState ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
       );
     } catch (error) {
-      setIsFavorite(previousState); // Revert on error
+      toggleFavoriteContext(component.id); // Revert on error
       toast.error("خطا در انجام عملیات");
     } finally {
       setLoadingFavorite(false);
@@ -101,15 +94,15 @@ export function ComponentSidebar({ component }: ComponentSidebarProps) {
 
     try {
       await cartAPI.add(component.id);
+      addToCartContext(component.id);
       incrementCart();
-      setInCart(true);
       toast.success("به سبد خرید اضافه شد");
     } catch (error: any) {
       if (error.response?.status === 401) {
         toast.error("برای افزودن به سبد ابتدا وارد شوید");
       } else if (error.response?.status === 409) {
+        addToCartContext(component.id);
         toast.error("این کامپوننت در سبد خرید موجود است");
-        setInCart(true);
       } else {
         toast.error(
           error.response?.data?.message || "خطا در افزودن به سبد خرید"
