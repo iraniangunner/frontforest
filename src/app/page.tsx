@@ -66,7 +66,7 @@ export default async function HomePage() {
 
       {/* <StatsSection /> */}
 
-      {categories.length > 0 && <CategoriesSection categories={categories} />}
+      {/* {categories.length > 0 && <CategoriesSection categories={categories} />} */}
 
       {featuredComponents.length > 0 && (
         <ComponentsSection

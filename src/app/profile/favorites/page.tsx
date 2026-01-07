@@ -3,10 +3,18 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { HiHeart, HiTrash, HiShoppingCart, HiArrowRight } from "react-icons/hi";
+import {
+  HiHeart,
+  HiTrash,
+  HiShoppingCart,
+  HiArrowRight,
+  HiCheck,
+} from "react-icons/hi";
 import { favoritesAPI, cartAPI } from "@/lib/api";
 import Pagination from "@/app/_components/ui/Pagination";
 import toast from "react-hot-toast";
+import { useUserStatus } from "@/context/UserStatusContext";
+import { useCart } from "@/context/CartContext";
 
 interface FavoriteComponent {
   id: number;
@@ -23,6 +31,17 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteComponent[]>([]);
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
+
+  const {
+    isInCart,
+    isFavorite: checkFavorite,
+    isPurchased,
+    addToCart: addToCartContext,
+    toggleFavorite: toggleFavoriteContext,
+    loading: statusLoading,
+  } = useUserStatus();
+
+  const { incrementCart } = useCart();
 
   useEffect(() => {
     loadFavorites();
@@ -57,6 +76,8 @@ export default function FavoritesPage() {
   const handleAddToCart = async (componentId: number) => {
     try {
       await cartAPI.add(componentId);
+      addToCartContext(componentId);
+      incrementCart();
       toast.success("به سبد خرید اضافه شد");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "خطا در افزودن به سبد");
@@ -139,7 +160,11 @@ export default function FavoritesPage() {
                     <p className="text-sm text-gray-500 mb-2">
                       {component.category?.name}
                     </p>
-                    <p className={`font-bold mb-4 ${component.is_free ? "text-green-600" : "text-gray-900"}`}>
+                    <p
+                      className={`font-bold mb-4 ${
+                        component.is_free ? "text-green-600" : "text-gray-900"
+                      }`}
+                    >
                       {formatPrice(component.current_price)}
                     </p>
 
@@ -147,10 +172,23 @@ export default function FavoritesPage() {
                       {!component.is_free && (
                         <button
                           onClick={() => handleAddToCart(component.id)}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                            isInCart(component.id)
+                              ? "bg-emerald-500 text-white"
+                              : "bg-blue-600 text-white hover:bg-blue-700"
+                          }`}
                         >
-                          <HiShoppingCart className="w-4 h-4" />
-                          افزودن به سبد
+                          {isInCart(component.id) ? (
+                            <>
+                              <HiCheck className="w-4 h-4" />
+                              در سبد
+                            </>
+                          ) : (
+                            <>
+                              <HiShoppingCart className="w-4 h-4" />
+                              افزودن به سبد
+                            </>
+                          )}
                         </button>
                       )}
                       <button
@@ -169,7 +207,9 @@ export default function FavoritesPage() {
               <Pagination
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
-                onPageChange={(page) => setMeta({ ...meta, current_page: page })}
+                onPageChange={(page) =>
+                  setMeta({ ...meta, current_page: page })
+                }
               />
             </div>
           </>

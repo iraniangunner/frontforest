@@ -1,26 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { HiStar, HiDownload, HiHeart, HiShoppingCart, HiCheck } from "react-icons/hi"
-import type { Component } from "@/types"
-import { cartAPI, favoritesAPI } from "@/lib/api"
-import { useCart } from "@/context/CartContext"
-import { useAuth } from "@/context/AuthContext"
-import { useUserStatus } from "@/context/UserStatusContext"
-import toast from "react-hot-toast"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  HiStar,
+  HiDownload,
+  HiHeart,
+  HiShoppingCart,
+  HiCheck,
+} from "react-icons/hi";
+import type { Component } from "@/types";
+import { cartAPI, favoritesAPI } from "@/lib/api";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useUserStatus } from "@/context/UserStatusContext";
+import toast from "react-hot-toast";
 
 interface ComponentCardProps {
-  component: Component
-  view?: "grid" | "list"
+  component: Component;
+  view?: "grid" | "list";
 }
 
-export default function ComponentCard({ component, view = "grid" }: ComponentCardProps) {
-  const { user } = useAuth()
-  const { incrementCart } = useCart()
+export default function ComponentCard({
+  component,
+  view = "grid",
+}: ComponentCardProps) {
+  const { user } = useAuth();
+  const { incrementCart } = useCart();
 
   const {
     isInCart,
@@ -29,91 +38,93 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
     addToCart: addToCartContext,
     toggleFavorite: toggleFavoriteContext,
     loading: statusLoading,
-  } = useUserStatus()
+  } = useUserStatus();
 
-  const inCart = isInCart(component.id)
-  const isFavorite = checkFavorite(component.id)
-  const purchased = isPurchased(component.id)
+  const inCart = isInCart(component.id);
+  const isFavorite = checkFavorite(component.id);
+  const purchased = isPurchased(component.id);
 
-  const [loadingFavorite, setLoadingFavorite] = useState(false)
-  const [loadingCart, setLoadingCart] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [loadingFavorite, setLoadingFavorite] = useState(false);
+  const [loadingCart, setLoadingCart] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const formatPrice = (price: number) => {
-    if (price === 0) return "رایگان"
-    return price.toLocaleString() + " تومان"
-  }
+    if (price === 0) return "رایگان";
+    return price.toLocaleString() + " تومان";
+  };
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (!user) {
-      toast.error("لطفاً ابتدا وارد شوید")
-      return
+      toast.error("لطفاً ابتدا وارد شوید");
+      return;
     }
 
-    const previousState = isFavorite
-    setLoadingFavorite(true)
-    toggleFavoriteContext(component.id)
+    const previousState = isFavorite;
+    setLoadingFavorite(true);
+    toggleFavoriteContext(component.id);
 
     try {
-      await favoritesAPI.toggle(component.id)
-      toast.success(previousState ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد")
+      await favoritesAPI.toggle(component.id);
+      toast.success(
+        previousState ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
+      );
     } catch (error: any) {
-      toggleFavoriteContext(component.id)
+      toggleFavoriteContext(component.id);
       if (error.response?.status === 401) {
-        toast.error("لطفاً ابتدا وارد شوید")
+        toast.error("لطفاً ابتدا وارد شوید");
       } else {
-        toast.error("خطا در انجام عملیات")
+        toast.error("خطا در انجام عملیات");
       }
     } finally {
-      setLoadingFavorite(false)
+      setLoadingFavorite(false);
     }
-  }
+  };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (!user) {
-      toast.error("لطفاً ابتدا وارد شوید")
-      return
+      toast.error("لطفاً ابتدا وارد شوید");
+      return;
     }
 
     if (component.is_free || purchased) {
-      toast.error("این کامپوننت قابل دانلود است")
-      return
+      toast.error("این کامپوننت قابل دانلود است");
+      return;
     }
 
     if (inCart) {
-      toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" })
-      return
+      toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" });
+      return;
     }
 
-    setLoadingCart(true)
+    setLoadingCart(true);
     try {
-      await cartAPI.add(component.id)
-      addToCartContext(component.id)
-      incrementCart()
-      toast.success("به سبد خرید اضافه شد")
+      await cartAPI.add(component.id);
+      addToCartContext(component.id);
+      incrementCart();
+      toast.success("به سبد خرید اضافه شد");
     } catch (error: any) {
       if (error.response?.status === 401) {
-        toast.error("لطفاً ابتدا وارد شوید")
+        toast.error("لطفاً ابتدا وارد شوید");
       } else if (error.response?.status === 409) {
-        addToCartContext(component.id)
-        toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" })
+        addToCartContext(component.id);
+        toast("این کامپوننت در سبد خرید موجود است", { icon: "🛒" });
       } else if (error.response?.status === 400) {
-        toast.error("شما قبلاً این کامپوننت را خریداری کرده‌اید")
+        toast.error("شما قبلاً این کامپوننت را خریداری کرده‌اید");
       } else {
-        toast.error("خطا در افزودن به سبد خرید")
+        toast.error("خطا در افزودن به سبد خرید");
       }
     } finally {
-      setLoadingCart(false)
+      setLoadingCart(false);
     }
-  }
+  };
 
-  const canDownload = component.is_free || purchased
+  const canDownload = component.is_free || purchased;
 
   if (view === "grid") {
     return (
@@ -125,7 +136,9 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
         <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
           {component.thumbnail ? (
             <>
-              {!imageLoaded && <div className="absolute inset-0 bg-gray-100 animate-pulse" />}
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+              )}
               <Image
                 src={component.thumbnail || "/placeholder.svg"}
                 alt={component.title}
@@ -168,7 +181,9 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
                   خریداری شده
                 </span>
               ) : component.is_free ? (
-                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded">رایگان</span>
+                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded">
+                  رایگان
+                </span>
               ) : component.is_on_sale ? (
                 <span className="px-2 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
                   {component.discount_percent}%
@@ -202,16 +217,22 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
               ) : (
                 <>
                   <div className="text-right">
-                    <span className="text-sm font-bold text-gray-900">{formatPrice(component.current_price)}</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      {formatPrice(component.current_price)}
+                    </span>
                     {component.is_on_sale && (
-                      <span className="text-xs text-gray-400 line-through mr-1">{formatPrice(component.price)}</span>
+                      <span className="text-xs text-gray-400 line-through mr-1">
+                        {formatPrice(component.price)}
+                      </span>
                     )}
                   </div>
                   <button
                     onClick={handleAddToCart}
                     disabled={loadingCart || statusLoading}
                     className={`p-1.5 rounded transition-colors ${
-                      inCart ? "bg-emerald-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      inCart
+                        ? "bg-emerald-500 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     {loadingCart || statusLoading ? (
@@ -228,7 +249,7 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
           </div>
         </div>
       </Link>
-    )
+    );
   }
 
   // ==================== LIST VIEW ====================
@@ -242,7 +263,9 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
         <div className="relative sm:w-48 h-32 sm:h-auto overflow-hidden bg-gray-50 flex-shrink-0">
           {component.thumbnail ? (
             <>
-              {!imageLoaded && <div className="absolute inset-0 bg-gray-100 animate-pulse" />}
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+              )}
               <Image
                 src={component.thumbnail || "/placeholder.svg"}
                 alt={component.title}
@@ -267,7 +290,9 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
                   <HiCheck className="w-3 h-3" />
                 </span>
               ) : component.is_free ? (
-                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded">رایگان</span>
+                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs font-medium rounded">
+                  رایگان
+                </span>
               ) : component.is_on_sale ? (
                 <span className="px-2 py-0.5 bg-rose-500 text-white text-xs font-medium rounded">
                   {component.discount_percent}%
@@ -301,9 +326,13 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
             <div className="flex items-center gap-1.5 mb-1">
               <span
                 className="inline-block w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: component.category.color || "#6366f1" }}
+                style={{
+                  backgroundColor: component.category.color || "#6366f1",
+                }}
               />
-              <span className="text-xs text-gray-500">{component.category.name}</span>
+              <span className="text-xs text-gray-500">
+                {component.category.name}
+              </span>
             </div>
 
             {/* Title */}
@@ -328,7 +357,9 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
           {/* Price & Action */}
           <div className="flex items-center gap-3 flex-shrink-0">
             {canDownload ? (
-              <span className="text-sm font-semibold text-emerald-600">{component.is_free ? "رایگان" : "دانلود"}</span>
+              <span className="text-sm font-semibold text-emerald-600">
+                {component.is_free ? "رایگان" : "دانلود"}
+              </span>
             ) : (
               <>
                 <div className="text-right">
@@ -336,14 +367,18 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
                     {formatPrice(component.current_price)}
                   </span>
                   {component.is_on_sale && (
-                    <span className="text-xs text-gray-400 line-through">{formatPrice(component.price)}</span>
+                    <span className="text-xs text-gray-400 line-through">
+                      {formatPrice(component.price)}
+                    </span>
                   )}
                 </div>
                 <button
                   onClick={handleAddToCart}
                   disabled={loadingCart || statusLoading}
                   className={`p-2 rounded transition-colors ${
-                    inCart ? "bg-emerald-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    inCart
+                      ? "bg-emerald-500 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   {loadingCart || statusLoading ? (
@@ -360,5 +395,5 @@ export default function ComponentCard({ component, view = "grid" }: ComponentCar
         </div>
       </div>
     </Link>
-  )
+  );
 }
