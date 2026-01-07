@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/complete-profile"];
+const protectedRoutes = ["/profile", "/complete-profile"];
 const authRoutes = ["/login"];
 
 export function middleware(request: NextRequest) {
@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   // Auth routes - redirect to dashboard if logged in
   if (authRoutes.some((route) => pathname.startsWith(route))) {
     if (accessToken) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/profile", request.url));
     }
   }
 
@@ -26,5 +26,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/complete-profile", "/login"],
+  matcher: ["/profile/:path*", "/complete-profile", "/login"],
 };

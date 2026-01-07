@@ -131,20 +131,27 @@ export default function CartPage() {
     setCheckingOut(true);
     try {
       const response = await checkoutAPI.checkout();
-
+  
       if (response.data.success && response.data.payment_url) {
         toast.success("در حال انتقال به درگاه پرداخت...");
         window.location.href = response.data.payment_url;
-      } else {
-        toast.error(response.data.message || "خطا در ایجاد سفارش");
+        return;
       }
+  
+      // پرداخت ساخته نشد ولی exception هم نداشت
+      toast.error(response.data.message || "خطا در ایجاد سفارش");
+      router.replace("/profile/orders");
+  
     } catch (error: any) {
       if (error.response?.status === 401) {
-        setIsAuthenticated(false);
         toast.error("لطفاً مجدداً وارد شوید");
       } else {
         toast.error(error.response?.data?.message || "خطا در پرداخت");
       }
+  
+      // 🔥 مهم: حتی در catch هم redirect کن
+      router.replace("/profile/orders");
+  
     } finally {
       setCheckingOut(false);
     }

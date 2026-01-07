@@ -177,7 +177,7 @@ function PaymentCallbackContent() {
             )}
 
             <div className="space-y-3">
-              {result.order_id && (
+              {/* {result.order_id && (
                 <Link
                   href={`/payment/pay/${result.order_id}`}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
@@ -185,14 +185,14 @@ function PaymentCallbackContent() {
                   <HiRefresh className="w-5 h-5" />
                   تلاش مجدد
                 </Link>
-              )}
-              <Link
+              )} */}
+              {/* <Link
                 href="/cart"
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 <HiShoppingCart className="w-5 h-5" />
                 بازگشت به سبد خرید
-              </Link>
+              </Link> */}
               <Link
                 href="/profile/orders"
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 text-gray-500 hover:text-gray-700 transition-colors"
