@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HiShoppingCart, HiTrash, HiArrowLeft, HiLogin } from "react-icons/hi";
+import { HiShoppingCart, HiTrash, HiArrowLeft, HiLogin, HiArrowRight } from "react-icons/hi";
 import { cartAPI, checkoutAPI, authAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import { useCart } from "@/context/CartContext";
@@ -129,29 +129,32 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     setCheckingOut(true);
+
     try {
       const response = await checkoutAPI.checkout();
-  
+
       if (response.data.success && response.data.payment_url) {
         toast.success("در حال انتقال به درگاه پرداخت...");
         window.location.href = response.data.payment_url;
         return;
       }
-  
-      // پرداخت ساخته نشد ولی exception هم نداشت
-      toast.error(response.data.message || "خطا در ایجاد سفارش");
+
+      // اینجا success=false ولی 2xx بوده
+      toast.error(response.data.message || "امکان اتصال به درگاه وجود ندارد");
       router.replace("/profile/orders");
-  
     } catch (error: any) {
-      if (error.response?.status === 401) {
+      const status = error.response?.status;
+
+      if (status === 401) {
         toast.error("لطفاً مجدداً وارد شوید");
+      } else if (status === 409) {
+        toast.error(error.response.data.message);
+        // سفارش pending وجود دارد → بفرستش همونجا
       } else {
         toast.error(error.response?.data?.message || "خطا در پرداخت");
       }
-  
-      // 🔥 مهم: حتی در catch هم redirect کن
+
       router.replace("/profile/orders");
-  
     } finally {
       setCheckingOut(false);
     }
@@ -334,7 +337,7 @@ export default function CartPage() {
                   {checkingOut ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
-                    <HiArrowLeft className="w-5 h-5" />
+                    <HiArrowRight className="w-5 h-5" />
                   )}
                   {checkingOut ? "در حال پردازش..." : "پرداخت و تکمیل خرید"}
                 </button>

@@ -13,8 +13,10 @@ import {
   HiExclamationCircle,
   HiXCircle,
 } from "react-icons/hi";
-import { ordersAPI } from "@/lib/api";
+import { cartAPI, ordersAPI } from "@/lib/api";
 import toast from "react-hot-toast";
+import { useCart } from "@/context/CartContext";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 interface OrderItem {
   id: number;
@@ -47,6 +49,9 @@ export default function PayOrderPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+
+  const { clearCart } = useCart();
+  const { refresh } = useUserStatus();
 
   useEffect(() => {
     if (orderId) {
@@ -131,10 +136,15 @@ export default function PayOrderPage() {
     setCancelling(true);
     try {
       await ordersAPI.cancel(order.id);
+
       toast.success("سفارش با موفقیت لغو شد");
+
+      await refresh();
+
       router.push("/profile/orders");
     } catch (error: any) {
       console.error("Cancel error:", error);
+
       if (error.response?.status === 400) {
         toast.error(error.response.data.message || "این سفارش قابل لغو نیست");
       } else {
@@ -163,8 +173,13 @@ export default function PayOrderPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <HiExclamationCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">سفارش یافت نشد</h1>
-          <Link href="/profile/orders" className="text-blue-600 hover:text-blue-700">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            سفارش یافت نشد
+          </h1>
+          <Link
+            href="/profile/orders"
+            className="text-blue-600 hover:text-blue-700"
+          >
             بازگشت به لیست سفارشات
           </Link>
         </div>
@@ -196,7 +211,8 @@ export default function PayOrderPage() {
               <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                 <HiShoppingCart className="w-5 h-5 text-gray-500" />
                 <h2 className="font-semibold text-gray-900">
-                  آیتم‌های سفارش ({order.items_count || order.items?.length || 0})
+                  آیتم‌های سفارش (
+                  {order.items_count || order.items?.length || 0})
                 </h2>
               </div>
 
@@ -273,7 +289,9 @@ export default function PayOrderPage() {
 
                 <div className="border-t border-gray-100 pt-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900">مبلغ قابل پرداخت</span>
+                    <span className="font-semibold text-gray-900">
+                      مبلغ قابل پرداخت
+                    </span>
                     <span className="font-bold text-xl text-blue-600">
                       {formatPrice(order.total)}
                     </span>
