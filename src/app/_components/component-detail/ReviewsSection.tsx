@@ -44,7 +44,7 @@ export function ReviewsSection({
     try {
       await publicComponentsAPI.addReview(componentSlug, {
         rating,
-        comment: comment.trim() || undefined,
+        comment: comment.trim(),
       });
 
       toast.success("نظر شما ثبت شد و پس از تایید نمایش داده می‌شود");
@@ -109,7 +109,7 @@ export function ReviewsSection({
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="نظر خود را بنویسید... (اختیاری)"
+          placeholder="نظر خود را بنویسید... (اجباری)"
           rows={3}
           className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
         />

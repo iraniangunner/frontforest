@@ -18,8 +18,8 @@ interface FileInfoProps {
 }
 
 export function FileInfo({ fileSizeFormatted, tags }: FileInfoProps) {
-  const framework = tags?.find((t) => t.type === "framework")?.name || "React";
-  const styling = tags?.find((t) => t.type === "styling")?.name || "Tailwind CSS";
+  const framework = tags?.find((t) => t.type === "framework")?.name || "";
+  const styling = tags?.find((t) => t.type === "styling")?.name || "";
 
   const infoItems = [
     {

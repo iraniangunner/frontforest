@@ -121,8 +121,6 @@ export default api;
 |--------------------------------------------------------------------------
 */
 
-
-
 export const userAPI = {
   // Get all component statuses in one call
   getComponentStatuses: () => api.get("/user/statuses", { requiresAuth: true }),
@@ -239,6 +237,16 @@ export const reviewsAPI = {
 
   delete: (id: number) =>
     api.delete(`/admin/reviews/${id}`, { requiresAuth: true }),
+
+  reply: (id: number, adminReply: string) =>
+    api.patch(
+      `/admin/reviews/${id}/reply`,
+      { admin_reply: adminReply },
+      { requiresAuth: true }
+    ),
+
+  deleteReply: (id: number) =>
+    api.delete(`/admin/reviews/${id}/reply`, { requiresAuth: true }),
 };
 
 // Public Components API
@@ -266,11 +274,11 @@ export const publicComponentsAPI = {
     }),
 
   // ✅ ADD THIS - Submit review
-  addReview: (slug: string, data: { rating: number; comment?: string }) =>
+  addReview: (slug: string, data: { rating: number; comment: string }) =>
     api.post(`/components/${slug}/reviews`, data, { requiresAuth: true }),
 
   // ✅ ADD THIS - Update review
-  updateReview: (slug: string, data: { rating: number; comment?: string }) =>
+  updateReview: (slug: string, data: { rating: number; comment: string }) =>
     api.put(`/components/${slug}/reviews`, data, { requiresAuth: true }),
 
   // ✅ ADD THIS - Delete review

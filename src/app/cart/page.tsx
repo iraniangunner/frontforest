@@ -8,6 +8,7 @@ import { HiShoppingCart, HiTrash, HiArrowLeft, HiLogin } from "react-icons/hi";
 import { cartAPI, checkoutAPI, authAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 import { useCart } from "@/context/CartContext";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 interface CartItem {
   id: number;
@@ -30,6 +31,7 @@ interface CartSummary {
 export default function CartPage() {
   const router = useRouter();
   const { refreshCart, clearCart } = useCart();
+  const { refresh } = useUserStatus();
 
   const [items, setItems] = useState<CartItem[]>([]);
   const [summary, setSummary] = useState<CartSummary>({
@@ -49,12 +51,12 @@ export default function CartPage() {
   // ✅ First check auth, then load cart
   const checkAuthAndLoadCart = async () => {
     setLoading(true);
-    
+
     try {
       // First check if user is authenticated
       await authAPI.me();
       setIsAuthenticated(true);
-      
+
       // If authenticated, load cart
       await loadCart();
     } catch (error: any) {
@@ -68,12 +70,14 @@ export default function CartPage() {
     try {
       const response = await cartAPI.get();
       setItems(response.data.data || []);
-      setSummary(response.data.summary || {
-        count: 0,
-        subtotal: 0,
-        discount: 0,
-        total: 0,
-      });
+      setSummary(
+        response.data.summary || {
+          count: 0,
+          subtotal: 0,
+          discount: 0,
+          total: 0,
+        }
+      );
       refreshCart();
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -91,6 +95,7 @@ export default function CartPage() {
       await cartAPI.remove(componentId);
       setItems((prev) => prev.filter((i) => i.id !== componentId));
       toast.success("از سبد خرید حذف شد");
+      await refresh();
       loadCart();
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -111,6 +116,7 @@ export default function CartPage() {
       setSummary({ count: 0, subtotal: 0, discount: 0, total: 0 });
       clearCart();
       toast.success("سبد خرید خالی شد");
+      await refresh();
     } catch (error: any) {
       if (error.response?.status === 401) {
         setIsAuthenticated(false);
@@ -249,7 +255,9 @@ export default function CartPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <span className="text-gray-400 text-xs">بدون تصویر</span>
+                          <span className="text-gray-400 text-xs">
+                            بدون تصویر
+                          </span>
                         </div>
                       )}
                     </div>
@@ -290,7 +298,9 @@ export default function CartPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-                <h3 className="font-semibold text-gray-900 mb-4">خلاصه سفارش</h3>
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  خلاصه سفارش
+                </h3>
 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
