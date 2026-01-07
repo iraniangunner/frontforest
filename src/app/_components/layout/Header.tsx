@@ -319,18 +319,18 @@ export default function Header() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link
+                  {/* <Link
                     href="/login"
                     className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                   >
                     ورود
-                  </Link>
+                  </Link> */}
                   <Link
-                    href="/register"
+                    href="/login"
                     className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all duration-200"
                   >
-                    <span className="hidden sm:inline">ثبت‌نام رایگان</span>
-                    <span className="sm:hidden">ورود</span>
+                    {/* <span className="hidden sm:inline">ثبت‌نام رایگان</span> */}
+                    <span>ورود / ثبت‌نام</span>
                   </Link>
                 </div>
               )}
@@ -377,7 +377,7 @@ export default function Header() {
             {/* Login/Register for Guests Only */}
             {!user && (
               <>
-                <div className="border-t border-gray-200 my-3" />
+                {/* <div className="border-t border-gray-200 my-3" />
                 <div className="flex gap-2 px-2">
                   <Link
                     href="/login"
@@ -385,13 +385,8 @@ export default function Header() {
                   >
                     ورود
                   </Link>
-                  <Link
-                    href="/register"
-                    className="flex-1 px-4 py-3 text-center text-white font-medium bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-lg shadow-emerald-500/25"
-                  >
-                    ثبت‌نام
-                  </Link>
-                </div>
+                 
+                </div> */}
               </>
             )}
           </div>
@@ -433,22 +428,7 @@ export default function Header() {
               </div>
             </form>
 
-            {/* Quick Links */}
-            {/* <div className="mt-4 flex flex-wrap gap-2 justify-center">
-              <span className="text-sm text-white/70">پرطرفدار:</span>
-              {["فرم ورود", "دکمه", "کارت", "نوار ناوبری"].map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => {
-                    router.push(`/components?search=${encodeURIComponent(tag)}`);
-                    setSearchOpen(false);
-                  }}
-                  className="px-3 py-1.5 bg-white/10 backdrop-blur-sm text-white text-sm rounded-lg hover:bg-white/20 transition-colors"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div> */}
+           
           </div>
         </div>
       )}
