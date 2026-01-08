@@ -41,6 +41,11 @@ export function ReviewsSection({
       return;
     }
 
+    if (!comment.trim()) {
+      toast.error("لطفاً نظر خود را بنویسید");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -57,14 +62,19 @@ export function ReviewsSection({
       if (error.response?.status === 401) {
         toast.error("برای ثبت نظر ابتدا وارد شوید");
         router.push("/login");
-      } else if (error.response?.status === 403) {
-        toast.error("برای ثبت نظر ابتدا این کامپوننت را خریداری کنید");
-      } else if (error.response?.status === 409) {
-        toast.error("شما قبلاً برای این کامپوننت نظر ثبت کرده‌اید");
       } else if (error.response?.status === 422) {
-        const errors = error.response.data.errors;
-        const firstError = Object.values(errors)?.[0];
-        toast.error(Array.isArray(firstError) ? firstError[0] : "خطا در اعتبارسنجی");
+        const data = error.response.data;
+
+        if (data?.errors) {
+          const firstError = Object.values(data.errors)[0];
+          toast.error(
+            Array.isArray(firstError) ? firstError[0] : "خطا در اعتبارسنجی"
+          );
+        } else if (data?.message) {
+          toast.error(data.message);
+        } else {
+          toast.error("خطا در ثبت نظر");
+        }
       } else {
         toast.error(error.response?.data?.message || "خطا در ثبت نظر");
       }
