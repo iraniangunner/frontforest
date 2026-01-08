@@ -93,7 +93,7 @@ export default async function HomePage() {
           title="کامپوننت‌های رایگان"
           subtitle="دانلود رایگان و بدون محدودیت"
           components={freeComponents}
-          href="/components?free=true"
+          href="/components?free=1"
           variant="free"
         />
       )}

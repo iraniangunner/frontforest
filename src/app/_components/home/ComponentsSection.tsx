@@ -1,23 +1,18 @@
-// components/home/ComponentsSection.tsx
+"use client"
 
-"use client";
-
-import Link from "next/link";
-import {
-  HiChevronLeft,
-  HiTrendingUp,
-  HiSparkles,
-  HiGift,
-} from "react-icons/hi";
-import ComponentCard from "../ui/ComponentCard";
-import { Component } from "@/types";
+import Link from "next/link"
+import { HiChevronLeft, HiChevronRight, HiTrendingUp, HiSparkles, HiGift } from "react-icons/hi"
+import ComponentCard from "../ui/ComponentCard"
+import type { Component } from "@/types"
+import useEmblaCarousel from "embla-carousel-react"
+import { useCallback, useEffect, useState } from "react"
 
 interface ComponentsSectionProps {
-  title: string;
-  subtitle: string;
-  components: Component[];
-  href: string;
-  variant: "featured" | "newest" | "free";
+  title: string
+  subtitle: string
+  components: Component[]
+  href: string
+  variant: "featured" | "newest" | "free"
 }
 
 const variantConfig = {
@@ -45,17 +40,45 @@ const variantConfig = {
     buttonBg: "bg-emerald-500",
     buttonText: "text-white",
   },
-};
+}
 
-export default function ComponentsSection({
-  title,
-  subtitle,
-  components,
-  href,
-  variant,
-}: ComponentsSectionProps) {
-  const config = variantConfig[variant];
-  const Icon = config.icon;
+export default function ComponentsSection({ title, subtitle, components, href, variant }: ComponentsSectionProps) {
+  const config = variantConfig[variant]
+  const Icon = config.icon
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    align: "start",
+    direction: "rtl",
+  })
+
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setCanScrollPrev(emblaApi.canScrollPrev())
+    setCanScrollNext(emblaApi.canScrollNext())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on("select", onSelect)
+    emblaApi.on("reInit", onSelect)
+    return () => {
+      emblaApi.off("select", onSelect)
+      emblaApi.off("reInit", onSelect)
+    }
+  }, [emblaApi, onSelect])
 
   return (
     <section className={`py-20 ${config.bg}`}>
@@ -83,16 +106,40 @@ export default function ComponentsSection({
           </Link>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {components.map((component) => (
-            <ComponentCard
-              key={component.id}
-              component={component}
-            //   initialIsFavorite={component.is_favorite}
-            //   initialInCart={component.in_cart}
-            />
-          ))}
+        <div className="relative">
+          {canScrollPrev && (
+            <button
+              onClick={scrollPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Previous"
+            >
+              <HiChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+          )}
+
+          {canScrollNext && (
+            <button
+              onClick={scrollNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+              aria-label="Next"
+            >
+              <HiChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          )}
+
+          {/* Carousel Container */}
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-6">
+              {components.map((component) => (
+                <div
+                  key={component.id}
+                  className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_calc(50%-12px)] lg:flex-[0_0_calc(25%-18px)]"
+                >
+                  <ComponentCard component={component} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Mobile Link */}
@@ -107,5 +154,5 @@ export default function ComponentsSection({
         </div>
       </div>
     </section>
-  );
+  )
 }

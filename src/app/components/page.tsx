@@ -429,7 +429,6 @@ export default function ComponentsPage() {
               filters={filters}
               onFilterChange={(newFilters) => {
                 handleFilterChange(newFilters);
-                // setMobileFilterOpen(false);
               }}
               onClose={() => setMobileFilterOpen(false)}
               isMobile
