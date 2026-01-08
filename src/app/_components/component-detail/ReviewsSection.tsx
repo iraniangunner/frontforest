@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { HiStar } from "react-icons/hi";
+import { HiStar, HiReply } from "react-icons/hi";
 import { publicComponentsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,8 @@ interface Review {
   id: number;
   rating: number;
   comment: string | null;
+  admin_reply: string | null;
+  admin_reply_at: string | null;
   user: { id: number; name: string };
   created_at: string;
 }
@@ -168,8 +170,27 @@ export function ReviewsSection({
                   </div>
                 </div>
               </div>
+
               {review.comment && (
                 <p className="text-gray-600 mr-13">{review.comment}</p>
+              )}
+
+              {/* Admin Reply */}
+              {review.admin_reply && (
+                <div className="mt-3 mr-13 bg-blue-50 border-r-4 border-blue-500 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <HiReply className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">
+                      پاسخ مدیریت
+                    </span>
+                    {review.admin_reply_at && (
+                      <span className="text-xs text-blue-500">
+                        {formatDate(review.admin_reply_at)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-blue-900">{review.admin_reply}</p>
+                </div>
               )}
             </div>
           ))}

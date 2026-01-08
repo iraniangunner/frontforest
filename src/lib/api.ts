@@ -239,14 +239,11 @@ export const reviewsAPI = {
     api.delete(`/admin/reviews/${id}`, { requiresAuth: true }),
 
   reply: (id: number, adminReply: string) =>
-    api.patch(
-      `/admin/reviews/${id}/reply`,
-      { admin_reply: adminReply },
-      { requiresAuth: true }
-    ),
+    api.post(`/admin/reviews/${id}/reply`, { admin_reply: adminReply }, { requiresAuth: true }),
 
   deleteReply: (id: number) =>
     api.delete(`/admin/reviews/${id}/reply`, { requiresAuth: true }),
+
 };
 
 // Public Components API
