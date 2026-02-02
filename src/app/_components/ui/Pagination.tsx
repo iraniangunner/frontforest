@@ -150,9 +150,10 @@ import { HiChevronRight, HiChevronLeft, HiDotsHorizontal } from "react-icons/hi"
 interface PaginationProps {
   currentPage: number;
   lastPage: number;
+  basePath: string; // e.g., "/components", "/products", "/blog"
 }
 
-export default function Pagination({ currentPage, lastPage }: PaginationProps) {
+export default function Pagination({ currentPage, lastPage, basePath }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -168,7 +169,7 @@ export default function Pagination({ currentPage, lastPage }: PaginationProps) {
     }
 
     const queryString = params.toString();
-    router.push(queryString ? `/components?${queryString}` : "/components", {
+    router.push(queryString ? `${basePath}?${queryString}` : basePath, {
       scroll: false,
     });
 

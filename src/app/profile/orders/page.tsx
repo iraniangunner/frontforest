@@ -174,7 +174,8 @@ const getStatusColor = (status: string) => {
             <Pagination
               currentPage={meta.current_page}
               lastPage={meta.last_page}
-              onPageChange={(page) => setMeta({ ...meta, current_page: page })}
+              basePath="/orders"
+              // onPageChange={(page) => setMeta({ ...meta, current_page: page })}
             />
           </div>
         )}

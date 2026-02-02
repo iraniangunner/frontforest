@@ -39,16 +39,18 @@ export default async function ComponentsGridServer({
   return (
     <>
       {/* Results Count */}
-      <p className="text-sm text-gray-500 mb-4">
-        {meta.total} نتیجه یافت شد
-      </p>
+      <p className="text-sm text-gray-500 mb-4">{meta.total} نتیجه یافت شد</p>
 
       {/* Components Grid */}
       <ComponentsGrid components={components} />
 
       {/* Pagination */}
       <div className="mt-8">
-        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} />
+        <Pagination
+          currentPage={meta.current_page}
+          lastPage={meta.last_page}
+          basePath="/components"
+        />
       </div>
     </>
   );

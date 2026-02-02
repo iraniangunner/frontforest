@@ -207,9 +207,10 @@ export default function FavoritesPage() {
               <Pagination
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
-                onPageChange={(page) =>
-                  setMeta({ ...meta, current_page: page })
-                }
+                basePath="/favorites"
+                // onPageChange={(page) =>
+                //   setMeta({ ...meta, current_page: page })
+                // }
               />
             </div>
           </>
