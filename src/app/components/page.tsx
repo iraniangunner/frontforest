@@ -459,7 +459,9 @@ import {
   ViewToggle,
   MobileFilterButton,
 } from "../_components/ui/Toolbar";
-
+import { Suspense } from "react";
+import ComponentsGridServer from "../_components/ui/Componentsgridserver";
+import ComponentCardSkeleton from "../_components/ui/Componentcardskeleton";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -616,7 +618,16 @@ export default async function ComponentsPage({ searchParams }: PageProps) {
 
             {/* Components Grid/List */}
 
-            <ComponentsGrid components={components} />
+            <Suspense
+              key={JSON.stringify(filters)}
+              fallback={
+                <div className="flex items-center justify-center min-h-[60vh]">
+                  <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                </div>
+              }
+            >
+              <ComponentsGridServer filters={filters} />
+            </Suspense>
 
             {/* Pagination */}
             <div className="mt-8">
