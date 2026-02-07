@@ -178,8 +178,8 @@ export default function PurchasesPage() {
               <Pagination
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
-                basePath="/purchases"
-                // onPageChange={(page) => setMeta({ ...meta, current_page: page })}
+                // basePath="/profile/purchases"
+                onPageChange={(page) => setMeta({ ...meta, current_page: page })}
               />
             </div>
           </>

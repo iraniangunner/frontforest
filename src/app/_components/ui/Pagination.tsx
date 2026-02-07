@@ -150,17 +150,35 @@ import { HiChevronRight, HiChevronLeft, HiDotsHorizontal } from "react-icons/hi"
 interface PaginationProps {
   currentPage: number;
   lastPage: number;
-  basePath: string; // e.g., "/components", "/products", "/blog"
+  onPageChange?: (page: number) => void; // Optional callback
+  basePath?: string; // Used when onPageChange is not provided
+  preserveParams?: boolean; // Keep existing query params (default: true)
 }
 
-export default function Pagination({ currentPage, lastPage, basePath }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  lastPage,
+  onPageChange,
+  basePath = "",
+  preserveParams = true,
+}: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   if (lastPage <= 1) return null;
 
+  // Smart page change handler
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    // If callback provided, use it (client component mode)
+    if (onPageChange) {
+      onPageChange(page);
+      return;
+    }
+
+    // Otherwise, use URL navigation (server component mode)
+    const params = new URLSearchParams(
+      preserveParams ? searchParams.toString() : ""
+    );
 
     if (page > 1) {
       params.set("page", String(page));
@@ -169,10 +187,9 @@ export default function Pagination({ currentPage, lastPage, basePath }: Paginati
     }
 
     const queryString = params.toString();
-    router.push(queryString ? `${basePath}?${queryString}` : basePath, {
-      scroll: false,
-    });
-
+    const url = queryString ? `${basePath}?${queryString}` : basePath;
+    
+    router.push(url);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -213,13 +230,9 @@ export default function Pagination({ currentPage, lastPage, basePath }: Paginati
       {/* Page Info */}
       <p className="text-sm text-gray-500">
         صفحه{" "}
-        <span className="font-bold text-gray-700">
-          {currentPage.toLocaleString("fa-IR")}
-        </span>{" "}
-        از{" "}
-        <span className="font-bold text-gray-700">
-          {lastPage.toLocaleString("fa-IR")}
-        </span>
+        <span className="font-bold text-gray-700">{currentPage.toLocaleString("fa-IR")}</span>
+        {" "}از{" "}
+        <span className="font-bold text-gray-700">{lastPage.toLocaleString("fa-IR")}</span>
       </p>
 
       {/* Pagination Controls */}
@@ -261,9 +274,7 @@ export default function Pagination({ currentPage, lastPage, basePath }: Paginati
                 {currentPage === page && (
                   <span className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-lg shadow-emerald-500/30" />
                 )}
-                <span className="relative z-10">
-                  {(page as number).toLocaleString("fa-IR")}
-                </span>
+                <span className="relative z-10">{(page as number).toLocaleString("fa-IR")}</span>
               </button>
             )
           )}

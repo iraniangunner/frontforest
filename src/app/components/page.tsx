@@ -634,6 +634,7 @@ export default async function ComponentsPage({ searchParams }: PageProps) {
               <Pagination
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
+                basePath="/components"
               />
             </div>
           </main>
