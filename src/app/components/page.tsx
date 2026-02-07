@@ -630,13 +630,13 @@ export default async function ComponentsPage({ searchParams }: PageProps) {
             </Suspense>
 
             {/* Pagination */}
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <Pagination
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
                 basePath="/components"
               />
-            </div>
+            </div> */}
           </main>
         </div>
       </div>
