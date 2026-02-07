@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { contactAPI } from "@/lib/api";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -23,15 +24,12 @@ export default function ContactForm() {
     setLoading(true);
 
     try {
-      // Replace with your API endpoint
-      // await contactAPI.send(formData);
-      
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+      await contactAPI.send(formData);
       toast.success("پیام شما با موفقیت ارسال شد");
       setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (error) {
-      toast.error("خطا در ارسال پیام");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "خطا در ارسال پیام";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

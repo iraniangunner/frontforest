@@ -17,6 +17,7 @@ const menuItems = [
   { path: "/admin/tags", icon: HiOutlineTag, label: "تگ‌ها" },
   { path: "/admin/components", icon: HiOutlineCube, label: "کامپوننت‌ها" },
   { path: "/admin/reviews", icon: HiOutlineStar, label: "نظرات" },
+  { path: "/admin/contact", icon: HiOutlineStar, label: "پیام های ارسالی" },
 ];
 
 export default function Sidebar() {

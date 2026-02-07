@@ -381,3 +381,30 @@ export const favoritesAPI = {
   // check: (componentId: number) =>
   //   api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
 };
+
+
+
+
+
+export const contactAPI = {
+  // Public endpoint - no auth required
+  send: (data: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }) => api.post("/contact", data),
+
+  // Admin endpoints - require auth
+  getAll: (params?: { page?: number; per_page?: number; status?: string }) =>
+    api.get("/admin/contact", { params, requiresAuth: true }),
+
+  getOne: (id: number) =>
+    api.get(`/admin/contact/${id}`, { requiresAuth: true }),
+
+  updateStatus: (id: number, status: string) =>
+    api.patch(`/admin/contact/${id}/status/${status}`, {}, { requiresAuth: true }),
+
+  delete: (id: number) =>
+    api.delete(`/admin/contact/${id}`, { requiresAuth: true }),
+};
