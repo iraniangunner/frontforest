@@ -111,10 +111,10 @@ export default function TagsPage() {
 
     try {
       if (editingTag) {
-        await tagsAPI.update(editingTag.id, formData);
+        await tagsAPI.update(editingTag.id, formData as any);
         toast.success("تگ بروزرسانی شد");
       } else {
-        await tagsAPI.create(formData);
+        await tagsAPI.create(formData as any);
         toast.success("تگ ایجاد شد");
       }
       closeModal();

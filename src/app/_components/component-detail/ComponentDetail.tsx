@@ -22,6 +22,8 @@ interface Review {
   comment: string | null;
   user: { id: number; name: string };
   created_at: string;
+  admin_reply: string | null;      // ← ADD THIS LINE
+  admin_reply_at: string | null;   // ← ADD THIS LINE
 }
 
 interface Props {
