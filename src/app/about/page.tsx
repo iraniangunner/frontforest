@@ -138,9 +138,9 @@ export default function AboutPage() {
             صرف خلق ویژگی‌های جدید کنند، نه بازنویسی کامپوننت‌های تکراری.
           </p>
           <p className="mt-4 text-lg leading-8 text-gray-600">
-            به همین دلیل، مجموعه‌ای از کامپوننت‌های آماده، تست شده و
-            بهینه‌سازی شده را ارائه می‌دهیم که می‌توانید به راحتی در پروژه‌های
-            خود استفاده کنید.
+            به همین دلیل، مجموعه‌ای از کامپوننت‌های آماده، تست شده و بهینه‌سازی
+            شده را ارائه می‌دهیم که می‌توانید به راحتی در پروژه‌های خود استفاده
+            کنید.
           </p>
           <div className="mt-8">
             <Link
@@ -204,60 +204,6 @@ export default function AboutPage() {
             </dl>
           </div>
         </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="relative isolate overflow-hidden bg-gray-900">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              آماده شروع هستید؟
-            </h2>
-            <p className="mt-4 text-lg text-gray-300">
-              همین حالا کامپوننت‌های ما را بررسی کنید و پروژه خود را سریع‌تر
-              توسعه دهید.
-            </p>
-            <div className="mt-8 flex items-center justify-center gap-4">
-              <Link
-                href="/components"
-                className="rounded-xl bg-teal-500 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-400 transition-colors"
-              >
-                مشاهده کامپوننت‌ها
-              </Link>
-              <Link
-                href="/contact"
-                className="rounded-xl bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
-              >
-                تماس با ما
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Background decoration */}
-        <svg
-          className="absolute left-1/2 top-0 -z-10 h-[42rem] w-[82rem] -translate-x-1/2 stroke-white/10 [mask-image:radial-gradient(closest-side,white,transparent)]"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="pattern"
-              width={200}
-              height={200}
-              x="50%"
-              y={0}
-              patternUnits="userSpaceOnUse"
-            >
-              <path d="M.5 200V.5H200" fill="none" />
-            </pattern>
-          </defs>
-          <rect
-            width="100%"
-            height="100%"
-            strokeWidth={0}
-            fill="url(#pattern)"
-          />
-        </svg>
       </div>
     </div>
   );
