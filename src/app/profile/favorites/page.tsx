@@ -67,6 +67,7 @@ export default function FavoritesPage() {
     try {
       await favoritesAPI.remove(componentId);
       setFavorites((prev) => prev.filter((f) => f.id !== componentId));
+      toggleFavoriteContext(componentId);
       toast.success("از علاقه‌مندی‌ها حذف شد");
     } catch (error) {
       toast.error("خطا در حذف");
