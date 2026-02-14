@@ -169,12 +169,13 @@ export default function FavoritesPage() {
                     </p>
 
                     <div className="flex gap-2">
-                      {!component.is_free && (
+                      {!component.is_free && !isPurchased(component.id) && (
                         <button
                           onClick={() => handleAddToCart(component.id)}
+                          disabled={isInCart(component.id)}
                           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                             isInCart(component.id)
-                              ? "bg-emerald-500 text-white"
+                              ? "bg-emerald-500 text-white cursor-default"
                               : "bg-blue-600 text-white hover:bg-blue-700"
                           }`}
                         >
@@ -191,6 +192,14 @@ export default function FavoritesPage() {
                           )}
                         </button>
                       )}
+
+                      {!component.is_free && isPurchased(component.id) && (
+                        <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg">
+                          <HiCheck className="w-4 h-4" />
+                          خریداری شده
+                        </div>
+                      )}
+
                       <button
                         onClick={() => handleRemove(component.id)}
                         className="flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
