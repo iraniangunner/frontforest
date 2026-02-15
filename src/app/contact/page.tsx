@@ -80,7 +80,7 @@ export default function ContactPage() {
                       className="text-gray-900 hover:text-teal-600 transition-colors"
                       dir="ltr"
                     >
-                      ۰۲۱-۱۲۳۴۵۶۷۸
+                     09145145383
                     </a>
                   </dd>
                 </div>
@@ -92,7 +92,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">آدرس</dt>
-                  <dd className="mt-1 text-gray-900">تهران، خیابان ولیعصر</dd>
+                  <dd className="mt-1 text-gray-900">تهران انتهای بلوار آیت الله کاشانی خیابان عاشوری کوچه بوستان</dd>
                 </div>
               </div>
             </dl>

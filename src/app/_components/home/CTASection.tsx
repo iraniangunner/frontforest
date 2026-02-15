@@ -25,12 +25,12 @@ export default function CTASection() {
           باشید
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/register"
+          {/* <Link
+            href="/login"
             className="w-full sm:w-auto px-8 py-4 bg-white text-emerald-600 font-bold rounded-2xl hover:bg-gray-50 shadow-2xl shadow-black/20 hover:-translate-y-1 transition-all"
           >
             شروع رایگان
-          </Link>
+          </Link> */}
           <Link
             href="/components"
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-2xl border-2 border-white/30 hover:bg-white/20 transition-all"

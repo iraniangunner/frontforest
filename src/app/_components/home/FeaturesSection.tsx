@@ -57,9 +57,9 @@ export default function FeaturesSection() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             چرا فرانت‌فارست؟
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">
+          {/* <p className="text-gray-500 max-w-2xl mx-auto">
             ما بهترین کامپوننت‌های React را با کیفیت بالا و قیمت مناسب ارائه می‌دهیم
-          </p>
+          </p> */}
         </div>
 
         {/* Grid */}

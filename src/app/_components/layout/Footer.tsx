@@ -72,7 +72,7 @@ export default function Footer() {
             </Link>
             
             <p className="text-gray-400 leading-relaxed max-w-md">
-              مرجع کامپوننت‌های React و Tailwind CSS برای توسعه‌دهندگان ایرانی. ساخت وب را ساده‌تر، سریع‌تر و حرفه‌ای‌تر کنید.
+              مرجع کامپوننت‌های Next JS و Tailwind CSS برای توسعه‌دهندگان ایرانی. ساخت وب را ساده‌تر، سریع‌تر و حرفه‌ای‌تر کنید.
             </p>
 
             {/* Social Links */}
