@@ -16,6 +16,11 @@ import {
 import { Suspense } from "react";
 import ComponentsGridServer from "../_components/ui/Componentsgridserver";
 
+export const metadata = {
+  title: "کامپوننت ها | فرانت فارست",
+  description: "با فرانت فارست آشنا شوید - مرجع کامپوننت‌های آماده فرانت‌اند",
+};
+
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }

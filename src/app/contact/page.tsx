@@ -3,6 +3,11 @@
 import { HiMail, HiPhone, HiLocationMarker } from "react-icons/hi";
 import ContactForm from "../_components/ui/ContactForm";
 
+export const metadata = {
+  title: "تماس یا ما | فرانت فارست",
+  description: "با فرانت فارست آشنا شوید - مرجع کامپوننت‌های آماده فرانت‌اند",
+};
+
 export default function ContactPage() {
   return (
     <div className="bg-white" dir="rtl">

@@ -2,12 +2,12 @@
 
 import {
   HeroSection,
-  StatsSection,
-  CategoriesSection,
   ComponentsSection,
   FeaturesSection,
   CTASection,
 } from "./_components/home";
+
+
 
 // Server-side data fetching
 async function getHomeData() {

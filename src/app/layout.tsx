@@ -45,8 +45,8 @@ const yekanbakh = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "FrontForest",
-  description: "Explore themes here!!",
+  title: "خانه | فرانت فارست",
+  description: "مرجع کامپوننت های Nextjs , Tailwind css",
 };
 
 export default function RootLayout({
