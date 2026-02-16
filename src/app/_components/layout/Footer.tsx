@@ -42,22 +42,27 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-gradient-to-b from-gray-900 to-gray-950 text-gray-400" dir="rtl">
+    <footer
+      className="relative bg-gradient-to-b from-gray-900 to-gray-950 text-gray-400"
+      dir="rtl"
+    >
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-      
+
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgb(255 255 255) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(255 255 255) 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* 2 Column Layout */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          
           {/* Right Column - Brand & Description */}
           <div className="space-y-6">
             {/* Brand */}
@@ -67,12 +72,15 @@ export default function Footer() {
               </div>
               <div className="flex items-center">
                 <span className="text-2xl font-bold text-white">فرانت</span>
-                <span className="text-2xl font-bold text-emerald-400">فارست</span>
+                <span className="text-2xl font-bold text-emerald-400">
+                  فارست
+                </span>
               </div>
             </Link>
-            
+
             <p className="text-gray-400 leading-relaxed max-w-md">
-              مرجع کامپوننت‌های Next JS و Tailwind CSS برای توسعه‌دهندگان ایرانی. ساخت وب را ساده‌تر، سریع‌تر و حرفه‌ای‌تر کنید.
+              مرجع کامپوننت‌های Next JS و Tailwind CSS برای توسعه‌دهندگان
+              ایرانی. ساخت وب را ساده‌تر، سریع‌تر و حرفه‌ای‌تر کنید.
             </p>
 
             {/* Social Links */}
@@ -124,6 +132,13 @@ export default function Footer() {
             <p className="text-sm text-gray-500">
               © ۱۴۰۴ فرانت‌فارست. تمامی حقوق محفوظ است.
             </p>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: `
+     <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=707060&Code=3MblfhiXonk6BPuPWPHu76fxKqnICiMR'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=707060&Code=3MblfhiXonk6BPuPWPHu76fxKqnICiMR' alt='' style='cursor:pointer' code='3MblfhiXonk6BPuPWPHu76fxKqnICiMR'></a>
+    `,
+              }}
+            />
             {/* <div className="flex items-center gap-6 text-sm">
               <Link href="/terms" className="text-gray-500 hover:text-emerald-400 transition-colors">
                 قوانین و مقررات
