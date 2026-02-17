@@ -18,6 +18,8 @@ const menuItems = [
   { path: "/admin/components", icon: HiOutlineCube, label: "کامپوننت‌ها" },
   { path: "/admin/reviews", icon: HiOutlineStar, label: "نظرات" },
   { path: "/admin/contact", icon: HiOutlineStar, label: "پیام های ارسالی" },
+  { path: "/admin/orders", icon: HiOutlineStar, label: "مدیریت سفارشات" },
+  { path: "/admin/payment-inquiries", icon: HiOutlineStar, label: "استعلام پرداخت ها" },
 ];
 
 export default function Sidebar() {

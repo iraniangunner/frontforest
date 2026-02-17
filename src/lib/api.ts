@@ -408,3 +408,40 @@ export const contactAPI = {
   delete: (id: number) =>
     api.delete(`/admin/contact/${id}`, { requiresAuth: true }),
 };
+
+
+
+
+// Admin Orders API
+// =====================================
+export const adminOrdersAPI = {
+  // Get all orders with filters
+  getAll: (params?: Record<string, unknown>) =>
+    api.get("/admin/orders", { params, requiresAuth: true } as any),
+
+  // Get single order
+  getOne: (orderId: number | string) =>
+    api.get(`/admin/orders/${orderId}`, { requiresAuth: true } as any),
+
+  // Get pending orders (for payment inquiries)
+  getPending: (params?: Record<string, unknown>) =>
+    api.get("/admin/orders/pending", { params, requiresAuth: true } as any),
+
+  // Check payment status with Zarinpal
+  checkStatus: (orderId: number | string) =>
+    api.get(`/admin/orders/${orderId}/check-status`, {
+      requiresAuth: true,
+    } as any),
+
+  // Manual verify a PAID transaction
+  manualVerify: (orderId: number | string) =>
+    api.post(
+      `/admin/orders/${orderId}/manual-verify`,
+      {},
+      { requiresAuth: true } as any
+    ),
+};
+
+
+
+
