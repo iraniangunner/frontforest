@@ -6,6 +6,7 @@ import { authAPI } from "@/lib/api";
 interface User {
   id: number;
   name: string;
+  email:string;
   mobile: string;
   is_admin:boolean;
 }

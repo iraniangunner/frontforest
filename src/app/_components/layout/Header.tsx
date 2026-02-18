@@ -212,7 +212,7 @@ export default function Header() {
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
                       <span className="text-white text-sm font-bold">
-                        {user.name?.charAt(0) || user.mobile.charAt(1)}
+                      {user.name?.charAt(0) || (user.mobile ?? user.email)?.charAt(0)}
                       </span>
                     </div>
                     <HiChevronDown
@@ -230,7 +230,7 @@ export default function Header() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
                             <span className="text-white font-bold">
-                              {user.name?.charAt(0) || user.mobile.charAt(1)}
+                            {user.name?.charAt(0) || (user.mobile ?? user.email)?.charAt(0)}
                             </span>
                           </div>
                           <div>
@@ -238,7 +238,7 @@ export default function Header() {
                               {user.name || "کاربر"}
                             </p>
                             <p className="text-sm text-gray-500" dir="ltr">
-                              {user.mobile}
+                            {user.name?.charAt(0) || (user.mobile ?? user.email)}
                             </p>
                           </div>
                         </div>
