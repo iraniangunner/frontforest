@@ -138,7 +138,10 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-18">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
+            <Link
+              href="/"
+              className="flex items-center gap-3 group flex-shrink-0"
+            >
               <div className="relative">
                 <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-xl group-hover:shadow-emerald-500/30 group-hover:scale-105 transition-all duration-300">
                   <Trees className="w-6 h-6 text-white" />
@@ -212,7 +215,8 @@ export default function Header() {
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md">
                       <span className="text-white text-sm font-bold">
-                      {user.name?.charAt(0) || (user.mobile ?? user.email)?.charAt(0)}
+                        {user.name?.charAt(0) ||
+                          (user.mobile ?? user.email)?.charAt(0)}
                       </span>
                     </div>
                     <HiChevronDown
@@ -230,7 +234,8 @@ export default function Header() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
                             <span className="text-white font-bold">
-                            {user.name?.charAt(0) || (user.mobile ?? user.email)?.charAt(0)}
+                              {user.name?.charAt(0) ||
+                                (user.mobile ?? user.email)?.charAt(0)}
                             </span>
                           </div>
                           <div>
@@ -238,7 +243,8 @@ export default function Header() {
                               {user.name || "کاربر"}
                             </p>
                             <p className="text-sm text-gray-500" dir="ltr">
-                            {user.name?.charAt(0) || (user.mobile ?? user.email)}
+                              {user.name?.charAt(0) ||
+                                (user.mobile ?? user.email)}
                             </p>
                           </div>
                         </div>
@@ -427,8 +433,6 @@ export default function Header() {
                 </div>
               </div>
             </form>
-
-           
           </div>
         </div>
       )}

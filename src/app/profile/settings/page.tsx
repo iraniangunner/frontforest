@@ -12,7 +12,11 @@ import {
   HiExclamationCircle,
 } from "react-icons/hi";
 import { useAuth } from "@/context/AuthContext";
-import { updateProfileAction, sendVerifyOtpAction, confirmVerifyOtpAction } from "@/app/_actions/auth";
+import {
+  updateProfileAction,
+  sendVerifyOtpAction,
+  confirmVerifyOtpAction,
+} from "@/app/_actions/auth";
 import { OtpInput } from "@/app/_components/auth/OtpInput";
 
 // ─── VerifyField Component ────────────────────────────────────
@@ -23,13 +27,19 @@ function VerifyField({
   type: "email" | "mobile";
   onSuccess: () => void;
 }) {
-  const [step, setStep]           = useState<"input" | "otp">("input");
-  const [value, setValue]         = useState("");
-  const [code, setCode]           = useState("");
+  const [step, setStep] = useState<"input" | "otp">("input");
+  const [value, setValue] = useState("");
+  const [code, setCode] = useState("");
   const [countdown, setCountdown] = useState(0);
 
-  const [sendState, sendAction]       = useFormState(sendVerifyOtpAction, { isSuccess: false, error: "" });
-  const [confirmState, confirmAction] = useFormState(confirmVerifyOtpAction, { isSuccess: false, error: "" });
+  const [sendState, sendAction] = useFormState(sendVerifyOtpAction, {
+    isSuccess: false,
+    error: "",
+  });
+  const [confirmState, confirmAction] = useFormState(confirmVerifyOtpAction, {
+    isSuccess: false,
+    error: "",
+  });
 
   useEffect(() => {
     if (sendState.isSuccess) {
@@ -55,7 +65,7 @@ function VerifyField({
   const formatTime = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const label       = type === "email" ? "ایمیل" : "شماره موبایل";
+  const label = type === "email" ? "ایمیل" : "شماره موبایل";
   const placeholder = type === "email" ? "email@example.com" : "09123456789";
 
   if (step === "input") {
@@ -146,8 +156,8 @@ function VerifyField({
 // ─── SettingsPage ─────────────────────────────────────────────
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
-  const searchParams          = useSearchParams();
-  const isIncomplete          = searchParams.get("incomplete") === "true";
+  const searchParams = useSearchParams();
+  const isIncomplete = searchParams.get("incomplete") === "true";
 
   const [nameState, nameAction] = useFormState(updateProfileAction, {
     isSuccess: false,
@@ -166,7 +176,6 @@ export default function SettingsPage() {
       dir="rtl"
     >
       <div className="max-w-2xl mx-auto px-4 py-12">
-
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-800 rounded-xl shadow-lg">
@@ -305,13 +314,14 @@ export default function SettingsPage() {
                 <li>• شماره موبایل خود را وارد کنید — کد تایید SMS می‌شود</li>
               )}
               {!user?.email && (
-                <li>• ایمیل خود را وارد کنید — کد تایید به ایمیل ارسال می‌شود</li>
+                <li>
+                  • ایمیل خود را وارد کنید — کد تایید به ایمیل ارسال می‌شود
+                </li>
               )}
               <li>• با داشتن هر دو، از هر روشی می‌توانید وارد شوید</li>
             </ul>
           </div>
         )}
-
       </div>
     </div>
   );
