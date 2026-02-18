@@ -181,7 +181,7 @@ export default function SettingsPage() {
         </div>
 
         {/* بنر اجباری تکمیل پروفایل */}
-        {isIncomplete && (
+        {/* {isIncomplete && (
           <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
             <HiExclamationCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
@@ -192,7 +192,7 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* شماره موبایل */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-4">

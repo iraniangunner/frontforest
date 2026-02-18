@@ -13,5 +13,5 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AuthGuard>{children}</AuthGuard>;
+  return <AuthGuard requireComplete={false}>{children}</AuthGuard>;
 }
