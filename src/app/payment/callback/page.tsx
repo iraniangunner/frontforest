@@ -13,6 +13,7 @@ import {
 } from "react-icons/hi";
 import { checkoutAPI } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 type PaymentStatus = "loading" | "success" | "failed";
 
@@ -27,6 +28,8 @@ interface PaymentResult {
 function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const { clearCart } = useCart();
+
+  const { refresh } = useUserStatus();
 
   const [status, setStatus] = useState<PaymentStatus>("loading");
   const [result, setResult] = useState<PaymentResult | null>(null);
@@ -61,6 +64,7 @@ function PaymentCallbackContent() {
         });
         // Clear cart on successful payment
         clearCart();
+        await refresh();
       } else {
         setStatus("failed");
         setResult({
@@ -108,7 +112,9 @@ function PaymentCallbackContent() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <HiCheck className="w-10 h-10 text-green-600" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">پرداخت موفق</h1>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">
+              پرداخت موفق
+            </h1>
             <p className="text-gray-500 mb-6">سفارش شما با موفقیت ثبت شد</p>
 
             <div className="bg-gray-50 rounded-xl p-4 mb-6 text-right">
@@ -165,7 +171,9 @@ function PaymentCallbackContent() {
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <HiX className="w-10 h-10 text-red-600" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">پرداخت ناموفق</h1>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">
+              پرداخت ناموفق
+            </h1>
             <p className="text-gray-500 mb-6">
               {result.message || "متأسفانه پرداخت انجام نشد"}
             </p>
