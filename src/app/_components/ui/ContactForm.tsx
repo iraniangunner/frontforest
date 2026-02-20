@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import ReCAPTCHA from "react-google-recaptcha";
 import { contactAPI } from "@/lib/api";
 
 export default function ContactForm() {
@@ -12,24 +13,55 @@ export default function ContactForm() {
     message: "",
   });
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!recaptchaToken) {
+      toast.error("لطفاً تأیید کنید که ربات نیستید");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // 1. Validate reCAPTCHA first
+      const recaptchaRes = await fetch("/api/validate-recaptcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: recaptchaToken }),
+      });
+
+      const recaptchaResult = await recaptchaRes.json();
+
+      if (!recaptchaResult.success) {
+        toast.error("تأیید reCAPTCHA ناموفق بود. لطفاً دوباره تلاش کنید");
+        recaptchaRef.current?.reset();
+        setRecaptchaToken(null);
+        return;
+      }
+
+      // 2. Submit the form
       await contactAPI.send(formData);
       toast.success("پیام شما با موفقیت ارسال شد");
       setFormData({ name: "", email: "", subject: "", message: "" });
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } catch (error: any) {
       const message = error.response?.data?.message || "خطا در ارسال پیام";
       toast.error(message);
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -124,9 +156,20 @@ export default function ContactForm() {
           />
         </div>
 
+        {/* reCAPTCHA */}
+        <div className="flex justify-center">
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY!}
+            onChange={setRecaptchaToken}
+            onExpired={() => setRecaptchaToken(null)}
+            hl="fa"
+          />
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !recaptchaToken}
           className="w-full rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
