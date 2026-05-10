@@ -116,7 +116,7 @@ async function getRelatedProducts(slug: string) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}/related?per_page=4`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store" }
     );
     if (!response.ok) return [];
     const data = await response.json();

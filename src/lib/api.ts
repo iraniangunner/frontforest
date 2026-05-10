@@ -371,21 +371,21 @@ export const publicTagsAPI = {
 };
 
 export const cartAPI = {
-  get: () => api.get("/cart", { requiresAuth: true }),
+  get: () =>
+    api.get("/cart", { requiresAuth: true }),
 
-  count: () => api.get("/cart/count", { requiresAuth: true }),
+  count: () =>
+    api.get("/cart/count", { requiresAuth: true }),
 
-  add: (componentId: number) =>
-    api.post(`/cart/${componentId}`, {}, { requiresAuth: true }),
+  // ← product_id توی URL پاس میشه نه body
+  add: (productId: number) =>
+    api.post(`/cart/${productId}`, {}, { requiresAuth: true }),
 
-  remove: (componentId: number) =>
-    api.delete(`/cart/${componentId}`, { requiresAuth: true }),
+  remove: (productId: number) =>
+    api.delete(`/cart/${productId}`, { requiresAuth: true }),
 
-  clear: () => api.delete("/cart", { requiresAuth: true }),
-
-  // Check if component is in cart
-  // check: (componentId: number) =>
-  //   api.get(`/cart/check/${componentId}`, { requiresAuth: true }),
+  clear: () =>
+    api.delete("/cart", { requiresAuth: true }),
 };
 
 export const authAPI = {

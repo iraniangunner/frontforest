@@ -9,6 +9,8 @@ import { HiCube, HiScale, HiTag, HiTruck } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { cartAPI, favoritesAPI } from "@/lib/api";
 import { Product } from "@/types";
+import { useCart } from "@/context/CartContext";
+import { useUserStatus } from "@/context/UserStatusContext";
 
 interface ProductInfoProps {
   product: Product;
@@ -33,38 +35,59 @@ function StarRating({ rating }: { rating: number }) {
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity]       = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [inCart, setInCart]           = useState(false);
-  const [isFavorite, setIsFavorite]   = useState(false);
+  // const [inCart, setInCart]           = useState(false);
+  // const [isFavorite, setIsFavorite]   = useState(false);
+  const { incrementCart } = useCart();
 
-  const handleAddToCart = async () => {
-    setAddingToCart(true);
-    try {
-      await cartAPI.add({ product_id: product.id, quantity });
-      setInCart(true);
-      toast.success("به سبد خرید اضافه شد");
-    } catch (error: any) {
+const {
+  isFavorite: checkFavorite,
+  toggleFavorite: toggleFavoriteContext,
+  isInCart,
+  addToCart: addToCartContext,
+  loading: statusLoading,
+} = useUserStatus();
+
+const inCart = isInCart(product.id);
+const isFavorite = checkFavorite(product.id);
+
+const handleAddToCart = async () => {
+  setAddingToCart(true);
+
+  try {
+    await cartAPI.add(product.id);
+
+    // sync global state
+    addToCartContext(product.id);
+    incrementCart();
+
+    toast.success("به سبد خرید اضافه شد");
+  } catch (error: any) {
+    if (error.response?.status === 409) {
+      addToCartContext(product.id);
+      toast.error("این محصول در سبد خرید موجود است");
+    } else {
       toast.error(error.response?.data?.message || "خطا در افزودن به سبد");
-    } finally {
-      setAddingToCart(false);
     }
-  };
+  } finally {
+    setAddingToCart(false);
+  }
+};
+const handleFavorite = async () => {
+  try {
+    toggleFavoriteContext(product.id); // optimistic update
 
-  const handleFavorite = async () => {
-    try {
-      if (isFavorite) {
-        await favoritesAPI.remove(product.id);
-        setIsFavorite(false);
-        toast.success("از علاقه‌مندی‌ها حذف شد");
-      } else {
-        await favoritesAPI.add(product.id);
-        setIsFavorite(true);
-        toast.success("به علاقه‌مندی‌ها اضافه شد");
-      }
-    } catch {
-      toast.error("خطا");
-    }
-  };
+    await favoritesAPI.toggle(product.id);
 
+    toast.success(
+      isFavorite
+        ? "از علاقه‌مندی‌ها حذف شد"
+        : "به علاقه‌مندی‌ها اضافه شد"
+    );
+  } catch (error) {
+    toggleFavoriteContext(product.id); // revert
+    toast.error("خطا در عملیات");
+  }
+};
   return (
     <div className="space-y-5">
 
@@ -237,7 +260,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       {/* تگ‌ها */}
       {product.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {product.tags.map((tag) => (
+          {product.tags.map((tag:any) => (
             <span
               key={tag.id}
               className="px-3 py-1 rounded-full text-xs font-medium"
@@ -251,3 +274,5 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     </div>
   );
 }
+
+
