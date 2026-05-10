@@ -54,7 +54,7 @@ const handleAddToCart = async () => {
   setAddingToCart(true);
 
   try {
-    await cartAPI.add(product.id);
+    await cartAPI.add(product.id,quantity);
 
     // sync global state
     addToCartContext(product.id);

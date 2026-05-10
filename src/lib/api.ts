@@ -370,20 +370,50 @@ export const publicTagsAPI = {
   getGrouped: () => api.get("/tags?grouped=1"),
 };
 
+// export const cartAPI = {
+//   get: () =>
+//     api.get("/cart", { requiresAuth: true }),
+
+//   count: () =>
+//     api.get("/cart/count", { requiresAuth: true }),
+
+//   // ← product_id توی URL پاس میشه نه body
+//   add: (productId: number) =>
+//     api.post(`/cart/${productId}`, {}, { requiresAuth: true }),
+
+//   remove: (productId: number) =>
+//     api.delete(`/cart/${productId}`, { requiresAuth: true }),
+
+//   clear: () =>
+//     api.delete("/cart", { requiresAuth: true }),
+// };
+
 export const cartAPI = {
+  // 📦 گرفتن سبد
   get: () =>
     api.get("/cart", { requiresAuth: true }),
 
+  // 🔢 تعداد کل آیتم‌ها (sum quantity)
   count: () =>
     api.get("/cart/count", { requiresAuth: true }),
 
-  // ← product_id توی URL پاس میشه نه body
-  add: (productId: number) =>
-    api.post(`/cart/${productId}`, {}, { requiresAuth: true }),
+  // ➕ اضافه کردن یا +1 کردن
+  add: (productId: number, quantity: number) =>
+    api.post(`/cart/${productId}`, { quantity }, { requiresAuth: true }),
 
+  // 🔁 تغییر تعداد (مهم‌ترین بخش جدید)
+  update: (productId: number, quantity: number) =>
+    api.put(
+      `/cart/${productId}`,
+      { quantity },
+      { requiresAuth: true }
+    ),
+
+  // ❌ حذف کامل یک محصول
   remove: (productId: number) =>
     api.delete(`/cart/${productId}`, { requiresAuth: true }),
 
+  // 🧹 خالی کردن کل سبد
   clear: () =>
     api.delete("/cart", { requiresAuth: true }),
 };
