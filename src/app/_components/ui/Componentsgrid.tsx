@@ -22,7 +22,7 @@ export default function ComponentsGrid({ components }: ComponentsGridProps) {
     if (perPage) params.set("per_page", perPage);
 
     const queryString = params.toString();
-    router.push(queryString ? `/components?${queryString}` : "/components", {
+    router.push(queryString ? `/products?${queryString}` : "/products", {
       scroll: false,
     });
   };

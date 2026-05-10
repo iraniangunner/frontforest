@@ -179,47 +179,122 @@ export const tagsAPI = {
 };
 
 // Components API
-export const componentsAPI = {
+// export const componentsAPI = {
+//   getAll: (params?: Record<string, unknown>) =>
+//     api.get("/admin/components", { params, requiresAuth: true }),
+
+//   getOne: (id: number) =>
+//     api.get(`/admin/components/${id}`, { requiresAuth: true }),
+
+//   getStatistics: () =>
+//     api.get("/admin/components/statistics", { requiresAuth: true }),
+
+//   create: (data: FormData) =>
+//     api.post("/admin/components", data, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//       requiresAuth: true,
+//     }),
+
+//   update: (id: number, data: FormData) =>
+//     api.post(`/admin/components/${id}`, data, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//       requiresAuth: true,
+//     }),
+
+//   delete: (id: number) =>
+//     api.delete(`/admin/components/${id}`, { requiresAuth: true }),
+
+//   toggle: (id: number) =>
+//     api.patch(`/admin/components/${id}/toggle`, {}, { requiresAuth: true }),
+
+//   toggleFeatured: (id: number) =>
+//     api.patch(
+//       `/admin/components/${id}/toggle-featured`,
+//       {},
+//       { requiresAuth: true }
+//     ),
+
+//   download: (slug: string) =>
+//     api.get(`/components/${slug}/download`, {
+//       responseType: "blob",
+//       requiresAuth: true,
+//     }),
+// };
+
+
+
+/**************************************** */
+
+// Admin Products API
+export const productsAPI = {
   getAll: (params?: Record<string, unknown>) =>
-    api.get("/admin/components", { params, requiresAuth: true }),
+    api.get("/admin/products", { params, requiresAuth: true }),
 
   getOne: (id: number) =>
-    api.get(`/admin/components/${id}`, { requiresAuth: true }),
+    api.get(`/admin/products/${id}`, { requiresAuth: true }),
 
   getStatistics: () =>
-    api.get("/admin/components/statistics", { requiresAuth: true }),
+    api.get("/admin/products/statistics", { requiresAuth: true }),
 
   create: (data: FormData) =>
-    api.post("/admin/components", data, {
+    api.post("/admin/products", data, {
       headers: { "Content-Type": "multipart/form-data" },
       requiresAuth: true,
     }),
 
   update: (id: number, data: FormData) =>
-    api.post(`/admin/components/${id}`, data, {
+    api.post(`/admin/products/${id}`, data, {
       headers: { "Content-Type": "multipart/form-data" },
       requiresAuth: true,
     }),
 
   delete: (id: number) =>
-    api.delete(`/admin/components/${id}`, { requiresAuth: true }),
+    api.delete(`/admin/products/${id}`, { requiresAuth: true }),
 
   toggle: (id: number) =>
-    api.patch(`/admin/components/${id}/toggle`, {}, { requiresAuth: true }),
+    api.patch(`/admin/products/${id}/toggle`, {}, { requiresAuth: true }),
 
   toggleFeatured: (id: number) =>
-    api.patch(
-      `/admin/components/${id}/toggle-featured`,
-      {},
-      { requiresAuth: true }
-    ),
+    api.patch(`/admin/products/${id}/toggle-featured`, {}, { requiresAuth: true }),
 
-  download: (slug: string) =>
-    api.get(`/components/${slug}/download`, {
-      responseType: "blob",
-      requiresAuth: true,
-    }),
+  updateStock: (id: number, stock: number) =>
+    api.patch(`/admin/products/${id}/stock`, { stock }, { requiresAuth: true }),
 };
+
+// Public Products API
+export const publicProductsAPI = {
+  getAll: (params?: Record<string, unknown>) =>
+    api.get("/products", { params }),
+
+  getBySlug: (slug: string) =>
+    api.get(`/products/${slug}`),
+
+  getFeatured: () =>
+    api.get("/products/featured"),
+
+  getOnSale: () =>
+    api.get("/products/on-sale"),
+
+  getNewest: () =>
+    api.get("/products/newest"),
+
+  getRelated: (slug: string) =>
+    api.get(`/products/${slug}/related`),
+
+  getReviews: (slug: string, params?: Record<string, unknown>) =>
+    api.get(`/products/${slug}/reviews`, { params }),
+
+  addReview: (slug: string, data: { rating: number; comment: string }) =>
+    api.post(`/products/${slug}/reviews`, data, { requiresAuth: true }),
+
+  updateReview: (slug: string, data: { rating: number; comment: string }) =>
+    api.put(`/products/${slug}/reviews`, data, { requiresAuth: true }),
+
+  deleteReview: (slug: string) =>
+    api.delete(`/products/${slug}/reviews`, { requiresAuth: true }),
+};
+
+/***************************************** */
 
 // Reviews API
 export const reviewsAPI = {

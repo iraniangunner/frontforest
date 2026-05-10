@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "../_components/admin/Header";
-import { componentsAPI, categoriesAPI, tagsAPI, reviewsAPI } from "../../lib/api";
+import { productsAPI, categoriesAPI, tagsAPI, reviewsAPI } from "../../lib/api";
 import {
   HiOutlineCube,
   HiOutlineFolder,
@@ -14,7 +14,7 @@ import {
 } from "react-icons/hi";
 
 interface Stats {
-  components: {
+  products: {
     total: number;
     active: number;
     total_views: number;
@@ -37,16 +37,16 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const [componentsRes, categoriesRes, tagsRes, reviewsRes] =
+      const [productsRes, categoriesRes, tagsRes, reviewsRes] =
         await Promise.all([
-          componentsAPI.getStatistics(),
+          productsAPI.getStatistics(),
           categoriesAPI.getAll({ per_page: 1 }),
           tagsAPI.adminGetAll({ per_page: 1 }),
           reviewsAPI.getAll({ per_page: 1 }),
         ]);
 
       setStats({
-        components: componentsRes.data.data,
+        products: productsRes.data.data,
         categories: categoriesRes.data.meta?.total || 0,
         tags: tagsRes.data.meta?.total || 0,
         reviews: reviewsRes.data.meta?.total || 0,
@@ -105,10 +105,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="کل کامپوننت‌ها"
-            value={stats?.components?.total || 0}
+            value={stats?.products?.total || 0}
             icon={HiOutlineCube}
             color="bg-blue-500"
-            subValue={`${stats?.components?.active || 0} فعال`}
+            subValue={`${stats?.products?.active || 0} فعال`}
           />
           <StatCard
             title="دسته‌بندی‌ها"
@@ -135,19 +135,19 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard
             title="بازدیدها"
-            value={stats?.components?.total_views?.toLocaleString() || 0}
+            value={stats?.products?.total_views?.toLocaleString() || 0}
             icon={HiOutlineEye}
             color="bg-indigo-500"
           />
           <StatCard
             title="دانلودها"
-            value={stats?.components?.total_downloads?.toLocaleString() || 0}
+            value={stats?.products?.total_downloads?.toLocaleString() || 0}
             icon={HiOutlineDownload}
             color="bg-pink-500"
           />
           <StatCard
             title="فروش‌ها"
-            value={stats?.components?.total_sales?.toLocaleString() || 0}
+            value={stats?.products?.total_sales?.toLocaleString() || 0}
             icon={HiOutlineCurrencyDollar}
             color="bg-emerald-500"
           />

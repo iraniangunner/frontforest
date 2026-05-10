@@ -2,6 +2,7 @@ import {
   publicComponentsAPI,
   publicCategoriesAPI,
   publicTagsAPI,
+  publicProductsAPI,
 } from "../../lib/api";
 import { FilterParams } from "@/types";
 import SearchBar from "../_components/ui/SearchBar";
@@ -116,16 +117,16 @@ export default async function ComponentsPage({ searchParams }: PageProps) {
   const filters = parseSearchParams(resolvedSearchParams);
 
   // Fetch all data in parallel on the server
-  const [categoriesRes, tagsRes, componentsRes] = await Promise.all([
+  const [categoriesRes, tagsRes, productRes] = await Promise.all([
     publicCategoriesAPI.getMenu(),
     publicTagsAPI.getGrouped(),
-    publicComponentsAPI.getAll(buildApiParams(filters)),
+    publicProductsAPI.getAll(buildApiParams(filters)),
   ]);
 
   const categories = categoriesRes.data.data;
   const tags = tagsRes.data.data;
-  const components = componentsRes.data.data;
-  const meta = componentsRes.data.meta;
+  const products = productRes.data.data;
+  const meta = productRes.data.meta;
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">

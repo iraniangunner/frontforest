@@ -1,4 +1,4 @@
-import { publicComponentsAPI } from "@/lib/api";
+import { publicComponentsAPI, publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import ComponentsGrid from "./Componentsgrid";
 import Pagination from "./Pagination";
@@ -32,8 +32,8 @@ function buildApiParams(filters: FilterParams): Record<string, unknown> {
 export default async function ComponentsGridServer({
   filters,
 }: ComponentsGridServerProps) {
-  const response = await publicComponentsAPI.getAll(buildApiParams(filters));
-  const components = response.data.data;
+  const response = await publicProductsAPI.getAll(buildApiParams(filters));
+  const products = response.data.data;
   const meta = response.data.meta;
 
   return (
@@ -42,7 +42,7 @@ export default async function ComponentsGridServer({
       <p className="text-sm text-gray-500 mb-4">{meta.total} نتیجه یافت شد</p>
 
       {/* Components Grid */}
-      <ComponentsGrid components={components} />
+      <ComponentsGrid components={products} />
 
       {/* Pagination */}
       <div className="mt-8">

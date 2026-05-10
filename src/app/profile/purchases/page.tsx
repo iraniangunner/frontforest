@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { HiDownload, HiEye, HiArrowRight } from "react-icons/hi";
-import { ordersAPI, publicComponentsAPI } from "@/lib/api";
+import { ordersAPI, publicProductsAPI } from "@/lib/api";
 import Pagination from "@/app/_components/ui/Pagination";
 import toast from "react-hot-toast";
 
 interface Purchase {
   id: number;
-  component: {
+  product: {
     id: number;
     title: string;
     slug: string;
@@ -47,27 +47,27 @@ export default function PurchasesPage() {
     }
   };
 
-  const handleDownload = async (slug: string, id: number) => {
-    setDownloading(id);
-    try {
-      const response = await publicComponentsAPI.download(slug);
+  // const handleDownload = async (slug: string, id: number) => {
+  //   setDownloading(id);
+  //   try {
+  //     const response = await publicProductsAPI.download(slug);
       
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${slug}.zip`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", `${slug}.zip`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //     window.URL.revokeObjectURL(url);
 
-      toast.success("دانلود شروع شد");
-    } catch (error) {
-      toast.error("خطا در دانلود فایل");
-    } finally {
-      setDownloading(null);
-    }
-  };
+  //     toast.success("دانلود شروع شد");
+  //   } catch (error) {
+  //     toast.error("خطا در دانلود فایل");
+  //   } finally {
+  //     setDownloading(null);
+  //   }
+  // };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fa-IR");
@@ -123,10 +123,10 @@ export default function PurchasesPage() {
                   className="bg-white rounded-xl shadow-sm overflow-hidden"
                 >
                   <div className="relative aspect-video">
-                    {purchase.component.thumbnail ? (
+                    {purchase.product.thumbnail ? (
                       <Image
-                        src={purchase.component.thumbnail}
-                        alt={purchase.component.title}
+                        src={purchase.product.thumbnail}
+                        alt={purchase.product.title}
                         fill
                         className="object-cover"
                       />
@@ -139,17 +139,17 @@ export default function PurchasesPage() {
 
                   <div className="p-4">
                     <h3 className="font-semibold text-gray-900 mb-1">
-                      {purchase.component.title}
+                      {purchase.product.title}
                     </h3>
                     <p className="text-sm text-gray-500 mb-2">
-                      {purchase.component.category?.name}
+                      {purchase.product.category?.name}
                     </p>
                     <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
                       <span>{formatDate(purchase.purchased_at)}</span>
                       <span>{formatPrice(purchase.price)}</span>
                     </div>
 
-                    <div className="flex gap-2">
+                    {/* <div className="flex gap-2">
                       <button
                         onClick={() => handleDownload(purchase.component.slug, purchase.id)}
                         disabled={downloading === purchase.id}
@@ -168,7 +168,7 @@ export default function PurchasesPage() {
                       >
                         <HiEye className="w-4 h-4" />
                       </Link>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               ))}
