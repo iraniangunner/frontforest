@@ -123,7 +123,7 @@ export default api;
 
 export const userAPI = {
   // Get all component statuses in one call
-  getComponentStatuses: () => api.get("/user/statuses", { requiresAuth: true }),
+  getProductStatuses: () => api.get("/user/statuses", { requiresAuth: true }),
 };
 
 // Categories API
@@ -178,48 +178,6 @@ export const tagsAPI = {
     api.patch(`/admin/tags/${id}/toggle`, {}, { requiresAuth: true }),
 };
 
-// Components API
-// export const componentsAPI = {
-//   getAll: (params?: Record<string, unknown>) =>
-//     api.get("/admin/components", { params, requiresAuth: true }),
-
-//   getOne: (id: number) =>
-//     api.get(`/admin/components/${id}`, { requiresAuth: true }),
-
-//   getStatistics: () =>
-//     api.get("/admin/components/statistics", { requiresAuth: true }),
-
-//   create: (data: FormData) =>
-//     api.post("/admin/components", data, {
-//       headers: { "Content-Type": "multipart/form-data" },
-//       requiresAuth: true,
-//     }),
-
-//   update: (id: number, data: FormData) =>
-//     api.post(`/admin/components/${id}`, data, {
-//       headers: { "Content-Type": "multipart/form-data" },
-//       requiresAuth: true,
-//     }),
-
-//   delete: (id: number) =>
-//     api.delete(`/admin/components/${id}`, { requiresAuth: true }),
-
-//   toggle: (id: number) =>
-//     api.patch(`/admin/components/${id}/toggle`, {}, { requiresAuth: true }),
-
-//   toggleFeatured: (id: number) =>
-//     api.patch(
-//       `/admin/components/${id}/toggle-featured`,
-//       {},
-//       { requiresAuth: true }
-//     ),
-
-//   download: (slug: string) =>
-//     api.get(`/components/${slug}/download`, {
-//       responseType: "blob",
-//       requiresAuth: true,
-//     }),
-// };
 
 
 
@@ -321,42 +279,7 @@ export const reviewsAPI = {
 
 };
 
-// Public Components API
-export const publicComponentsAPI = {
-  getAll: (params?: Record<string, unknown>) =>
-    api.get("/components", { params }),
 
-  getBySlug: (slug: string) => api.get(`/components/${slug}`),
-
-  getFeatured: () => api.get("/components/featured"),
-
-  getFree: () => api.get("/components/free"),
-
-  getNewest: () => api.get("/components/newest"),
-
-  getRelated: (slug: string) => api.get(`/components/${slug}/related`),
-
-  getReviews: (slug: string, params?: Record<string, unknown>) =>
-    api.get(`/components/${slug}/reviews`, { params }),
-
-  download: (slug: string) =>
-    api.get(`/components/${slug}/download`, {
-      responseType: "blob",
-      requiresAuth: true,
-    }),
-
-  // ✅ ADD THIS - Submit review
-  addReview: (slug: string, data: { rating: number; comment: string }) =>
-    api.post(`/components/${slug}/reviews`, data, { requiresAuth: true }),
-
-  // ✅ ADD THIS - Update review
-  updateReview: (slug: string, data: { rating: number; comment: string }) =>
-    api.put(`/components/${slug}/reviews`, data, { requiresAuth: true }),
-
-  // ✅ ADD THIS - Delete review
-  deleteReview: (slug: string) =>
-    api.delete(`/components/${slug}/reviews`, { requiresAuth: true }),
-};
 // Public Categories API
 export const publicCategoriesAPI = {
   getMenu: () => api.get("/categories/menu"),
@@ -370,53 +293,36 @@ export const publicTagsAPI = {
   getGrouped: () => api.get("/tags?grouped=1"),
 };
 
-// export const cartAPI = {
-//   get: () =>
-//     api.get("/cart", { requiresAuth: true }),
-
-//   count: () =>
-//     api.get("/cart/count", { requiresAuth: true }),
-
-//   // ← product_id توی URL پاس میشه نه body
-//   add: (productId: number) =>
-//     api.post(`/cart/${productId}`, {}, { requiresAuth: true }),
-
-//   remove: (productId: number) =>
-//     api.delete(`/cart/${productId}`, { requiresAuth: true }),
-
-//   clear: () =>
-//     api.delete("/cart", { requiresAuth: true }),
-// };
-
 export const cartAPI = {
-  // 📦 گرفتن سبد
+  // دریافت سبد خرید
   get: () =>
     api.get("/cart", { requiresAuth: true }),
 
-  // 🔢 تعداد کل آیتم‌ها (sum quantity)
+  // تعداد کل آیتم‌ها
   count: () =>
     api.get("/cart/count", { requiresAuth: true }),
 
-  // ➕ اضافه کردن یا +1 کردن
-  add: (productId: number, quantity: number) =>
+  // اضافه کردن محصول (quantity اختیاری، پیش‌فرض ۱)
+  add: (productId: number, quantity: number = 1) =>
     api.post(`/cart/${productId}`, { quantity }, { requiresAuth: true }),
 
-  // 🔁 تغییر تعداد (مهم‌ترین بخش جدید)
+  // تنظیم دقیق تعداد
   update: (productId: number, quantity: number) =>
-    api.put(
-      `/cart/${productId}`,
-      { quantity },
-      { requiresAuth: true }
-    ),
+    api.put(`/cart/${productId}`, { quantity }, { requiresAuth: true }),
 
-  // ❌ حذف کامل یک محصول
-  remove: (productId: number) =>
+  // کاهش ۱ یا حذف اگه تعداد ۱ باشه
+  decrease: (productId: number) =>
     api.delete(`/cart/${productId}`, { requiresAuth: true }),
 
-  // 🧹 خالی کردن کل سبد
+  // حذف کامل محصول از سبد (صرف‌نظر از تعداد)
+  removeAll: (productId: number) =>
+    api.delete(`/cart/${productId}/remove`, { requiresAuth: true }),
+
+  // خالی کردن کل سبد
   clear: () =>
     api.delete("/cart", { requiresAuth: true }),
 };
+
 
 export const authAPI = {
   sendOtp: (mobile: string) => api.post("/auth/send-otp", { mobile }),

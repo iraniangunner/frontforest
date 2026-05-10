@@ -40,7 +40,7 @@ export function UserStatusProvider({ children }: { children: ReactNode }) {
     }
   
     try {
-      const response = await userAPI.getComponentStatuses();
+      const response = await userAPI.getProductStatuses();
       const data = response.data;
   
       // تبدیل رشته‌ها به عدد
