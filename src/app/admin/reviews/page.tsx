@@ -18,7 +18,7 @@ interface Review {
   admin_reply: string | null;
   admin_reply_at: string | null;
   user: { id: number; name: string };
-  component: { id: number; title: string };
+  product: { id: number; title: string };
   created_at: string;
 }
 
@@ -179,9 +179,9 @@ export default function ReviewsPage() {
       ),
     },
     {
-      header: "کامپوننت",
+      header: "محصول",
       render: (row: Review) => (
-        <p className="text-sm">{row.component?.title}</p>
+        <p className="text-sm">{row.product?.title}</p>
       ),
     },
     {
