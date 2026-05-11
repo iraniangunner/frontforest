@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ interface CartSummary {
   total: number;
 }
 
-const formatPrice = (price: number) => price.toLocaleString("fa-IR") + " تومان";
+const formatPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " تومان";
 
 // ─────────────────────────────────────────────
 // QuantityControl
@@ -63,9 +63,7 @@ function QuantityControl({
       <span className="w-10 h-9 flex items-center justify-center font-medium text-gray-800 text-sm border-x border-gray-100">
         {disabled ? (
           <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-        ) : (
-          quantity
-        )}
+        ) : quantity}
       </span>
       <button
         onClick={onIncrease}
@@ -79,37 +77,41 @@ function QuantityControl({
 }
 
 // ─────────────────────────────────────────────
+// Normalize item — مطمئن میشیم همه عددها number هستن
+// ─────────────────────────────────────────────
+function normalizeItem(item: any): CartItem {
+  return {
+    ...item,
+    quantity:      Number(item.quantity)      || 1,
+    stock:         Number(item.stock)         || 0,
+    price:         Number(item.price)         || 0,
+    sale_price:    item.sale_price !== null ? Number(item.sale_price) : null,
+    current_price: Number(item.current_price) || 0,
+  };
+}
+
+// ─────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────
 export default function CartPage() {
   const router = useRouter();
   const { refreshCart, clearCart: clearCartContext } = useCart();
-  const { removeFromCart: removeFromCartStatus, refresh: refreshStatus } =
-    useUserStatus();
+  const { removeFromCart: removeFromCartStatus, refresh: refreshStatus } = useUserStatus();
 
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [summary, setSummary] = useState<CartSummary>({
-    count: 0,
-    subtotal: 0,
-    discount: 0,
-    total: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const [items, setItems]             = useState<CartItem[]>([]);
+  const [summary, setSummary]         = useState<CartSummary>({ count: 0, subtotal: 0, discount: 0, total: 0 });
+  const [loading, setLoading]         = useState(true);
   const [checkingOut, setCheckingOut] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  // ← Set برای آیتم‌هایی که API call در جریانه
+  // آیتم‌هایی که در حال آپدیت هستن — با Set فقط یه آپدیت همزمان per item
   const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
 
-  // ← ref برای دسترسی به آخرین items بدون stale closure
-  const itemsRef = useRef<CartItem[]>([]);
-  useEffect(() => {
-    itemsRef.current = items;
-  }, [items]);
+  // ← ref برای خواندن آخرین quantity بدون stale closure
+  // کلید: productId، مقدار: quantity فعلی
+  const quantityRef = useRef<Map<number, number>>(new Map());
 
-  useEffect(() => {
-    checkAuthAndLoadCart();
-  }, []);
+  useEffect(() => { checkAuthAndLoadCart(); }, []);
 
   const checkAuthAndLoadCart = async () => {
     setLoading(true);
@@ -118,7 +120,8 @@ export default function CartPage() {
       setIsAuthenticated(true);
       await loadCart();
     } catch {
-      setIsAuthenticated(false);
+
+setIsAuthenticated(false);
       setLoading(false);
     }
   };
@@ -126,11 +129,12 @@ export default function CartPage() {
   const loadCart = async () => {
     try {
       const res = await cartAPI.get();
-      const data: CartItem[] = res.data.data || [];
+      // ← normalize همه آیتم‌ها تا quantity حتماً number باشه
+      const data: CartItem[] = (res.data.data || []).map(normalizeItem);
       setItems(data);
-      setSummary(
-        res.data.summary || { count: 0, subtotal: 0, discount: 0, total: 0 }
-      );
+      // ← ref رو هم آپدیت کن
+      quantityRef.current = new Map(data.map((i) => [i.id, i.quantity]));
+      setSummary(res.data.summary || { count: 0, subtotal: 0, discount: 0, total: 0 });
       await refreshCart();
     } catch (error: any) {
       if (error.response?.status === 401) setIsAuthenticated(false);
@@ -140,20 +144,20 @@ export default function CartPage() {
     }
   };
 
-  // ── محاسبه summary از items ──
-  const recalcSummary = (list: CartItem[]) => {
+  // ── محاسبه summary ──
+  const recalcSummary = useCallback((list: CartItem[]) => {
     const subtotal = list.reduce((s, i) => s + i.price * i.quantity, 0);
-    const discount = list.reduce(
-      (s, i) => (i.sale_price ? s + (i.price - i.sale_price) * i.quantity : s),
-      0
-    );
+    const discount = list.reduce((s, i) =>
+      i.sale_price ? s + (i.price - i.sale_price) * i.quantity : s, 0);
     const total = list.reduce((s, i) => s + i.current_price * i.quantity, 0);
     const count = list.reduce((s, i) => s + i.quantity, 0);
     setSummary({ count, subtotal, discount, total });
-  };
+  }, []);
 
-  // ── helper: آپدیت quantity یک آیتم ──
-  const updateItemQty = (productId: number, newQty: number) => {
+  // ── آپدیت quantity یک آیتم (synchronous + ref update) ──
+  const applyQty = useCallback((productId: number, newQty: number) => {
+    // ← ref رو همزمان آپدیت کن تا کلیک بعدی مقدار درست بخونه
+    quantityRef.current.set(productId, newQty);
     setItems((prev) => {
       const updated = prev.map((i) =>
         i.id === productId ? { ...i, quantity: newQty } : i
@@ -161,92 +165,81 @@ export default function CartPage() {
       recalcSummary(updated);
       return updated;
     });
-  };
+  }, [recalcSummary]);
 
   // ── افزایش تعداد ──
-  const handleIncrease = async (productId: number) => {
-    // جلوگیری از کلیک همزمان
+  const handleIncrease = useCallback(async (productId: number, stock: number) => {
+    // جلوگیری از کلیک همزمان روی همون آیتم
     if (updatingIds.has(productId)) return;
 
-    // خواندن quantity فعلی از ref (نه از stale closure)
-    const current = itemsRef.current.find((i) => i.id === productId);
-    if (!current || current.quantity >= current.stock) return;
+    // ← خواندن از ref نه از state (همیشه مقدار آخر)
+    const oldQty = quantityRef.current.get(productId) ?? 1;
+    if (oldQty >= stock) return;
 
-    const newQty = current.quantity + 1;
+    const newQty = oldQty + 1;
 
-    // ① optimistic update
-    updateItemQty(productId, newQty);
+    // ① optimistic
+    applyQty(productId, newQty);
     setUpdatingIds((prev) => new Set(prev).add(productId));
 
     try {
-      // ② API call
+      // ② API
       await cartAPI.add(productId, 1);
       await refreshCart();
     } catch (error: any) {
-      // ③ revert در صورت خطا
-      updateItemQty(productId, current.quantity);
+      // ③ revert
+      applyQty(productId, oldQty);
       toast.error(error.response?.data?.message || "خطا در افزایش تعداد");
     } finally {
-      setUpdatingIds((prev) => {
-        const s = new Set(prev);
-        s.delete(productId);
-        return s;
-      });
+      setUpdatingIds((prev) => { const s = new Set(prev); s.delete(productId); return s; });
     }
-  };
+  }, [updatingIds, applyQty, refreshCart]);
 
   // ── کاهش تعداد ──
-  const handleDecrease = async (productId: number) => {
+  const handleDecrease = useCallback(async (productId: number) => {
     if (updatingIds.has(productId)) return;
 
-    const current = itemsRef.current.find((i) => i.id === productId);
-    if (!current || current.quantity <= 1) return;
+    const oldQty = quantityRef.current.get(productId) ?? 1;
+    if (oldQty <= 1) return;
 
-    const newQty = current.quantity - 1;
+    const newQty = oldQty - 1;
 
-    // ① optimistic update
-    updateItemQty(productId, newQty);
+    // ① optimistic
+    applyQty(productId, newQty);
     setUpdatingIds((prev) => new Set(prev).add(productId));
 
     try {
-      // ② API call
+      // ② API
       await cartAPI.update(productId, newQty);
       await refreshCart();
     } catch (error: any) {
-      // ③ revert در صورت خطا
-      updateItemQty(productId, current.quantity);
+      // ③ revert
+      applyQty(productId, oldQty);
       toast.error(error.response?.data?.message || "خطا در کاهش تعداد");
     } finally {
-      setUpdatingIds((prev) => {
-        const s = new Set(prev);
-        s.delete(productId);
-        return s;
-      });
+      setUpdatingIds((prev) => { const s = new Set(prev); s.delete(productId); return s; });
     }
-  };
+  }, [updatingIds, applyQty, refreshCart]);
 
   // ── حذف کامل آیتم ──
   const handleRemove = async (productId: number) => {
-    // snapshot قبل از حذف برای revert
-    const snapshot = [...itemsRef.current];
-
-    // ① optimistic update
+    const snapshot = [...items];
     setItems((prev) => {
       const updated = prev.filter((i) => i.id !== productId);
       recalcSummary(updated);
       return updated;
     });
+    quantityRef.current.delete(productId);
 
     try {
-      // ② API call
       await cartAPI.removeAll(productId);
       await refreshCart();
       removeFromCartStatus(productId);
       toast.success("از سبد خرید حذف شد");
     } catch (error: any) {
-      // ③ revert در صورت خطا
       setItems(snapshot);
       recalcSummary(snapshot);
+      quantityRef.current.set(productId, snapshot.find(i => i.id === productId)?.quantity ?? 1);
       toast.error(error.response?.data?.message || "خطا در حذف");
     }
   };
@@ -254,21 +247,17 @@ export default function CartPage() {
   // ── خالی کردن سبد ──
   const handleClear = async () => {
     if (!confirm("آیا از خالی کردن سبد خرید اطمینان دارید؟")) return;
-
-    const snapshot = [...itemsRef.current];
-
-    // ① optimistic update
+    const snapshot = [...items];
     setItems([]);
     setSummary({ count: 0, subtotal: 0, discount: 0, total: 0 });
+    quantityRef.current.clear();
 
     try {
-      // ② API call
       await cartAPI.clear();
       clearCartContext();
       await refreshStatus();
       toast.success("سبد خرید خالی شد");
     } catch {
-      // ③ revert در صورت خطا
       setItems(snapshot);
       recalcSummary(snapshot);
       toast.error("خطا در خالی کردن سبد");
@@ -296,7 +285,7 @@ export default function CartPage() {
   };
 
   // ─────────────────────────────────────────────
-  // Loading
+  // Render
   // ─────────────────────────────────────────────
   if (loading) {
     return (
@@ -306,9 +295,6 @@ export default function CartPage() {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Not authenticated
-  // ─────────────────────────────────────────────
   if (isAuthenticated === false) {
     return (
       <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -317,30 +303,18 @@ export default function CartPage() {
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <HiLogin className="w-10 h-10 text-blue-600" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">
-              ورود به حساب کاربری
-            </h1>
-            <p className="text-gray-500 mb-6">
-              برای مشاهده سبد خرید ابتدا وارد حساب کاربری خود شوید
-            </p>
+            <h1 className="text-xl font-bold text-gray-900 mb-2">ورود به حساب کاربری</h1>
+            <p className="text-gray-500 mb-6">برای مشاهده سبد خرید ابتدا وارد شوید</p>
             <div className="space-y-3">
-              <Link
-                href="/login?redirect=/cart"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
-              >
-                <HiLogin className="w-5 h-5" />
-                ورود به حساب
+              <Link href="/login?redirect=/cart"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition">
+                <HiLogin className="w-5 h-5" /> ورود به حساب
               </Link>
-              <Link
-                href="/register?redirect=/cart"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
-              >
+              <Link href="/register?redirect=/cart"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition">
                 ثبت‌نام
               </Link>
-              <Link
-                href="/products"
-                className="block text-sm text-gray-500 hover:text-gray-700 mt-4"
-              >
+              <Link href="/products" className="block text-sm text-gray-500 hover:text-gray-700 mt-4">
                 مشاهده محصولات
               </Link>
             </div>
@@ -350,66 +324,42 @@ export default function CartPage() {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Cart
-  // ─────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* هدر */}
+
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-900">سبد خرید</h1>
           {items.length > 0 && (
-            <button
-              onClick={handleClear}
-              className="text-red-500 text-sm hover:text-red-600 transition"
-            >
+            <button onClick={handleClear} className="text-red-500 text-sm hover:text-red-600 transition">
               خالی کردن سبد
             </button>
           )}
         </div>
 
-        {/* خالی */}
         {items.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <HiShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              سبد خرید خالی است
-            </h3>
-            <p className="text-gray-500 mb-6">
-              محصولات مورد نظر خود را به سبد اضافه کنید
-            </p>
-            <Link
-              href="/products"
-              className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">سبد خرید خالی است</h3>
+            <p className="text-gray-500 mb-6">محصولات مورد نظر خود را به سبد اضافه کنید</p>
+            <Link href="/products"
+              className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
               مشاهده محصولات
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* ── لیست آیتم‌ها ── */}
+
+
             <div className="lg:col-span-2 space-y-3">
               {items.map((item) => {
                 const isUpdating = updatingIds.has(item.id);
                 return (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-xl shadow-sm p-4 flex gap-4"
-                  >
-                    {/* تصویر */}
-                    <Link
-                      href={`/products/${item.slug}`}
-                      className="flex-shrink-0"
-                    >
+                  <div key={item.id} className="bg-white rounded-xl shadow-sm p-4 flex gap-4">
+                    <Link href={`/products/${item.slug}`} className="flex-shrink-0">
                       <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                         {item.thumbnail ? (
-                          <Image
-                            src={item.thumbnail}
-                            alt={item.title}
-                            fill
-                            className="object-cover"
-                          />
+                          <Image src={item.thumbnail} alt={item.title} fill className="object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <HiShoppingCart className="w-8 h-8 text-gray-300" />
@@ -418,18 +368,14 @@ export default function CartPage() {
                       </div>
                     </Link>
 
-                    {/* اطلاعات */}
                     <div className="flex-1 min-w-0">
                       <Link href={`/products/${item.slug}`}>
                         <h3 className="font-semibold text-gray-900 hover:text-blue-600 transition truncate">
                           {item.title}
                         </h3>
                       </Link>
-                      <p className="text-xs text-gray-500 mb-2">
-                        {item.category?.name}
-                      </p>
+                      <p className="text-xs text-gray-500 mb-2">{item.category?.name}</p>
 
-                      {/* قیمت واحد */}
                       <div className="flex items-center gap-2 mb-3">
                         {item.sale_price && (
                           <span className="text-xs text-gray-400 line-through">
@@ -441,13 +387,12 @@ export default function CartPage() {
                         </span>
                       </div>
 
-                      {/* کنترل تعداد + قیمت کل */}
                       <div className="flex items-center gap-3 flex-wrap">
                         <QuantityControl
                           quantity={item.quantity}
                           stock={item.stock}
                           disabled={isUpdating}
-                          onIncrease={() => handleIncrease(item.id)}
+                          onIncrease={() => handleIncrease(item.id, item.stock)}
                           onDecrease={() => handleDecrease(item.id)}
                         />
                         <span className="text-sm text-gray-500">
@@ -459,11 +404,8 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    {/* دکمه حذف */}
-                    <button
-                      onClick={() => handleRemove(item.id)}
-                      className="self-start p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0 mt-1"
-                    >
+                    <button onClick={() => handleRemove(item.id)}
+                      className="self-start p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0 mt-1">
                       <HiTrash className="w-4 h-4" />
                     </button>
                   </div>
@@ -471,13 +413,10 @@ export default function CartPage() {
               })}
             </div>
 
-            {/* ── خلاصه سفارش ── */}
+            {/* خلاصه سفارش */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  خلاصه سفارش
-                </h3>
-
+                <h3 className="font-semibold text-gray-900 mb-4">خلاصه سفارش</h3>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>جمع ({summary.count} عدد)</span>
@@ -493,25 +432,19 @@ export default function CartPage() {
                     <span>قابل پرداخت</span>
                     <span>{formatPrice(summary.total)}</span>
                   </div>
-                </div>
 
-                <button
-                  onClick={handleCheckout}
-                  disabled={checkingOut || items.length === 0}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 transition"
-                >
+</div>
+
+                <button onClick={handleCheckout} disabled={checkingOut || items.length === 0}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 transition">
                   {checkingOut ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <HiArrowRight className="w-5 h-5" />
-                  )}
+                  ) : <HiArrowRight className="w-5 h-5" />}
                   {checkingOut ? "در حال پردازش..." : "پرداخت و تکمیل خرید"}
                 </button>
 
-                <Link
-                  href="/products"
-                  className="block text-center text-blue-600 text-sm mt-4 hover:text-blue-700 transition"
-                >
+                <Link href="/products"
+                  className="block text-center text-blue-600 text-sm mt-4 hover:text-blue-700 transition">
                   ادامه خرید
                 </Link>
               </div>
