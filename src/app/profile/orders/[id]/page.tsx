@@ -16,15 +16,15 @@ import {
   HiCalendar,
   HiHashtag,
 } from "react-icons/hi";
-import { ordersAPI, publicComponentsAPI } from "@/lib/api";
+import { ordersAPI, publicProductsAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
 interface OrderItem {
   id: number;
-  component_id: string;
-  component_title: string;
-  component_slug: string;
-  component_thumbnail: string | null;
+  product_id: string;
+  product_title: string;
+  product_slug: string;
+  product_thumbnail: string | null;
   price: number;
   sale_price: number | null;
   paid_price: number;
@@ -124,36 +124,36 @@ export default function OrderDetailPage() {
     }
   };
 
-  const handleDownload = async (item: OrderItem) => {
-    if (!item.component_slug) {
-      toast.error("اطلاعات کامپوننت موجود نیست");
-      return;
-    }
+  // const handleDownload = async (item: OrderItem) => {
+  //   if (!item.component_slug) {
+  //     toast.error("اطلاعات کامپوننت موجود نیست");
+  //     return;
+  //   }
 
-    setDownloadingItem(item.id);
-    try {
-      const response = await publicComponentsAPI.download(item.component_slug);
+  //   setDownloadingItem(item.id);
+  //   try {
+  //     const response = await publicComponentsAPI.download(item.component_slug);
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${item.component_slug}.zip`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", `${item.component_slug}.zip`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //     window.URL.revokeObjectURL(url);
 
-      toast.success("دانلود شروع شد");
-    } catch (error: any) {
-      if (error.response?.status === 403) {
-        toast.error("دسترسی به دانلود ندارید");
-      } else {
-        toast.error("خطا در دانلود فایل");
-      }
-    } finally {
-      setDownloadingItem(null);
-    }
-  };
+  //     toast.success("دانلود شروع شد");
+  //   } catch (error: any) {
+  //     if (error.response?.status === 403) {
+  //       toast.error("دسترسی به دانلود ندارید");
+  //     } else {
+  //       toast.error("خطا در دانلود فایل");
+  //     }
+  //   } finally {
+  //     setDownloadingItem(null);
+  //   }
+  // };
 
   const handleCancel = async () => {
     if (!order) return;
@@ -292,10 +292,10 @@ export default function OrderDetailPage() {
                 >
                   {/* Thumbnail */}
                   <div className="relative w-24 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                    {item.component_thumbnail ? (
+                    {item.product_thumbnail ? (
                       <Image
-                        src={item.component_thumbnail}
-                        alt={item.component_title}
+                        src={item.product_thumbnail}
+                        alt={item.product_title}
                         fill
                         className="object-cover"
                       />
@@ -309,10 +309,10 @@ export default function OrderDetailPage() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <Link
-                      href={`/components/${item.component_slug}`}
+                      href={`/products/${item.product_slug}`}
                       className="font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
                     >
-                      {item.component_title}
+                      {item.product_title}
                     </Link>
 
                     <div className="flex items-center gap-2 mt-1">
@@ -327,7 +327,7 @@ export default function OrderDetailPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 mt-3">
+                    {/* <div className="flex items-center gap-2 mt-3">
                       {order.status === "paid" && (
                         <button
                           onClick={() => handleDownload(item)}
@@ -351,7 +351,7 @@ export default function OrderDetailPage() {
                           مشاهده
                         </Link>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               ))
