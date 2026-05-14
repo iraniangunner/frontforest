@@ -110,7 +110,7 @@ api.interceptors.response.use(
 
       return Promise.reject(err);
     }
-  }
+  },
 );
 
 export default api;
@@ -178,9 +178,6 @@ export const tagsAPI = {
     api.patch(`/admin/tags/${id}/toggle`, {}, { requiresAuth: true }),
 };
 
-
-
-
 /**************************************** */
 
 // Admin Products API
@@ -213,7 +210,11 @@ export const productsAPI = {
     api.patch(`/admin/products/${id}/toggle`, {}, { requiresAuth: true }),
 
   toggleFeatured: (id: number) =>
-    api.patch(`/admin/products/${id}/toggle-featured`, {}, { requiresAuth: true }),
+    api.patch(
+      `/admin/products/${id}/toggle-featured`,
+      {},
+      { requiresAuth: true },
+    ),
 
   updateStock: (id: number, stock: number) =>
     api.patch(`/admin/products/${id}/stock`, { stock }, { requiresAuth: true }),
@@ -224,20 +225,15 @@ export const publicProductsAPI = {
   getAll: (params?: Record<string, unknown>) =>
     api.get("/products", { params }),
 
-  getBySlug: (slug: string) =>
-    api.get(`/products/${slug}`),
+  getBySlug: (slug: string) => api.get(`/products/${slug}`),
 
-  getFeatured: () =>
-    api.get("/products/featured"),
+  getFeatured: () => api.get("/products/featured"),
 
-  getOnSale: () =>
-    api.get("/products/on-sale"),
+  getOnSale: () => api.get("/products/on-sale"),
 
-  getNewest: () =>
-    api.get("/products/newest"),
+  getNewest: () => api.get("/products/newest"),
 
-  getRelated: (slug: string) =>
-    api.get(`/products/${slug}/related`),
+  getRelated: (slug: string) => api.get(`/products/${slug}/related`),
 
   getReviews: (slug: string, params?: Record<string, unknown>) =>
     api.get(`/products/${slug}/reviews`, { params }),
@@ -252,7 +248,7 @@ export const publicProductsAPI = {
     api.delete(`/products/${slug}/reviews`, { requiresAuth: true }),
 };
 
-/***************************************** */
+/******************************************/
 
 // Reviews API
 export const reviewsAPI = {
@@ -272,13 +268,15 @@ export const reviewsAPI = {
     api.delete(`/admin/reviews/${id}`, { requiresAuth: true }),
 
   reply: (id: number, adminReply: string) =>
-    api.post(`/admin/reviews/${id}/reply`, { admin_reply: adminReply }, { requiresAuth: true }),
+    api.post(
+      `/admin/reviews/${id}/reply`,
+      { admin_reply: adminReply },
+      { requiresAuth: true },
+    ),
 
   deleteReply: (id: number) =>
     api.delete(`/admin/reviews/${id}/reply`, { requiresAuth: true }),
-
 };
-
 
 // Public Categories API
 export const publicCategoriesAPI = {
@@ -295,12 +293,10 @@ export const publicTagsAPI = {
 
 export const cartAPI = {
   // دریافت سبد خرید
-  get: () =>
-    api.get("/cart", { requiresAuth: true }),
+  get: () => api.get("/cart", { requiresAuth: true }),
 
   // تعداد کل آیتم‌ها
-  count: () =>
-    api.get("/cart/count", { requiresAuth: true }),
+  count: () => api.get("/cart/count", { requiresAuth: true }),
 
   // اضافه کردن محصول (quantity اختیاری، پیش‌فرض ۱)
   add: (productId: number, quantity: number = 1) =>
@@ -319,10 +315,8 @@ export const cartAPI = {
     api.delete(`/cart/${productId}/remove`, { requiresAuth: true }),
 
   // خالی کردن کل سبد
-  clear: () =>
-    api.delete("/cart", { requiresAuth: true }),
+  clear: () => api.delete("/cart", { requiresAuth: true }),
 };
-
 
 export const authAPI = {
   sendOtp: (mobile: string) => api.post("/auth/send-otp", { mobile }),
@@ -335,12 +329,12 @@ export const authAPI = {
   logout: () => api.post("/auth/logout", {}, { requiresAuth: true }),
 };
 
+// ─────────────────────────────────────────────
+// Checkout API
+// ─────────────────────────────────────────────
 export const checkoutAPI = {
-  // Create order from cart
-  checkout: (data?: { coupon_code?: string }) =>
-    api.post("/checkout", data || {}, { requiresAuth: true } as any),
-
-  // Verify payment callback
+  checkout: (data: { address_id: number; coupon_code?: string }) =>
+    api.post("/checkout", data, { requiresAuth: true } as any),
   verify: (authority: string, status: string) =>
     api.get("/payment/verify", {
       params: { Authority: authority, Status: status },
@@ -393,10 +387,6 @@ export const favoritesAPI = {
   //   api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
 };
 
-
-
-
-
 export const contactAPI = {
   // Public endpoint - no auth required
   send: (data: {
@@ -414,45 +404,78 @@ export const contactAPI = {
     api.get(`/admin/contact/${id}`, { requiresAuth: true }),
 
   updateStatus: (id: number, status: string) =>
-    api.patch(`/admin/contact/${id}/status/${status}`, {}, { requiresAuth: true }),
+    api.patch(
+      `/admin/contact/${id}/status/${status}`,
+      {},
+      { requiresAuth: true },
+    ),
 
   delete: (id: number) =>
     api.delete(`/admin/contact/${id}`, { requiresAuth: true }),
 };
 
-
-
-
-// Admin Orders API
-// =====================================
+// ─────────────────────────────────────────────
+// Admin Orders API — همه از OrderController
+// ─────────────────────────────────────────────
 export const adminOrdersAPI = {
-  // Get all orders with filters
   getAll: (params?: Record<string, unknown>) =>
-    api.get("/admin/orders", { params, requiresAuth: true } as any),
+    api.get("/admin/orders", { params, requiresAuth: true }),
 
-  // Get single order
-  getOne: (orderId: number | string) =>
-    api.get(`/admin/orders/${orderId}`, { requiresAuth: true } as any),
+  getOne: (id: number) =>
+    api.get(`/admin/orders/${id}`, { requiresAuth: true }),
 
-  // Get pending orders (for payment inquiries)
+  updateStatus: (
+    id: number,
+    data: {
+      status: string;
+      note?: string;
+      tracking_code?: string;
+    },
+  ) => api.patch(`/admin/orders/${id}/status`, data, { requiresAuth: true }),
+
+  // زرین‌پال
   getPending: (params?: Record<string, unknown>) =>
-    api.get("/admin/orders/pending", { params, requiresAuth: true } as any),
-
-  // Check payment status with Zarinpal
-  checkStatus: (orderId: number | string) =>
-    api.get(`/admin/orders/${orderId}/check-status`, {
-      requiresAuth: true,
-    } as any),
-
-  // Manual verify a PAID transaction
-  manualVerify: (orderId: number | string) =>
+    api.get("/admin/orders/pending", { params, requiresAuth: true }),
+  checkStatus: (orderId: number) =>
+    api.get(`/admin/orders/${orderId}/check-status`, { requiresAuth: true }),
+  manualVerify: (orderId: number) =>
     api.post(
       `/admin/orders/${orderId}/manual-verify`,
       {},
-      { requiresAuth: true } as any
+      { requiresAuth: true },
     ),
 };
 
+// ─────────────────────────────────────────────
+// Address API
+// ─────────────────────────────────────────────
+export interface AddressForm {
+  title?: string;
+  receiver_name: string;
+  receiver_mobile: string;
+  province: string;
+  city: string;
+  address: string;
+  postal_code: string;
+  is_default?: boolean;
+}
 
+export const addressAPI = {
+  getAll: () => api.get("/addresses", { requiresAuth: true }),
+  store: (data: AddressForm) =>
+    api.post("/addresses", data, { requiresAuth: true }),
+  update: (id: number, data: AddressForm) =>
+    api.put(`/addresses/${id}`, data, { requiresAuth: true }),
+  destroy: (id: number) =>
+    api.delete(`/addresses/${id}`, { requiresAuth: true }),
+  setDefault: (id: number) =>
+    api.patch(`/addresses/${id}/set-default`, {}, { requiresAuth: true }),
+};
 
-
+// ─────────────────────────────────────────────
+// Coupon API
+// ─────────────────────────────────────────────
+export const couponAPI = {
+  validate: (code: string, total: number) =>
+    api.post("/coupon/validate", { code, total }, { requiresAuth: true }),
+};
