@@ -348,7 +348,7 @@ export default function OrderDetailPage() {
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`}
               >
                 <StatusIcon className="w-3.5 h-3.5" />
-                {order.status_label}
+                {STATUS[order.status]?.label || order.status_label}
               </span>
             </div>
           </div>

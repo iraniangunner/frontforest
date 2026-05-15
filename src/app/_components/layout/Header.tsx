@@ -11,26 +11,27 @@ import {
   HiChevronDown,
   HiLogout,
   HiHeart,
-  HiDownload,
   HiSearch,
   HiCog,
   HiShoppingBag,
   HiHome,
-  HiTemplate,
   HiPhone,
   HiInformationCircle,
-  HiQuestionMarkCircle,
-  HiNewspaper,
+  HiLocationMarker,
 } from "react-icons/hi";
+import { MdStorefront } from "react-icons/md";
 import { Trees } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { logoutAction } from "@/app/_actions/auth";
 import toast from "react-hot-toast";
 
+// ─────────────────────────────────────────────
+// Nav Links
+// ─────────────────────────────────────────────
 const navLinks = [
   { href: "/", label: "خانه", icon: HiHome },
-  { href: "/components", label: "کامپوننت‌ها", icon: HiTemplate },
+  { href: "/products", label: "محصولات", icon: MdStorefront },
   { href: "/about", label: "درباره ما", icon: HiInformationCircle },
   { href: "/contact", label: "تماس با ما", icon: HiPhone },
 ];
@@ -38,6 +39,7 @@ const navLinks = [
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
+
   const { cartCount, refreshCart, clearCart } = useCart();
   const { user, setUser, loading } = useAuth();
 
@@ -50,54 +52,48 @@ export default function Header() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle scroll effect
+  // scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Refresh cart on user change
+  // refresh cart on login
   useEffect(() => {
-    if (user) {
-      refreshCart();
-    }
+    if (user) refreshCart();
   }, [user]);
 
-  // Close user menu on outside click
+  // close user menu on outside click
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handler = (e: MouseEvent) => {
       if (
         userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
+        !userMenuRef.current.contains(e.target as Node)
       ) {
         setUserMenuOpen(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Close menus on route change
+  // close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
     setSearchOpen(false);
     setUserMenuOpen(false);
   }, [pathname]);
 
-  // Focus search input when opened
+  // focus search input
   useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
+    if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/components?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/products?q=${encodeURIComponent(searchQuery)}`);
       setSearchOpen(false);
       setSearchQuery("");
     }
@@ -106,46 +102,37 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await logoutAction();
-      setUser(null);
-      setUserMenuOpen(false);
-      clearCart();
-      toast.success("با موفقیت خارج شدید");
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      setUser(null);
-      setUserMenuOpen(false);
-      clearCart();
-      toast.error("خطا در خروج");
-    }
+    } catch {}
+    setUser(null);
+    setUserMenuOpen(false);
+    clearCart();
+    toast.success("با موفقیت خارج شدید");
+    router.push("/");
+    router.refresh();
   };
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
-  };
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <>
       <header
+        dir="rtl"
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
             ? "bg-white/80 backdrop-blur-xl shadow-lg shadow-gray-200/50"
             : "bg-white border-b border-gray-100"
         }`}
-        dir="rtl"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-18">
-            {/* Logo */}
+          <div className="flex items-center justify-between h-16">
+            {/* ── Logo ── */}
             <Link
               href="/"
               className="flex items-center gap-3 group flex-shrink-0"
             >
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-xl group-hover:shadow-emerald-500/30 group-hover:scale-105 transition-all duration-300">
-                  <Trees className="w-6 h-6 text-white" />
-                </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-all duration-300">
+                <Trees className="w-6 h-6 text-white" />
               </div>
               <div className="hidden sm:flex items-center">
                 <span className="text-xl font-black bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
@@ -157,13 +144,13 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* ── Desktop Nav ── */}
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
+                  className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
                     isActive(link.href)
                       ? "text-teal-600 bg-teal-50"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -174,9 +161,9 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Right Section */}
-            <div className="flex items-center gap-2">
-              {/* Search Button */}
+            {/* ── Right Section ── */}
+            <div className="flex items-center gap-1.5">
+              {/* جستجو */}
               <button
                 onClick={() => setSearchOpen(true)}
                 className="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
@@ -185,7 +172,7 @@ export default function Header() {
                 <HiSearch className="w-5 h-5" />
               </button>
 
-              {/* Cart Button */}
+              {/* سبد خرید */}
               <Link
                 href="/cart"
                 className="relative p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors group"
@@ -199,10 +186,9 @@ export default function Header() {
                 )}
               </Link>
 
-              {/* Divider */}
               <div className="hidden sm:block w-px h-8 bg-gray-200 mx-1" />
 
-              {/* Auth Section */}
+              {/* Auth */}
               {loading ? (
                 <div className="w-10 h-10 bg-gray-100 rounded-xl animate-pulse" />
               ) : user ? (
@@ -220,16 +206,14 @@ export default function Header() {
                       </span>
                     </div>
                     <HiChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block ${
-                        userMenuOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block ${userMenuOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
-                  {/* User Dropdown Menu */}
+                  {/* Dropdown */}
                   {userMenuOpen && (
-                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 py-2">
-                      {/* User Info */}
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 py-2 z-50">
+                      {/* اطلاعات کاربر */}
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-md">
@@ -238,77 +222,78 @@ export default function Header() {
                                 (user.mobile ?? user.email)?.charAt(0)}
                             </span>
                           </div>
-                          <div>
-                            <p className="font-semibold text-gray-900">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">
                               {user.name || "کاربر"}
                             </p>
-                            <p className="text-sm text-gray-500" dir="ltr">
-                              {user.name?.charAt(0) ||
-                                (user.mobile ?? user.email)}
+                            <p
+                              className="text-xs text-gray-500 truncate"
+                              dir="ltr"
+                            >
+                              {user.mobile ?? user.email}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Menu Items */}
+                      {/* لینک‌ها */}
                       <div className="py-2">
-                        <Link
-                          href="/profile"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <HiUser className="w-4 h-4 text-gray-500" />
-                          </div>
-                          <span className="font-medium">پروفایل من</span>
-                        </Link>
-
-                        <Link
-                          href="/profile/orders"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <HiShoppingBag className="w-4 h-4 text-blue-500" />
-                          </div>
-                          <span className="font-medium">سفارشات</span>
-                        </Link>
-
-                        <Link
-                          href="/profile/purchases"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
-                            <HiDownload className="w-4 h-4 text-emerald-500" />
-                          </div>
-                          <span className="font-medium">خریدهای من</span>
-                        </Link>
-
-                        <Link
-                          href="/profile/favorites"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-rose-50 rounded-lg flex items-center justify-center">
-                            <HiHeart className="w-4 h-4 text-rose-500" />
-                          </div>
-                          <span className="font-medium">علاقه‌مندی‌ها</span>
-                        </Link>
-
-                        <Link
-                          href="/profile/settings"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <HiCog className="w-4 h-4 text-gray-500" />
-                          </div>
-                          <span className="font-medium">تنظیمات</span>
-                        </Link>
+                        {[
+                          {
+                            href: "/profile",
+                            icon: HiUser,
+                            bg: "bg-gray-100",
+                            ic: "text-gray-500",
+                            label: "پروفایل من",
+                          },
+                          {
+                            href: "/profile/orders",
+                            icon: HiShoppingBag,
+                            bg: "bg-blue-50",
+                            ic: "text-blue-500",
+                            label: "سفارشات",
+                          },
+                          {
+                            href: "/profile/addresses",
+                            icon: HiLocationMarker,
+                            bg: "bg-teal-50",
+                            ic: "text-teal-500",
+                            label: "آدرس‌های من",
+                          },
+                          {
+                            href: "/profile/favorites",
+                            icon: HiHeart,
+                            bg: "bg-rose-50",
+                            ic: "text-rose-500",
+                            label: "علاقه‌مندی‌ها",
+                          },
+                          {
+                            href: "/profile/settings",
+                            icon: HiCog,
+                            bg: "bg-gray-100",
+                            ic: "text-gray-500",
+                            label: "تنظیمات",
+                          },
+                        ].map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <div
+                              className={`w-8 h-8 ${item.bg} rounded-lg flex items-center justify-center`}
+                            >
+                              <item.icon className={`w-4 h-4 ${item.ic}`} />
+                            </div>
+                            <span className="font-medium text-sm">
+                              {item.label}
+                            </span>
+                          </Link>
+                        ))}
                       </div>
 
-                      {/* Logout */}
+                      {/* خروج */}
                       <div className="border-t border-gray-100 pt-2 mt-1">
                         <button
                           onClick={handleLogout}
@@ -317,28 +302,21 @@ export default function Header() {
                           <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
                             <HiLogout className="w-4 h-4 text-red-500" />
                           </div>
-                          <span className="font-medium">خروج از حساب</span>
+                          <span className="font-medium text-sm">
+                            خروج از حساب
+                          </span>
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  {/* <Link
-                    href="/login"
-                    className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                  >
-                    ورود
-                  </Link> */}
-                  <Link
-                    href="/login"
-                    className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all duration-200"
-                  >
-                    {/* <span className="hidden sm:inline">ثبت‌نام رایگان</span> */}
-                    <span>ورود / ثبت‌نام</span>
-                  </Link>
-                </div>
+                <Link
+                  href="/login"
+                  className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  ورود / ثبت‌نام
+                </Link>
               )}
 
               {/* Mobile Menu Button */}
@@ -357,14 +335,11 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Menu - Only Navigation Links */}
+        {/* ── Mobile Menu ── */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ${
-            mobileMenuOpen ? "max-h-[400px]" : "max-h-0"
-          }`}
+          className={`lg:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen ? "max-h-[400px]" : "max-h-0"}`}
         >
           <div className="px-4 py-4 bg-gray-50 border-t border-gray-100 space-y-1">
-            {/* Navigation Links Only */}
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -380,47 +355,60 @@ export default function Header() {
               </Link>
             ))}
 
-            {/* Login/Register for Guests Only */}
-            {!user && (
+            {/* لینک‌های اضافه برای موبایل */}
+            {user && (
               <>
-                {/* <div className="border-t border-gray-200 my-3" />
-                <div className="flex gap-2 px-2">
-                  <Link
-                    href="/login"
-                    className="flex-1 px-4 py-3 text-center text-gray-700 font-medium bg-white rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
-                  >
-                    ورود
-                  </Link>
-                 
-                </div> */}
+                <div className="border-t border-gray-200 my-2" />
+                <Link
+                  href="/profile/addresses"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white transition-colors"
+                >
+                  <HiLocationMarker className="w-5 h-5 text-teal-500" />
+                  <span className="font-medium">آدرس‌های من</span>
+                </Link>
+                <Link
+                  href="/profile/orders"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white transition-colors"
+                >
+                  <HiShoppingBag className="w-5 h-5 text-blue-500" />
+                  <span className="font-medium">سفارشات</span>
+                </Link>
               </>
+            )}
+
+            {!user && (
+              <div className="pt-2">
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl font-medium text-sm"
+                >
+                  ورود / ثبت‌نام
+                </Link>
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      {/* Search Modal */}
+      {/* ── Search Modal ── */}
       {searchOpen && (
         <div className="fixed inset-0 z-[60]" dir="rtl">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           />
-
-          {/* Search Box */}
           <div className="relative max-w-2xl mx-auto mt-20 px-4">
             <form onSubmit={handleSearch}>
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl blur-xl opacity-20" />
                 <div className="relative flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden">
-                  <HiSearch className="w-6 h-6 text-gray-400 mr-4" />
+                  <HiSearch className="w-6 h-6 text-gray-400 mr-4 flex-shrink-0" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="جستجوی کامپوننت..."
+                    placeholder="جستجوی محصولات..."
                     className="flex-1 py-5 px-2 text-lg text-gray-700 placeholder-gray-400 focus:outline-none"
                   />
                   <button

@@ -323,7 +323,7 @@ function StatusModal({
                             SMS کد رهگیری ارسال میشه
                           </p>
                         )}
-                        {t.status === "cancelled" && (
+                        {t.status === "canceled" && (
                           <p className="text-xs text-gray-400">
                             SMS لغو سفارش ارسال میشه
                           </p>

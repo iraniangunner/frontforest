@@ -14,11 +14,9 @@ import {
 } from "react-icons/hi";
 import { addressAPI } from "@/lib/api";
 import { PROVINCE_NAMES, getCities } from "@/lib/iranProvinces";
+import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 interface Address {
   id: number;
   title: string | null;
@@ -61,16 +59,19 @@ function AddressFormModal({
   onClose,
   onSave,
   editAddress,
+  defaultName,
+  defaultMobile,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (form: AddressForm) => Promise<void>;
   editAddress: Address | null;
+  defaultName?: string;
+  defaultMobile?: string;
 }) {
   const [form, setForm] = useState<AddressForm>(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // شهرهای استان انتخابی
   const cities = form.province ? getCities(form.province) : [];
 
   useEffect(() => {
@@ -86,7 +87,12 @@ function AddressFormModal({
         is_default: editAddress.is_default,
       });
     } else {
-      setForm(emptyForm);
+      // آدرس جدید — نام و موبایل کاربر رو پر کن
+      setForm({
+        ...emptyForm,
+        receiver_name: defaultName || "",
+        receiver_mobile: defaultMobile || "",
+      });
     }
   }, [editAddress, open]);
 
@@ -125,7 +131,6 @@ function AddressFormModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* عنوان */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               عنوان آدرس
@@ -138,7 +143,6 @@ function AddressFormModal({
             />
           </div>
 
-          {/* نام و موبایل */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -171,7 +175,6 @@ function AddressFormModal({
             </div>
           </div>
 
-          {/* استان */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               استان <span className="text-red-500">*</span>
@@ -193,7 +196,6 @@ function AddressFormModal({
             </select>
           </div>
 
-          {/* شهر */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               شهر <span className="text-red-500">*</span>
@@ -216,7 +218,6 @@ function AddressFormModal({
             </select>
           </div>
 
-          {/* آدرس کامل */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               آدرس کامل <span className="text-red-500">*</span>
@@ -231,7 +232,6 @@ function AddressFormModal({
             />
           </div>
 
-          {/* کد پستی */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               کد پستی <span className="text-red-500">*</span>
@@ -249,7 +249,6 @@ function AddressFormModal({
             />
           </div>
 
-          {/* پیش‌فرض */}
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -289,6 +288,7 @@ function AddressFormModal({
 // ─────────────────────────────────────────────
 export default function CheckoutAddressPage() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -368,7 +368,6 @@ export default function CheckoutAddressPage() {
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* هدر */}
         <div className="flex items-center gap-3 mb-6">
           <Link
             href="/cart"
@@ -534,6 +533,8 @@ export default function CheckoutAddressPage() {
         }}
         onSave={handleSave}
         editAddress={editingAddress}
+        defaultName={user?.name || ""}
+        defaultMobile={user?.mobile || ""}
       />
     </div>
   );
