@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Header from "@/app/_components/admin/Header";
 import Button from "@/app/_components/admin/Button";
 import Table from "@/app/_components/admin/Table";
-import Badge from "@/app/_components/admin/Badge";
 import Pagination from "@/app/_components/admin/Pagination";
 import {
   HiSearch,
   HiEye,
-  HiX,
   HiUser,
   HiCreditCard,
   HiLocationMarker,
@@ -82,7 +81,7 @@ interface Stats {
   processing: number;
   shipped: number;
   delivered: number;
-  cancelled: number;
+  canceled: number;
   returned: number;
   failed: number;
   total_revenue: number;
@@ -105,40 +104,103 @@ const formatDate = (d: string | null) => {
 
 const STATUS_CONFIG: Record<
   string,
-  { label: string; variant: string; icon: any }
+  { label: string; textColor: string; bgColor: string; icon: any }
 > = {
-  pending: { label: "در انتظار", variant: "warning", icon: HiClock },
-  paid: { label: "پرداخت شده", variant: "info", icon: HiCreditCard },
-  processing: { label: "در حال پردازش", variant: "secondary", icon: HiCube },
-  shipped: { label: "ارسال شده", variant: "primary", icon: HiTruck },
+  pending: {
+    label: "در انتظار",
+    textColor: "text-yellow-700",
+    bgColor: "bg-yellow-100",
+    icon: HiClock,
+  },
+  paid: {
+    label: "پرداخت شده",
+    textColor: "text-blue-700",
+    bgColor: "bg-blue-100",
+    icon: HiCreditCard,
+  },
+  processing: {
+    label: "در حال پردازش",
+    textColor: "text-purple-700",
+    bgColor: "bg-purple-100",
+    icon: HiCube,
+  },
+  shipped: {
+    label: "ارسال شده",
+    textColor: "text-indigo-700",
+    bgColor: "bg-indigo-100",
+    icon: HiTruck,
+  },
   delivered: {
     label: "تحویل داده شد",
-    variant: "success",
+    textColor: "text-green-700",
+    bgColor: "bg-green-100",
     icon: HiCheckCircle,
   },
-  cancelled: { label: "لغو شده", variant: "default", icon: HiBan },
-  returned: { label: "مرجوعی", variant: "warning", icon: HiRefresh },
-  failed: { label: "ناموفق", variant: "danger", icon: HiXCircle },
+  canceled: {
+    label: "لغو شده",
+    textColor: "text-gray-700",
+    bgColor: "bg-gray-100",
+    icon: HiBan,
+  },
+  returned: {
+    label: "مرجوعی",
+    textColor: "text-orange-700",
+    bgColor: "bg-orange-100",
+    icon: HiRefresh,
+  },
+  failed: {
+    label: "ناموفق",
+    textColor: "text-red-700",
+    bgColor: "bg-red-100",
+    icon: HiXCircle,
+  },
 };
 
-const TRANSITIONS: Record<
-  string,
-  { status: string; label: string; color: string }[]
-> = {
+const TRANSITIONS: Record<string, { status: string; label: string }[]> = {
   paid: [
-    { status: "processing", label: "شروع پردازش", color: "bg-purple-600" },
-    { status: "cancelled", label: "لغو سفارش", color: "bg-red-500" },
+    { status: "processing", label: "شروع پردازش" },
+    { status: "canceled", label: "لغو سفارش" },
   ],
   processing: [
-    { status: "shipped", label: "ارسال شد", color: "bg-indigo-600" },
-    { status: "cancelled", label: "لغو سفارش", color: "bg-red-500" },
+    { status: "shipped", label: "ارسال شد" },
+    { status: "canceled", label: "لغو سفارش" },
   ],
   shipped: [
-    { status: "delivered", label: "تحویل شد", color: "bg-green-600" },
-    { status: "returned", label: "مرجوعی", color: "bg-orange-500" },
+    { status: "delivered", label: "تحویل شد" },
+    { status: "returned", label: "مرجوعی" },
   ],
-  delivered: [{ status: "returned", label: "مرجوعی", color: "bg-orange-500" }],
+  delivered: [{ status: "returned", label: "مرجوعی" }],
+  pending: [{ status: "canceled", label: "لغو سفارش" }],
 };
+
+// ─────────────────────────────────────────────
+// Portal Modal Wrapper — رندر خارج از DOM درخت
+// باعث میشه modal همیشه روی همه چیز باشه
+// ─────────────────────────────────────────────
+function PortalModal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // جلوگیری از scroll صفحه وقتی modal بازه
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 flex items-center justify-center p-4"
+      style={{ zIndex: 99999 }}
+    >
+      {children}
+    </div>,
+    document.body,
+  );
+}
 
 // ─────────────────────────────────────────────
 // Status Update Modal
@@ -157,7 +219,7 @@ function StatusModal({
     transitions[0]?.status || "",
   );
   const [note, setNote] = useState("");
-  const [trackingCode, setTrackingCode] = useState("");
+  const [trackingCode, setTrackingCode] = useState(order.tracking_code || "");
   const [saving, setSaving] = useState(false);
 
   const inp =
@@ -165,14 +227,18 @@ function StatusModal({
 
   const handleSave = async () => {
     if (!selectedStatus) return;
+    if (selectedStatus === "shipped" && !trackingCode.trim()) {
+      toast.error("کد رهگیری الزامی است");
+      return;
+    }
     setSaving(true);
     try {
       await adminOrdersAPI.updateStatus(order.id, {
         status: selectedStatus,
-        note: note || undefined,
-        tracking_code: trackingCode || undefined,
+        note: note.trim() || undefined,
+        tracking_code: trackingCode.trim() || undefined,
       });
-      toast.success("وضعیت سفارش بروزرسانی شد");
+      toast.success("وضعیت بروزرسانی شد — SMS ارسال شد");
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -182,32 +248,15 @@ function StatusModal({
     }
   };
 
-  if (transitions.length === 0) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
-        />
-        <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm text-center">
-          <p className="text-gray-600 mb-4">این سفارش قابل تغییر وضعیت نیست</p>
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-gray-100 rounded-xl text-sm"
-          >
-            بستن
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <PortalModal>
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
+
+      {/* Modal */}
       <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="font-bold text-gray-900">تغییر وضعیت سفارش</h2>
@@ -222,7 +271,7 @@ function StatusModal({
         <div className="p-6 space-y-4">
           {/* اطلاعات سفارش */}
           <div className="p-3 bg-gray-50 rounded-xl">
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-sm font-medium text-gray-900 font-mono">
               {order.order_number}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -236,90 +285,118 @@ function StatusModal({
             </p>
           </div>
 
-          {/* انتخاب وضعیت جدید */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              وضعیت جدید <span className="text-red-500">*</span>
-            </label>
-            <div className="space-y-2">
-              {transitions.map((t) => (
-                <label
-                  key={t.status}
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${
-                    selectedStatus === t.status
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-100 hover:border-gray-200"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="status"
-                    value={t.status}
-                    checked={selectedStatus === t.status}
-                    onChange={() => setSelectedStatus(t.status)}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <span className="text-sm font-medium text-gray-900">
-                    {t.label}
-                  </span>
+          {transitions.length === 0 ? (
+            <p className="text-center text-sm text-gray-500 py-4">
+              این سفارش قابل تغییر وضعیت نیست
+            </p>
+          ) : (
+            <>
+              {/* انتخاب وضعیت */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  وضعیت جدید <span className="text-red-500">*</span>
                 </label>
-              ))}
-            </div>
-          </div>
+                <div className="space-y-2">
+                  {transitions.map((t) => (
+                    <label
+                      key={t.status}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${
+                        selectedStatus === t.status
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-100 hover:border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="status"
+                        value={t.status}
+                        checked={selectedStatus === t.status}
+                        onChange={() => setSelectedStatus(t.status)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {t.label}
+                        </span>
+                        {t.status === "shipped" && (
+                          <p className="text-xs text-gray-400">
+                            SMS کد رهگیری ارسال میشه
+                          </p>
+                        )}
+                        {t.status === "cancelled" && (
+                          <p className="text-xs text-gray-400">
+                            SMS لغو سفارش ارسال میشه
+                          </p>
+                        )}
+                        {t.status === "delivered" && (
+                          <p className="text-xs text-gray-400">
+                            SMS تحویل ارسال میشه
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
-          {/* کد رهگیری — فقط برای ارسال */}
-          {selectedStatus === "shipped" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                کد رهگیری پستی <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={trackingCode}
-                onChange={(e) => setTrackingCode(e.target.value)}
-                placeholder="کد رهگیری را وارد کنید"
-                dir="ltr"
-                className={inp}
-              />
-            </div>
+              {/* کد رهگیری */}
+              {selectedStatus === "shipped" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    کد رهگیری پستی <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    value={trackingCode}
+                    onChange={(e) => setTrackingCode(e.target.value)}
+                    placeholder="کد رهگیری را وارد کنید"
+                    dir="ltr"
+                    className={inp}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    این کد در SMS به مشتری ارسال میشه
+                  </p>
+                </div>
+              )}
+
+              {/* یادداشت */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  یادداشت (اختیاری)
+                </label>
+                <textarea
+                  rows={2}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="پیام اضافه برای کاربر..."
+                  className={inp}
+                />
+              </div>
+
+              {/* دکمه‌ها */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition"
+                >
+                  انصراف
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={
+                    saving ||
+                    !selectedStatus ||
+                    (selectedStatus === "shipped" && !trackingCode.trim())
+                  }
+                  className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
+                >
+                  {saving ? "در حال ثبت..." : "ثبت + ارسال SMS"}
+                </button>
+              </div>
+            </>
           )}
-
-          {/* یادداشت */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              یادداشت (اختیاری)
-            </label>
-            <textarea
-              rows={2}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="پیامی برای کاربر..."
-              className={inp}
-            />
-          </div>
-
-          {/* دکمه‌ها */}
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition"
-            >
-              انصراف
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={
-                saving ||
-                !selectedStatus ||
-                (selectedStatus === "shipped" && !trackingCode)
-              }
-              className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
-            >
-              {saving ? "در حال ذخیره..." : "ثبت و ارسال SMS"}
-            </button>
-          </div>
         </div>
       </div>
-    </div>
+    </PortalModal>
   );
 }
 
@@ -342,37 +419,23 @@ function OrderDetailModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+      <PortalModal>
+        {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+
+        {/* Modal */}
+        <div className="relative bg-white rounded-2xl w-full max-w-3xl max-h-[88vh] overflow-hidden flex flex-col shadow-2xl">
           {/* هدر */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-3">
-              <h2 className="font-bold text-gray-900">
-                سفارش {order.order_number}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="font-bold text-gray-900 font-mono">
+                {order.order_number}
               </h2>
               <span
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium
-                ${
-                  order.status === "delivered"
-                    ? "bg-green-100 text-green-700"
-                    : order.status === "shipped"
-                      ? "bg-indigo-100 text-indigo-700"
-                      : order.status === "processing"
-                        ? "bg-purple-100 text-purple-700"
-                        : order.status === "paid"
-                          ? "bg-blue-100 text-blue-700"
-                          : order.status === "cancelled"
-                            ? "bg-gray-100 text-gray-600"
-                            : order.status === "returned"
-                              ? "bg-orange-100 text-orange-700"
-                              : order.status === "failed"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                }`}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusCfg.bgColor} ${statusCfg.textColor}`}
               >
                 <StatusIcon className="w-3.5 h-3.5" />
                 {statusCfg.label}
@@ -390,7 +453,7 @@ function OrderDetailModal({
               )}
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                className="w-9 h-9 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition"
               >
                 ✕
               </button>
@@ -404,8 +467,8 @@ function OrderDetailModal({
               <div className="space-y-4">
                 {/* آیتم‌ها */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">
-                    آیتم‌ها ({order.items?.length || order.items_count})
+                  <h3 className="font-semibold text-gray-900 mb-3 text-sm">
+                    آیتم‌های سفارش ({order.items?.length || order.items_count})
                   </h3>
                   <div className="space-y-2">
                     {order.items?.map((item) => (
@@ -413,7 +476,7 @@ function OrderDetailModal({
                         key={item.id}
                         className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
                       >
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 ml-3">
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {item.product_title}
                           </p>
@@ -421,7 +484,7 @@ function OrderDetailModal({
                             {item.quantity} عدد × {formatPrice(item.paid_price)}
                           </p>
                         </div>
-                        <span className="text-sm font-bold text-gray-900 ml-3">
+                        <span className="text-sm font-bold text-gray-900 flex-shrink-0">
                           {formatPrice(item.paid_price * item.quantity)}
                         </span>
                       </div>
@@ -432,20 +495,20 @@ function OrderDetailModal({
                 {/* آدرس */}
                 {order.shipping?.address && (
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-1.5">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm flex items-center gap-1.5">
                       <HiLocationMarker className="w-4 h-4 text-blue-500" />{" "}
                       آدرس تحویل
                     </h3>
-                    <div className="p-3 bg-gray-50 rounded-xl text-sm space-y-1">
+                    <div className="p-3 bg-gray-50 rounded-xl space-y-1 text-sm">
                       <p className="text-gray-700">{order.shipping.address}</p>
                       <p className="text-gray-500 text-xs">
-                        {order.shipping.province}، {order.shipping.city} ·
-                        {order.shipping.receiver_name} ·
-                        {order.shipping.receiver_mobile}
+                        {order.shipping.province}، {order.shipping.city}
                       </p>
-                      <p className="text-gray-400 text-xs">
-                        کد پستی: {order.shipping.postal_code}
-                      </p>
+                      <div className="flex gap-3 text-xs text-gray-500">
+                        <span>{order.shipping.receiver_name}</span>
+                        <span dir="ltr">{order.shipping.receiver_mobile}</span>
+                        <span>کد: {order.shipping.postal_code}</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -454,9 +517,9 @@ function OrderDetailModal({
                 {order.tracking_code && (
                   <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
                     <p className="text-xs text-indigo-600 mb-1 flex items-center gap-1">
-                      <HiTruck className="w-3.5 h-3.5" /> کد رهگیری
+                      <HiTruck className="w-3.5 h-3.5" /> کد رهگیری پستی
                     </p>
-                    <p className="text-lg font-bold text-indigo-700 font-mono">
+                    <p className="text-xl font-bold text-indigo-700 font-mono">
                       {order.tracking_code}
                     </p>
                   </div>
@@ -465,7 +528,7 @@ function OrderDetailModal({
                 {/* یادداشت */}
                 {order.status_note && (
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
-                    <p className="text-xs text-amber-600 mb-1">یادداشت ادمین</p>
+                    <p className="text-xs text-amber-600 mb-1">یادداشت</p>
                     <p className="text-sm text-amber-800">
                       {order.status_note}
                     </p>
@@ -477,7 +540,7 @@ function OrderDetailModal({
               <div className="space-y-4">
                 {/* اطلاعات کاربر */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-1.5">
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm flex items-center gap-1.5">
                     <HiUser className="w-4 h-4 text-blue-500" /> اطلاعات کاربر
                   </h3>
                   <div className="p-3 bg-gray-50 rounded-xl space-y-2 text-sm">
@@ -487,14 +550,14 @@ function OrderDetailModal({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">موبایل</span>
-                      <span className="font-medium font-mono" dir="ltr">
+                      <span className="font-mono text-xs" dir="ltr">
                         {order.user.mobile}
                       </span>
                     </div>
                     {order.user.email && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">ایمیل</span>
-                        <span className="font-medium text-xs" dir="ltr">
+                        <span className="text-xs" dir="ltr">
                           {order.user.email}
                         </span>
                       </div>
@@ -504,7 +567,7 @@ function OrderDetailModal({
 
                 {/* خلاصه مالی */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm">
                     خلاصه مالی
                   </h3>
                   <div className="p-3 bg-gray-50 rounded-xl space-y-2 text-sm">
@@ -514,7 +577,7 @@ function OrderDetailModal({
                     </div>
                     {order.discount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>تخفیف</span>
+                        <span>تخفیف محصولات</span>
                         <span>− {formatPrice(order.discount)}</span>
                       </div>
                     )}
@@ -533,9 +596,11 @@ function OrderDetailModal({
                   </div>
                 </div>
 
-                {/* جزئیات */}
+                {/* جزئیات زمانی */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">جزئیات</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm">
+                    جزئیات
+                  </h3>
                   <div className="p-3 bg-gray-50 rounded-xl space-y-2 text-sm">
                     <div className="flex justify-between text-gray-600">
                       <span>تاریخ ثبت</span>
@@ -549,7 +614,7 @@ function OrderDetailModal({
                     )}
                     {order.latest_transaction?.ref_id && (
                       <div className="flex justify-between text-gray-600">
-                        <span>کد پیگیری</span>
+                        <span>کد پیگیری پرداخت</span>
                         <span className="font-mono text-xs">
                           {order.latest_transaction.ref_id}
                         </span>
@@ -562,7 +627,7 @@ function OrderDetailModal({
           </div>
 
           {/* فوتر */}
-          <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+          <div className="px-6 py-4 border-t border-gray-100 flex justify-end flex-shrink-0">
             <button
               onClick={onClose}
               className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition"
@@ -571,13 +636,17 @@ function OrderDetailModal({
             </button>
           </div>
         </div>
-      </div>
+      </PortalModal>
 
+      {/* Status modal روی detail modal */}
       {statusModalOpen && (
         <StatusModal
           order={order}
           onClose={() => setStatusModalOpen(false)}
-          onSuccess={onStatusChange}
+          onSuccess={() => {
+            onStatusChange();
+            setStatusModalOpen(false);
+          }}
         />
       )}
     </>
@@ -603,7 +672,7 @@ export default function AdminOrdersPage() {
       processing: 0,
       shipped: 0,
       delivered: 0,
-      cancelled: 0,
+      canceled: 0,
       returned: 0,
       failed: 0,
       total_revenue: 0,
@@ -625,15 +694,15 @@ export default function AdminOrdersPage() {
         page: meta.current_page,
         per_page: 15,
         status: filter !== "all" ? filter : undefined,
-        search: search || undefined,
+        search: search.trim() || undefined,
       });
       setOrders(res.data.data);
-      setMeta((prev) => ({
-        ...prev,
+      setMeta((p) => ({
+        ...p,
         current_page: res.data.meta.current_page,
         last_page: res.data.meta.last_page,
         total: res.data.meta.total,
-        stats: res.data.meta.stats || prev.stats,
+        stats: res.data.meta.stats || p.stats,
       }));
     } catch {
       toast.error("خطا در دریافت سفارشات");
@@ -663,7 +732,7 @@ export default function AdminOrdersPage() {
     { key: "processing", label: "در حال پردازش", count: meta.stats.processing },
     { key: "shipped", label: "ارسال شده", count: meta.stats.shipped },
     { key: "delivered", label: "تحویل شده", count: meta.stats.delivered },
-    { key: "cancelled", label: "لغو شده", count: meta.stats.cancelled },
+    { key: "canceled", label: "لغو شده", count: meta.stats.canceled },
     { key: "returned", label: "مرجوعی", count: meta.stats.returned },
     { key: "failed", label: "ناموفق", count: meta.stats.failed },
   ];
@@ -704,19 +773,9 @@ export default function AdminOrdersPage() {
       render: (row: Order) => {
         const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.pending;
         const Icon = cfg.icon;
-        const colors: Record<string, string> = {
-          delivered: "bg-green-100 text-green-700",
-          shipped: "bg-indigo-100 text-indigo-700",
-          processing: "bg-purple-100 text-purple-700",
-          paid: "bg-blue-100 text-blue-700",
-          cancelled: "bg-gray-100 text-gray-600",
-          returned: "bg-orange-100 text-orange-700",
-          failed: "bg-red-100 text-red-700",
-          pending: "bg-yellow-100 text-yellow-700",
-        };
         return (
           <span
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${colors[row.status] || colors.pending}`}
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.bgColor} ${cfg.textColor}`}
           >
             <Icon className="w-3.5 h-3.5" />
             {cfg.label}
@@ -730,6 +789,7 @@ export default function AdminOrdersPage() {
         <button
           onClick={() => handleViewOrder(row)}
           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+          title="مشاهده جزئیات"
         >
           <HiEye className="w-4 h-4" />
         </button>
@@ -749,25 +809,32 @@ export default function AdminOrdersPage() {
               label: "کل سفارشات",
               value: meta.stats.total,
               icon: HiShoppingBag,
-              color: "bg-blue-100 text-blue-600",
+              bg: "bg-blue-100",
+              ic: "text-blue-600",
+              isText: false,
             },
             {
               label: "پرداخت شده",
               value: meta.stats.paid,
               icon: HiCheckCircle,
-              color: "bg-green-100 text-green-600",
+              bg: "bg-green-100",
+              ic: "text-green-600",
+              isText: false,
             },
             {
               label: "در انتظار",
               value: meta.stats.pending,
               icon: HiClock,
-              color: "bg-yellow-100 text-yellow-600",
+              bg: "bg-yellow-100",
+              ic: "text-yellow-600",
+              isText: false,
             },
             {
               label: "درآمد کل",
               value: formatPrice(meta.stats.total_revenue),
               icon: HiTrendingUp,
-              color: "bg-purple-100 text-purple-600",
+              bg: "bg-purple-100",
+              ic: "text-purple-600",
               isText: true,
             },
           ].map((stat, i) => (
@@ -776,14 +843,14 @@ export default function AdminOrdersPage() {
               className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3"
             >
               <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.color.split(" ")[0]}`}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.bg}`}
               >
-                <stat.icon className={`w-5 h-5 ${stat.color.split(" ")[1]}`} />
+                <stat.icon className={`w-5 h-5 ${stat.ic}`} />
               </div>
               <div>
                 <p className="text-xs text-gray-500">{stat.label}</p>
                 <p
-                  className={`font-bold ${(stat as any).isText ? "text-sm" : "text-xl"} text-gray-900`}
+                  className={`font-bold text-gray-900 ${stat.isText ? "text-sm" : "text-xl"}`}
                 >
                   {stat.value}
                 </p>
@@ -813,7 +880,6 @@ export default function AdminOrdersPage() {
             </div>
           </div>
 
-          {/* فیلترهای وضعیت */}
           <div className="p-4 flex flex-wrap gap-2">
             {filters.map((f) => (
               <button
@@ -831,8 +897,10 @@ export default function AdminOrdersPage() {
                 {f.label}
                 {f.count > 0 && (
                   <span
-                    className={`mr-1 px-1.5 py-0.5 rounded-full text-xs ${
-                      filter === f.key ? "bg-white/20" : "bg-gray-200"
+                    className={`mr-1.5 px-1.5 py-0.5 rounded-full text-xs ${
+                      filter === f.key
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200 text-gray-600"
                     }`}
                   >
                     {f.count}
@@ -858,25 +926,29 @@ export default function AdminOrdersPage() {
 
       {/* مودال جزئیات */}
       {detailModalOpen &&
-        selectedOrder &&
         (loadingOrder ? (
-          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-2xl p-8">
+          <PortalModal>
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setDetailModalOpen(false)}
+            />
+            <div className="relative bg-white rounded-2xl p-10 shadow-2xl">
               <div className="w-10 h-10 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin mx-auto" />
+              <p className="text-sm text-gray-500 mt-3 text-center">
+                در حال بارگذاری...
+              </p>
             </div>
-          </div>
-        ) : (
+          </PortalModal>
+        ) : selectedOrder ? (
           <OrderDetailModal
             order={selectedOrder}
             onClose={() => {
               setDetailModalOpen(false);
               setSelectedOrder(null);
             }}
-            onStatusChange={() => {
-              loadOrders();
-            }}
+            onStatusChange={loadOrders}
           />
-        ))}
+        ) : null)}
     </div>
   );
 }

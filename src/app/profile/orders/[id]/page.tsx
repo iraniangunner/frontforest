@@ -178,7 +178,7 @@ function OrderTimeline({
     },
   ];
 
-  if (status === "cancelled") {
+  if (status === "canceled") {
     return (
       <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
