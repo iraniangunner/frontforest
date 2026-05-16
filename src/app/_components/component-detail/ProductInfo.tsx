@@ -2,22 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  HiStar, HiHeart, HiShoppingCart, HiCheck, HiX,
-} from "react-icons/hi";
+import { HiStar, HiHeart, HiShoppingCart, HiCheck, HiX } from "react-icons/hi";
 import { HiCube, HiScale, HiTag, HiTruck } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { cartAPI, favoritesAPI } from "@/lib/api";
 import { Product } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useUserStatus } from "@/context/UserStatusContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProductInfoProps {
   product: Product;
 }
 
-const formatPrice = (price: number) =>
-  price.toLocaleString("fa-IR") + " تومان";
+const formatPrice = (price: number) => price.toLocaleString("fa-IR") + " تومان";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -33,64 +31,72 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function ProductInfo({ product }: ProductInfoProps) {
-  const [quantity, setQuantity]       = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  // const [inCart, setInCart]           = useState(false);
-  // const [isFavorite, setIsFavorite]   = useState(false);
+
+  const { user } = useAuth();
+
   const { incrementCart } = useCart();
 
-const {
-  isFavorite: checkFavorite,
-  toggleFavorite: toggleFavoriteContext,
-  isInCart,
-  addToCart: addToCartContext,
-  loading: statusLoading,
-} = useUserStatus();
+  const {
+    isFavorite: checkFavorite,
+    toggleFavorite: toggleFavoriteContext,
+    isInCart,
+    addToCart: addToCartContext,
+    loading: statusLoading,
+  } = useUserStatus();
 
-const inCart = isInCart(product.id);
-const isFavorite = checkFavorite(product.id);
+  const inCart = isInCart(product.id);
+  const isFavorite = checkFavorite(product.id);
 
-const handleAddToCart = async () => {
-  setAddingToCart(true);
-
-  try {
-    await cartAPI.add(product.id,quantity);
-
-    // sync global state
-    addToCartContext(product.id);
-    incrementCart();
-
-    toast.success("به سبد خرید اضافه شد");
-  } catch (error: any) {
-    if (error.response?.status === 409) {
-      addToCartContext(product.id);
-      toast.error("این محصول در سبد خرید موجود است");
-    } else {
-      toast.error(error.response?.data?.message || "خطا در افزودن به سبد");
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error("ابتدا وارد حساب خود شوید");
+      return;
     }
-  } finally {
-    setAddingToCart(false);
-  }
-};
-const handleFavorite = async () => {
-  try {
-    toggleFavoriteContext(product.id); // optimistic update
 
-    await favoritesAPI.toggle(product.id);
+    setAddingToCart(true);
 
-    toast.success(
-      isFavorite
-        ? "از علاقه‌مندی‌ها حذف شد"
-        : "به علاقه‌مندی‌ها اضافه شد"
-    );
-  } catch (error) {
-    toggleFavoriteContext(product.id); // revert
-    toast.error("خطا در عملیات");
-  }
-};
+    try {
+      await cartAPI.add(product.id, quantity);
+
+      // sync global state
+      addToCartContext(product.id);
+      incrementCart();
+
+      toast.success("به سبد خرید اضافه شد");
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        addToCartContext(product.id);
+        toast.error("این محصول در سبد خرید موجود است");
+      } else {
+        toast.error(error.response?.data?.message || "خطا در افزودن به سبد");
+      }
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+  const handleFavorite = async () => {
+    if (!user) {
+      toast.error("ابتدا وارد حساب خود شوید");
+      return;
+    }
+
+    try {
+      toggleFavoriteContext(product.id); // optimistic update
+
+      await favoritesAPI.toggle(product.id);
+
+      toast.success(
+        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد",
+      );
+    } catch (error) {
+      toggleFavoriteContext(product.id); // revert
+      toast.error("خطا در عملیات");
+    }
+  };
   return (
     <div className="space-y-5">
-
       {/* برند + دسته‌بندی + بج‌ها */}
       <div className="flex items-center gap-2 flex-wrap">
         {product.brand && (
@@ -128,12 +134,16 @@ const handleFavorite = async () => {
           {product.rating} از ۵ ({product.reviews_count} نظر)
         </span>
         <span className="text-gray-300">|</span>
-        <span className="text-gray-500 text-sm">{product.sales_count} فروش</span>
+        <span className="text-gray-500 text-sm">
+          {product.sales_count} فروش
+        </span>
       </div>
 
       {/* توضیح کوتاه */}
       {product.short_description && (
-        <p className="text-gray-600 leading-relaxed">{product.short_description}</p>
+        <p className="text-gray-600 leading-relaxed">
+          {product.short_description}
+        </p>
       )}
 
       {/* قیمت */}
@@ -162,7 +172,9 @@ const handleFavorite = async () => {
         {product.is_in_stock ? (
           <>
             <HiCheck className="w-5 h-5 text-green-500" />
-            <span className={`font-medium ${product.is_low_stock ? "text-orange-500" : "text-green-600"}`}>
+            <span
+              className={`font-medium ${product.is_low_stock ? "text-orange-500" : "text-green-600"}`}
+            >
               {product.is_low_stock
                 ? `تنها ${product.stock} عدد در انبار`
                 : "موجود در انبار"}
@@ -209,11 +221,15 @@ const handleFavorite = async () => {
             } disabled:opacity-70`}
           >
             {inCart ? (
-              <><HiCheck className="w-5 h-5" /> در سبد خرید</>
+              <>
+                <HiCheck className="w-5 h-5" /> در سبد خرید
+              </>
             ) : addingToCart ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <><HiShoppingCart className="w-5 h-5" /> افزودن به سبد</>
+              <>
+                <HiShoppingCart className="w-5 h-5" /> افزودن به سبد
+              </>
             )}
           </button>
 
@@ -236,7 +252,9 @@ const handleFavorite = async () => {
         {product.sku && (
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <HiTag className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span>کد: <span className="font-mono">{product.sku}</span></span>
+            <span>
+              کد: <span className="font-mono">{product.sku}</span>
+            </span>
           </div>
         )}
         {product.weight ? (
@@ -260,7 +278,7 @@ const handleFavorite = async () => {
       {/* تگ‌ها */}
       {product.tags?.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {product.tags.map((tag:any) => (
+          {product.tags.map((tag: any) => (
             <span
               key={tag.id}
               className="px-3 py-1 rounded-full text-xs font-medium"
@@ -274,5 +292,3 @@ const handleFavorite = async () => {
     </div>
   );
 }
-
-

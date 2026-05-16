@@ -68,35 +68,8 @@ export default async function HomePage() {
 
       {/* {categories.length > 0 && <CategoriesSection categories={categories} />} */}
 
-      {featuredComponents.length > 0 && (
-        <ComponentsSection
-          title="برگزیده‌ها"
-          subtitle="محبوب‌ترین و پرفروش‌ترین کامپوننت‌ها"
-          components={featuredComponents}
-          href="/components?featured=true"
-          variant="featured"
-        />
-      )}
-
-      {newestComponents.length > 0 && (
-        <ComponentsSection
-          title="جدیدترین‌ها"
-          subtitle="آخرین کامپوننت‌های اضافه شده به فروشگاه"
-          components={newestComponents}
-          href="/components?sort=newest"
-          variant="newest"
-        />
-      )}
-
-      {freeComponents.length > 0 && (
-        <ComponentsSection
-          title="کامپوننت‌های رایگان"
-          subtitle="دانلود رایگان و بدون محدودیت"
-          components={freeComponents}
-          href="/components?free=1"
-          variant="free"
-        />
-      )}
+   
+  
 
       <FeaturesSection />
 

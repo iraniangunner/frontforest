@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { HiChevronLeft, HiChevronRight, HiTrendingUp, HiSparkles, HiGift } from "react-icons/hi"
-import ComponentCard from "../ui/ComponentCard"
+import ComponentCard from "../ui/ProductCard"
 import type { Component } from "@/types"
 import useEmblaCarousel from "embla-carousel-react"
 import { useCallback, useEffect, useState } from "react"

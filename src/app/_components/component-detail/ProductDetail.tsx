@@ -20,34 +20,29 @@ export default function ProductDetail({
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 py-6">
-
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1 text-sm text-gray-500 mb-6 flex-wrap">
-          <Link href="/" className="hover:text-blue-600 transition">خانه</Link>
-          <HiChevronLeft className="w-4 h-4" />
-          <Link href="/products" className="hover:text-blue-600 transition">محصولات</Link>
+          <Link href="/" className="hover:text-teal-600 transition">
+            خانه
+          </Link>
+          <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
+          <Link href="/products" className="hover:text-teal-600 transition">
+            محصولات
+          </Link>
 
-          {product.category?.parent && (
+          {product.category && (
             <>
-              <HiChevronLeft className="w-4 h-4" />
+              <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
               <Link
-                href={`/products?category=${product.category.parent.slug}`}
-                className="hover:text-blue-600 transition"
+                href={`/products?categories[]=${product.category.slug}`}
+                className="hover:text-teal-600 transition"
               >
-                {product.category.parent.name}
+                {product.category.name}
               </Link>
             </>
           )}
 
-          <HiChevronLeft className="w-4 h-4" />
-          <Link
-            href={`/products?category=${product.category?.slug}`}
-            className="hover:text-blue-600 transition"
-          >
-            {product.category?.name}
-          </Link>
-
-          <HiChevronLeft className="w-4 h-4" />
+          <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
           <span className="text-gray-800 font-medium truncate max-w-[200px]">
             {product.title}
           </span>
@@ -70,7 +65,6 @@ export default function ProductDetail({
 
         {/* محصولات مرتبط */}
         <RelatedProducts products={relatedProducts} />
-
       </div>
     </div>
   );
