@@ -1,14 +1,13 @@
 export interface Category {
   id: number;
   name: string;
-  name_en: string | null;
   slug: string;
   icon: string | null;
-  color: string;
-  parent_id: number | null;
-  is_active: boolean;
-  components_count: number;
-  children?: Category[];
+  icon_image: string | null;
+  color: string | null;
+  image: string | null;
+  products_count: number;
+  children?: { id: number; name: string; slug: string }[];
 }
 
 export interface Tag {

@@ -8,16 +8,19 @@ import Modal from "@/app/_components/admin/Modal";
 import Input from "@/app/_components/admin/Input";
 import Badge from "@/app/_components/admin/Badge";
 import Pagination from "@/app/_components/admin/Pagination";
-import { tagsAPI } from "../../../lib/api";
-import { HiPlus, HiPencil, HiTrash } from "react-icons/hi";
+import { tagsAPI } from "@/lib/api";
+import { HiPlus, HiPencil, HiTrash, HiSearch } from "react-icons/hi";
 import toast from "react-hot-toast";
+
+type TagType = "brand" | "feature";
 
 interface Tag {
   id: number;
   name: string;
   slug: string;
   color: string;
-  type: "framework" | "styling" | "feature";
+  type: TagType;
+  sort_order: number;
   is_active: boolean;
 }
 
@@ -25,52 +28,65 @@ interface FormData {
   name: string;
   slug: string;
   color: string;
-  type: "framework" | "styling" | "feature";
+  type: TagType;
+  sort_order: string;
   is_active: boolean;
 }
 
-const typeLabels = {
-  framework: "فریم‌ورک",
-  styling: "استایل",
+const TYPE_LABELS: Record<TagType, string> = {
+  brand: "برند",
   feature: "ویژگی",
 };
 
-const typeColors = {
-  framework: "primary" as const,
-  styling: "warning" as const,
-  feature: "success" as const,
+const TYPE_COLORS: Record<TagType, "primary" | "success"> = {
+  brand: "primary",
+  feature: "success",
 };
+
+const empty: FormData = {
+  name: "",
+  slug: "",
+  color: "#6B7280",
+  type: "brand",
+  sort_order: "0",
+  is_active: true,
+};
+
+const sel =
+  "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm";
 
 export default function TagsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingTag, setEditingTag] = useState<Tag | null>(null);
+  const [editing, setEditing] = useState<Tag | null>(null);
   const [saving, setSaving] = useState(false);
-  const [meta, setMeta] = useState({ current_page: 1, last_page: 1 });
-
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    slug: "",
-    color: "#6B7280",
-    type: "framework",
-    is_active: true,
+  const [form, setForm] = useState<FormData>(empty);
+  const [meta, setMeta] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
   });
 
   useEffect(() => {
-    loadTags();
+    load();
   }, [meta.current_page]);
 
-  const loadTags = async () => {
+  const load = async () => {
     setLoading(true);
     try {
-      const response = await tagsAPI.adminGetAll({
+      // ← از adminGetAll استفاده میکنه که params قبول میکنه
+      const res = await tagsAPI.adminGetAll({
         page: meta.current_page,
         per_page: 20,
+        search: search.trim() || undefined,
+        type: typeFilter || undefined,
       });
-      setTags(response.data.data);
-      setMeta(response.data.meta);
-    } catch (error) {
+      setTags(res.data.data || []);
+      setMeta(res.data.meta || { current_page: 1, last_page: 1, total: 0 });
+    } catch {
       toast.error("خطا در دریافت تگ‌ها");
     } finally {
       setLoading(false);
@@ -79,48 +95,62 @@ export default function TagsPage() {
 
   const openModal = (tag: Tag | null = null) => {
     if (tag) {
-      setEditingTag(tag);
-      setFormData({
+      setEditing(tag);
+      setForm({
         name: tag.name || "",
         slug: tag.slug || "",
         color: tag.color || "#6B7280",
-        type: tag.type || "framework",
+        type: tag.type || "brand",
+        sort_order: String(tag.sort_order ?? 0),
         is_active: tag.is_active,
       });
     } else {
-      setEditingTag(null);
-      setFormData({
-        name: "",
-        slug: "",
-        color: "#6B7280",
-        type: "framework",
-        is_active: true,
-      });
+      setEditing(null);
+      setForm(empty);
     }
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
-    setEditingTag(null);
+    setEditing(null);
   };
+
+  const handleName = (val: string) =>
+    setForm((f) => ({
+      ...f,
+      name: val,
+      slug:
+        f.slug ||
+        val
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, ""),
+    }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-
     try {
-      if (editingTag) {
-        await tagsAPI.update(editingTag.id, formData as any);
+      const payload = {
+        name: form.name,
+        slug: form.slug,
+        color: form.color,
+        type: form.type,
+        sort_order: parseInt(form.sort_order) || 0,
+        is_active: form.is_active,
+      };
+      if (editing) {
+        await tagsAPI.update(editing.id, payload);
         toast.success("تگ بروزرسانی شد");
       } else {
-        await tagsAPI.create(formData as any);
+        await tagsAPI.create(payload);
         toast.success("تگ ایجاد شد");
       }
       closeModal();
-      loadTags();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "خطا در ذخیره");
+      load();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا در ذخیره");
     } finally {
       setSaving(false);
     }
@@ -128,46 +158,52 @@ export default function TagsPage() {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("آیا مطمئن هستید؟")) return;
-
     try {
       await tagsAPI.delete(id);
       toast.success("حذف شد");
-      loadTags();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "خطا در حذف");
+      load();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا در حذف");
     }
   };
 
   const handleToggle = async (id: number) => {
     try {
       await tagsAPI.toggle(id);
-      loadTags();
-    } catch (error) {
+      load();
+    } catch {
       toast.error("خطا در تغییر وضعیت");
     }
   };
 
   const columns = [
     {
-      header: "نام",
+      header: "تگ",
       render: (row: Tag) => (
         <div className="flex items-center gap-3">
-          <div
-            className="w-3 h-3 rounded-full"
+          <span
+            className="w-4 h-4 rounded-full flex-shrink-0 ring-2 ring-white shadow-sm"
             style={{ backgroundColor: row.color }}
           />
-          <span className="font-medium">{row.name}</span>
+          <div>
+            <p className="font-medium text-gray-900">{row.name}</p>
+            <p className="text-xs text-gray-400 font-mono">{row.slug}</p>
+          </div>
         </div>
       ),
     },
     {
-      header: "اسلاگ",
-      accessor: "slug" as keyof Tag,
-    },
-    {
       header: "نوع",
       render: (row: Tag) => (
-        <Badge variant={typeColors[row.type]}>{typeLabels[row.type]}</Badge>
+        <Badge variant={TYPE_COLORS[row.type] || "default"}>
+          {TYPE_LABELS[row.type] || row.type}
+        </Badge>
+      ),
+    },
+    {
+      header: "ترتیب",
+      render: (row: Tag) => (
+        <span className="text-sm text-gray-600">{row.sort_order}</span>
       ),
     },
     {
@@ -186,13 +222,13 @@ export default function TagsPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => openModal(row)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
           >
             <HiPencil className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDelete(row.id)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
           >
             <HiTrash className="w-4 h-4" />
           </button>
@@ -207,12 +243,43 @@ export default function TagsPage() {
 
       <div className="p-6">
         <div className="bg-white rounded-xl shadow-sm">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="font-semibold">لیست تگ‌ها</h3>
-            <Button onClick={() => openModal()}>
-              <HiPlus className="w-4 h-4 ml-2" />
-              تگ جدید
-            </Button>
+          <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-wrap gap-3">
+            <div>
+              <h3 className="font-semibold text-gray-900">لیست تگ‌ها</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {meta.total.toLocaleString("fa-IR")} تگ
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && load()}
+                  placeholder="جستجو..."
+                  className="pr-9 pl-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-40"
+                />
+              </div>
+
+              <select
+                value={typeFilter}
+                onChange={(e) => {
+                  setTypeFilter(e.target.value);
+                  setMeta((m) => ({ ...m, current_page: 1 }));
+                }}
+                className="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-white focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">همه انواع</option>
+                <option value="brand">برند</option>
+                <option value="feature">ویژگی</option>
+              </select>
+
+              <Button onClick={() => openModal()}>
+                <HiPlus className="w-4 h-4 ml-1" /> تگ جدید
+              </Button>
+            </div>
           </div>
 
           <Table columns={columns} data={tags} loading={loading} />
@@ -220,94 +287,100 @@ export default function TagsPage() {
           <Pagination
             currentPage={meta.current_page}
             lastPage={meta.last_page}
-            onPageChange={(page) => setMeta({ ...meta, current_page: page })}
+            onPageChange={(page) =>
+              setMeta((m) => ({ ...m, current_page: page }))
+            }
           />
         </div>
       </div>
 
-      {/* Modal */}
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}
-        title={editingTag ? "ویرایش تگ" : "تگ جدید"}
+        title={editing ? "ویرایش تگ" : "تگ جدید"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="نام"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              value={form.name}
               required
+              onChange={(e) => handleName(e.target.value)}
             />
             <Input
               label="اسلاگ"
-              value={formData.slug}
-              onChange={(e) =>
-                setFormData({ ...formData, slug: e.target.value })
-              }
+              value={form.slug}
               dir="ltr"
               required
+              onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 رنگ
               </label>
-              <input
-                type="color"
-                value={formData.color}
-                onChange={(e) =>
-                  setFormData({ ...formData, color: e.target.value })
-                }
-                className="w-full h-10 rounded-lg cursor-pointer"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={form.color}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, color: e.target.value }))
+                  }
+                  className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
+                />
+                <span className="text-xs text-gray-500 font-mono">
+                  {form.color}
+                </span>
+              </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 نوع
               </label>
               <select
-                value={formData.type}
+                value={form.type}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    type: e.target.value as "framework" | "styling" | "feature",
-                  })
+                  setForm((f) => ({ ...f, type: e.target.value as TagType }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={sel}
               >
-                <option value="framework">فریم‌ورک</option>
-                <option value="styling">استایل</option>
+                <option value="brand">برند</option>
                 <option value="feature">ویژگی</option>
               </select>
             </div>
+
+            <Input
+              label="ترتیب نمایش"
+              value={form.sort_order}
+              type="number"
+              dir="ltr"
+              onChange={(e) =>
+                setForm((f) => ({ ...f, sort_order: e.target.value }))
+              }
+            />
           </div>
 
-          <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              id="is_active"
-              checked={formData.is_active}
+              checked={form.is_active}
               onChange={(e) =>
-                setFormData({ ...formData, is_active: e.target.checked })
+                setForm((f) => ({ ...f, is_active: e.target.checked }))
               }
               className="w-4 h-4 text-blue-600 rounded"
             />
-            <label htmlFor="is_active" className="text-sm text-gray-700">
-              فعال
-            </label>
-          </div>
+            <span className="text-sm text-gray-700">فعال</span>
+          </label>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <Button type="button" variant="secondary" onClick={closeModal}>
               انصراف
             </Button>
             <Button type="submit" loading={saving}>
-              {editingTag ? "بروزرسانی" : "ایجاد"}
+              {editing ? "بروزرسانی" : "ایجاد"}
             </Button>
           </div>
         </form>

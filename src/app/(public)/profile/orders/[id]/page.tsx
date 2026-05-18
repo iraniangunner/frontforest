@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+// app/(public)/profile/orders/[id]/page.tsx
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,13 +17,13 @@ import {
   HiRefresh,
   HiBan,
   HiHashtag,
+  HiUpload,
+  HiX,
 } from "react-icons/hi";
 import { ordersAPI, checkoutAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
+// ── Types ──
 interface OrderItem {
   id: number;
   product_id: number;
@@ -48,6 +49,12 @@ interface Order {
   tracking_code: string | null;
   status_note: string | null;
   items: OrderItem[];
+  // ── فیش پرداخت ──
+  payment_method: string; // online | receipt
+  payment_receipt_url: string | null;
+  receipt_status: string | null; // pending | approved | rejected
+  receipt_note: string | null;
+  // ─────────────────
   shipping: {
     receiver_name: string;
     receiver_mobile: string;
@@ -64,14 +71,10 @@ interface Order {
     delivered_at: string | null;
     cancelled_at: string | null;
   };
-  latest_transaction: {
-    ref_id: string | null;
-    status: string;
-  } | null;
+  latest_transaction: { ref_id: string | null; status: string } | null;
 }
 
 const formatPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " تومان";
-
 const formatDate = (d: string | null) => {
   if (!d) return null;
   return new Date(d).toLocaleDateString("fa-IR", {
@@ -83,9 +86,6 @@ const formatDate = (d: string | null) => {
   });
 };
 
-// ─────────────────────────────────────────────
-// Status Config
-// ─────────────────────────────────────────────
 const STATUS: Record<
   string,
   { label: string; color: string; bg: string; icon: any }
@@ -120,7 +120,7 @@ const STATUS: Record<
     bg: "bg-green-100",
     icon: HiCheckCircle,
   },
-  cancelled: {
+  canceled: {
     label: "لغو شده",
     color: "text-gray-700",
     bg: "bg-gray-100",
@@ -140,9 +140,7 @@ const STATUS: Record<
   },
 };
 
-// ─────────────────────────────────────────────
-// Timeline
-// ─────────────────────────────────────────────
+// ── Timeline ──
 function OrderTimeline({
   status,
   timeline,
@@ -178,7 +176,7 @@ function OrderTimeline({
     },
   ];
 
-  if (status === "canceled") {
+  if (status === "canceled")
     return (
       <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
         <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
@@ -194,7 +192,6 @@ function OrderTimeline({
         </div>
       </div>
     );
-  }
 
   return (
     <div className="space-y-0">
@@ -203,14 +200,12 @@ function OrderTimeline({
           ? !!timeline[step.key as keyof typeof timeline]
           : step.statuses?.includes(status) ||
             !!timeline[step.key as keyof typeof timeline];
-
         const date = timeline[step.key as keyof typeof timeline];
         const Icon = step.icon;
         const isLast = index === steps.length - 1;
 
         return (
           <div key={step.key} className="flex gap-4">
-            {/* خط عمودی + دایره */}
             <div className="flex flex-col items-center">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center border-2 flex-shrink-0 transition-all ${
@@ -229,8 +224,6 @@ function OrderTimeline({
                 />
               )}
             </div>
-
-            {/* محتوا */}
             <div className="pb-6 flex-1">
               <p
                 className={`font-medium text-sm ${isCompleted ? "text-gray-900" : "text-gray-400"}`}
@@ -250,9 +243,161 @@ function OrderTimeline({
   );
 }
 
-// ─────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────
+// ── ReceiptSection — نمایش وضعیت فیش برای کاربر ──
+function ReceiptSection({
+  order,
+  onUploaded,
+}: {
+  order: Order;
+  onUploaded: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  if (order.payment_method !== "receipt") return null;
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 2 * 1024 * 1024) {
+      toast.error("حجم فایل نباید بیشتر از ۲MB باشد");
+      return;
+    }
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("receipt", file);
+      fd.append("order_id", String(order.id));
+      await checkoutAPI.submitWithReceipt(fd);
+      toast.success("فیش آپلود شد. منتظر تایید ادمین باشید");
+      setFile(null);
+      setPreview(null);
+      onUploaded();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا در آپلود");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200">
+      <h2 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+        🏦 پرداخت کارت به کارت
+      </h2>
+
+      {/* وضعیت فیش */}
+      <div
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium mb-4 ${
+          order.receipt_status === "pending"
+            ? "bg-amber-100 text-amber-700"
+            : order.receipt_status === "approved"
+              ? "bg-green-100 text-green-700"
+              : order.receipt_status === "rejected"
+                ? "bg-red-100 text-red-600"
+                : "bg-gray-100 text-gray-500"
+        }`}
+      >
+        {order.receipt_status === "pending"
+          ? "⏳ فیش در انتظار بررسی"
+          : order.receipt_status === "approved"
+            ? "✅ فیش تایید شده"
+            : order.receipt_status === "rejected"
+              ? "❌ فیش رد شده"
+              : "در انتظار آپلود فیش"}
+      </div>
+
+      {/* تصویر فیش فعلی */}
+      {order.payment_receipt_url && (
+        <div className="mb-4">
+          <p className="text-xs text-amber-700 mb-2">فیش آپلود شده:</p>
+          <a
+            href={order.payment_receipt_url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src={order.payment_receipt_url}
+              alt="فیش پرداخت"
+              className="max-h-40 rounded-xl border border-amber-200 cursor-zoom-in"
+            />
+          </a>
+        </div>
+      )}
+
+      {/* توضیح رد فیش */}
+      {order.receipt_status === "rejected" && order.receipt_note && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+          <p className="text-xs text-red-600 font-medium mb-1">دلیل رد:</p>
+          <p className="text-sm text-red-700">{order.receipt_note}</p>
+        </div>
+      )}
+
+      {!order.payment_receipt_url && order.status === "pending" && (
+        <div className="space-y-3">
+          <p className="text-xs text-amber-700">
+            {order.receipt_status === "rejected"
+              ? "لطفاً فیش معتبر آپلود کنید:"
+              : "لطفاً فیش پرداخت را آپلود کنید:"}
+          </p>
+
+          {preview && (
+            <div className="relative w-32 h-32 mb-2">
+              <Image
+                src={preview}
+                alt="پیش‌نمایش"
+                fill
+                className="object-cover rounded-xl"
+              />
+              <button
+                onClick={() => {
+                  setFile(null);
+                  setPreview(null);
+                  if (fileRef.current) fileRef.current.value = "";
+                }}
+                className="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+              >
+                <HiX className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
+          <label className="inline-flex items-center gap-2 px-4 py-2 border border-amber-300 rounded-xl text-sm text-amber-700 hover:border-amber-400 cursor-pointer bg-white transition-colors">
+            <HiUpload className="w-4 h-4" />
+            {file ? "تغییر فیش" : "انتخاب تصویر فیش"}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFile}
+            />
+          </label>
+
+          {file && (
+            <button
+              onClick={handleUpload}
+              disabled={uploading}
+              className="block w-full py-2.5 bg-amber-600 text-white rounded-xl text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors"
+            >
+              {uploading ? "در حال آپلود..." : "ارسال فیش"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Page ──
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -303,25 +448,19 @@ export default function OrderDetailPage() {
   const handleRepay = async () => {
     if (!order) return;
     try {
-      const res = (await checkoutAPI.checkout) as any;
-      // یا از pay endpoint استفاده کن
-      const payRes = await ordersAPI.pay(order.id);
-      if (payRes.data.payment_url) {
-        window.location.href = payRes.data.payment_url;
-      }
+      const res = await ordersAPI.pay(order.id);
+      if (res.data.payment_url) window.location.href = res.data.payment_url;
     } catch (error: any) {
       toast.error(error.response?.data?.message || "خطا در اتصال به درگاه");
     }
   };
 
-  // ─────────────────────────────────────────────
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-gray-200 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
-  }
 
   if (!order) return null;
 
@@ -350,15 +489,21 @@ export default function OrderDetailPage() {
                 <StatusIcon className="w-3.5 h-3.5" />
                 {STATUS[order.status]?.label || order.status_label}
               </span>
+              {/* نشانه روش پرداخت */}
+              {order.payment_method === "receipt" && (
+                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full">
+                  🏦 کارت به کارت
+                </span>
+              )}
             </div>
           </div>
 
           {/* دکمه‌های اکشن */}
-          {order.status === "pending" && (
+          {order.status === "pending" && order.payment_method === "online" && (
             <div className="flex gap-2">
               <button
                 onClick={handleRepay}
-                className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition"
               >
                 پرداخت
               </button>
@@ -371,11 +516,23 @@ export default function OrderDetailPage() {
               </button>
             </div>
           )}
+          {order.status === "pending" && order.payment_method === "receipt" && (
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
+            >
+              {cancelling ? "..." : "لغو سفارش"}
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* ── ستون چپ: آیتم‌ها + آدرس ── */}
+          {/* ستون چپ */}
           <div className="lg:col-span-2 space-y-4">
+            {/* ── بخش فیش پرداخت ── */}
+            <ReceiptSection order={order} onUploaded={loadOrder} />
+
             {/* آیتم‌ها */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">
@@ -401,7 +558,7 @@ export default function OrderDetailPage() {
                     <div className="flex-1 min-w-0">
                       <Link
                         href={`/products/${item.product_slug}`}
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 transition truncate block"
+                        className="text-sm font-medium text-gray-900 hover:text-teal-600 transition truncate block"
                       >
                         {item.product_title}
                       </Link>
@@ -415,14 +572,22 @@ export default function OrderDetailPage() {
                   </div>
                 ))}
               </div>
+              {order.latest_transaction?.ref_id && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">کد پیگیری پرداخت:</p>
+                  <p className="text-sm font-mono font-bold text-gray-800 mt-0.5">
+                    {order.latest_transaction.ref_id}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* آدرس ارسال */}
+            {/* آدرس */}
             {order.shipping?.address && (
               <div className="bg-white rounded-2xl p-5 shadow-sm">
                 <h2 className="font-semibold text-gray-900 flex items-center gap-2 mb-3">
-                  <HiLocationMarker className="w-5 h-5 text-blue-500" />
-                  آدرس تحویل
+                  <HiLocationMarker className="w-5 h-5 text-teal-500" /> آدرس
+                  تحویل
                 </h2>
                 <p className="text-sm text-gray-700 mb-2">
                   {order.shipping.address}
@@ -442,8 +607,8 @@ export default function OrderDetailPage() {
             {order.tracking_code && (
               <div className="bg-indigo-50 rounded-2xl p-5 border border-indigo-100">
                 <h2 className="font-semibold text-indigo-900 flex items-center gap-2 mb-2">
-                  <HiTruck className="w-5 h-5 text-indigo-500" />
-                  کد رهگیری مرسوله
+                  <HiTruck className="w-5 h-5 text-indigo-500" /> کد رهگیری
+                  مرسوله
                 </h2>
                 <p className="text-2xl font-bold text-indigo-700 font-mono tracking-wider">
                   {order.tracking_code}
@@ -459,7 +624,7 @@ export default function OrderDetailPage() {
               </div>
             )}
 
-            {/* یادداشت ادمین */}
+            {/* یادداشت */}
             {order.status_note && (
               <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
                 <p className="text-sm text-amber-800">
@@ -468,9 +633,22 @@ export default function OrderDetailPage() {
                 </p>
               </div>
             )}
+
+            {/* پشتیبانی */}
+            <div className="bg-teal-50 rounded-2xl p-4 border border-teal-100">
+              <p className="text-sm text-teal-800 mb-2">
+                سوالی درباره سفارش دارید؟
+              </p>
+              <Link
+                href="/contact"
+                className="text-sm font-medium text-teal-600 hover:text-teal-700"
+              >
+                تماس با پشتیبانی ←
+              </Link>
+            </div>
           </div>
 
-          {/* ── ستون راست: timeline + خلاصه ── */}
+          {/* ستون راست */}
           <div className="space-y-4">
             {/* Timeline */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
@@ -478,7 +656,7 @@ export default function OrderDetailPage() {
               <OrderTimeline status={order.status} timeline={order.timeline} />
             </div>
 
-            {/* خلاصه قیمت */}
+            {/* خلاصه مالی */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">خلاصه مالی</h2>
               <div className="space-y-2.5 text-sm">
@@ -510,29 +688,6 @@ export default function OrderDetailPage() {
                   <span>{formatPrice(order.total)}</span>
                 </div>
               </div>
-
-              {/* کد پیگیری پرداخت */}
-              {order.latest_transaction?.ref_id && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-500">کد پیگیری پرداخت:</p>
-                  <p className="text-sm font-mono font-bold text-gray-800 mt-0.5">
-                    {order.latest_transaction.ref_id}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* پشتیبانی */}
-            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
-              <p className="text-sm text-blue-800 mb-2">
-                سوالی درباره سفارش دارید؟
-              </p>
-              <Link
-                href="/contact"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
-              >
-                تماس با پشتیبانی ←
-              </Link>
             </div>
           </div>
         </div>

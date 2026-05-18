@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Header from "@/app/_components/admin/Header";
 import Button from "@/app/_components/admin/Button";
@@ -26,9 +26,6 @@ import {
 import { adminOrdersAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 interface OrderItem {
   id: number;
   product_title: string;
@@ -52,6 +49,12 @@ interface Order {
   status_note: string | null;
   items_count: number;
   items?: OrderItem[];
+  // ── فیش پرداخت ──
+  payment_method: string; // online | receipt
+  payment_receipt_url: string | null;
+  receipt_status: string | null; // pending | approved | rejected
+  receipt_note: string | null;
+  // ─────────────────
   user: { id: number; name: string; mobile: string; email?: string };
   shipping?: {
     receiver_name: string;
@@ -87,11 +90,7 @@ interface Stats {
   total_revenue: number;
 }
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
 const formatPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " تومان";
-
 const formatDate = (d: string | null) => {
   if (!d) return "−";
   return new Date(d).toLocaleDateString("fa-IR", {
@@ -173,24 +172,17 @@ const TRANSITIONS: Record<string, { status: string; label: string }[]> = {
   pending: [{ status: "canceled", label: "لغو سفارش" }],
 };
 
-// ─────────────────────────────────────────────
-// Portal Modal Wrapper — رندر خارج از DOM درخت
-// باعث میشه modal همیشه روی همه چیز باشه
-// ─────────────────────────────────────────────
+// ── Portal ──
 function PortalModal({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     setMounted(true);
-    // جلوگیری از scroll صفحه وقتی modal بازه
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
   }, []);
-
   if (!mounted) return null;
-
   return createPortal(
     <div
       className="fixed inset-0 flex items-center justify-center p-4"
@@ -202,9 +194,7 @@ function PortalModal({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// Status Update Modal
-// ─────────────────────────────────────────────
+// ── Status Modal ──
 function StatusModal({
   order,
   onClose,
@@ -221,7 +211,6 @@ function StatusModal({
   const [note, setNote] = useState("");
   const [trackingCode, setTrackingCode] = useState(order.tracking_code || "");
   const [saving, setSaving] = useState(false);
-
   const inp =
     "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition";
 
@@ -234,15 +223,15 @@ function StatusModal({
     setSaving(true);
     try {
       await adminOrdersAPI.updateStatus(order.id, {
-        status: selectedStatus,
+        status: selectedStatus as any,
         note: note.trim() || undefined,
         tracking_code: trackingCode.trim() || undefined,
       });
       toast.success("وضعیت بروزرسانی شد — SMS ارسال شد");
       onSuccess();
       onClose();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "خطا در بروزرسانی");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا در بروزرسانی");
     } finally {
       setSaving(false);
     }
@@ -250,13 +239,10 @@ function StatusModal({
 
   return (
     <PortalModal>
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="font-bold text-gray-900">تغییر وضعیت سفارش</h2>
@@ -267,9 +253,7 @@ function StatusModal({
             ✕
           </button>
         </div>
-
         <div className="p-6 space-y-4">
-          {/* اطلاعات سفارش */}
           <div className="p-3 bg-gray-50 rounded-xl">
             <p className="text-sm font-medium text-gray-900 font-mono">
               {order.order_number}
@@ -284,14 +268,12 @@ function StatusModal({
               </span>
             </p>
           </div>
-
           {transitions.length === 0 ? (
             <p className="text-center text-sm text-gray-500 py-4">
               این سفارش قابل تغییر وضعیت نیست
             </p>
           ) : (
             <>
-              {/* انتخاب وضعیت */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   وضعیت جدید <span className="text-red-500">*</span>
@@ -300,11 +282,7 @@ function StatusModal({
                   {transitions.map((t) => (
                     <label
                       key={t.status}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${
-                        selectedStatus === t.status
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-100 hover:border-gray-200"
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${selectedStatus === t.status ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-gray-200"}`}
                     >
                       <input
                         type="radio"
@@ -338,8 +316,6 @@ function StatusModal({
                   ))}
                 </div>
               </div>
-
-              {/* کد رهگیری */}
               {selectedStatus === "shipped" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -357,8 +333,6 @@ function StatusModal({
                   </p>
                 </div>
               )}
-
-              {/* یادداشت */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   یادداشت (اختیاری)
@@ -371,8 +345,6 @@ function StatusModal({
                   className={inp}
                 />
               </div>
-
-              {/* دکمه‌ها */}
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={onClose}
@@ -400,9 +372,97 @@ function StatusModal({
   );
 }
 
-// ─────────────────────────────────────────────
-// Order Detail Modal
-// ─────────────────────────────────────────────
+// ── Receipt Section ──
+function ReceiptSection({
+  order,
+  onReviewed,
+}: {
+  order: Order;
+  onReviewed: () => void;
+}) {
+  const [reviewing, setReviewing] = useState(false);
+
+  const handleReview = async (action: "approve" | "reject") => {
+    const note = action === "reject" ? (prompt("دلیل رد فیش:") ?? "") : "";
+    setReviewing(true);
+    try {
+      await adminOrdersAPI.reviewReceipt(order.id, { action, note });
+      toast.success(action === "approve" ? "فیش تایید شد" : "فیش رد شد");
+      onReviewed();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا");
+    } finally {
+      setReviewing(false);
+    }
+  };
+
+  if (order.payment_method !== "receipt") return null;
+
+  return (
+    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
+      <p className="font-semibold text-amber-800 text-sm">
+        🏦 پرداخت کارت به کارت
+      </p>
+
+      {order.payment_receipt_url && (
+        <a
+          href={order.payment_receipt_url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src={order.payment_receipt_url}
+            alt="فیش پرداخت"
+            className="max-h-52 rounded-xl border border-amber-200 cursor-zoom-in hover:opacity-90 transition"
+          />
+        </a>
+      )}
+
+      <div
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+          order.receipt_status === "pending"
+            ? "bg-amber-100 text-amber-700"
+            : order.receipt_status === "approved"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-600"
+        }`}
+      >
+        {order.receipt_status === "pending"
+          ? "⏳ در انتظار بررسی"
+          : order.receipt_status === "approved"
+            ? "✅ تایید شده"
+            : "❌ رد شده"}
+      </div>
+
+      {order.receipt_note && (
+        <p className="text-xs text-gray-600 bg-white rounded-lg p-2 border border-amber-100">
+          توضیح: {order.receipt_note}
+        </p>
+      )}
+
+      {order.receipt_status === "pending" && (
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={() => handleReview("approve")}
+            disabled={reviewing}
+            className="flex-1 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition"
+          >
+            ✅ تایید فیش
+          </button>
+          <button
+            onClick={() => handleReview("reject")}
+            disabled={reviewing}
+            className="flex-1 py-2 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 disabled:opacity-50 transition"
+          >
+            ❌ رد فیش
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Order Detail Modal ──
 function OrderDetailModal({
   order,
   onClose,
@@ -420,13 +480,10 @@ function OrderDetailModal({
   return (
     <>
       <PortalModal>
-        {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
-
-        {/* Modal */}
         <div className="relative bg-white rounded-2xl w-full max-w-3xl max-h-[88vh] overflow-hidden flex flex-col shadow-2xl">
           {/* هدر */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
@@ -440,6 +497,12 @@ function OrderDetailModal({
                 <StatusIcon className="w-3.5 h-3.5" />
                 {statusCfg.label}
               </span>
+              {/* نشانه روش پرداخت */}
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                {order.payment_method === "receipt"
+                  ? "🏦 کارت به کارت"
+                  : "💳 آنلاین"}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               {canChange && (
@@ -447,8 +510,7 @@ function OrderDetailModal({
                   onClick={() => setStatusModalOpen(true)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
                 >
-                  <HiChevronDown className="w-4 h-4" />
-                  تغییر وضعیت
+                  <HiChevronDown className="w-4 h-4" /> تغییر وضعیت
                 </button>
               )}
               <button
@@ -463,8 +525,17 @@ function OrderDetailModal({
           {/* بدنه */}
           <div className="flex-1 overflow-y-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* ستون چپ */}
+              {/* ستون راست */}
               <div className="space-y-4">
+                {/* ── بخش فیش پرداخت ── */}
+                <ReceiptSection
+                  order={order}
+                  onReviewed={() => {
+                    onStatusChange();
+                    onClose();
+                  }}
+                />
+
                 {/* آیتم‌ها */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3 text-sm">
@@ -513,7 +584,6 @@ function OrderDetailModal({
                   </div>
                 )}
 
-                {/* کد رهگیری */}
                 {order.tracking_code && (
                   <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
                     <p className="text-xs text-indigo-600 mb-1 flex items-center gap-1">
@@ -524,8 +594,6 @@ function OrderDetailModal({
                     </p>
                   </div>
                 )}
-
-                {/* یادداشت */}
                 {order.status_note && (
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
                     <p className="text-xs text-amber-600 mb-1">یادداشت</p>
@@ -536,9 +604,8 @@ function OrderDetailModal({
                 )}
               </div>
 
-              {/* ستون راست */}
+              {/* ستون چپ */}
               <div className="space-y-4">
-                {/* اطلاعات کاربر */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm flex items-center gap-1.5">
                     <HiUser className="w-4 h-4 text-blue-500" /> اطلاعات کاربر
@@ -564,8 +631,6 @@ function OrderDetailModal({
                     )}
                   </div>
                 </div>
-
-                {/* خلاصه مالی */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm">
                     خلاصه مالی
@@ -577,7 +642,7 @@ function OrderDetailModal({
                     </div>
                     {order.discount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>تخفیف محصولات</span>
+                        <span>تخفیف</span>
                         <span>− {formatPrice(order.discount)}</span>
                       </div>
                     )}
@@ -595,8 +660,6 @@ function OrderDetailModal({
                     </div>
                   </div>
                 </div>
-
-                {/* جزئیات زمانی */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm">
                     جزئیات
@@ -614,7 +677,7 @@ function OrderDetailModal({
                     )}
                     {order.latest_transaction?.ref_id && (
                       <div className="flex justify-between text-gray-600">
-                        <span>کد پیگیری پرداخت</span>
+                        <span>کد پیگیری</span>
                         <span className="font-mono text-xs">
                           {order.latest_transaction.ref_id}
                         </span>
@@ -626,7 +689,6 @@ function OrderDetailModal({
             </div>
           </div>
 
-          {/* فوتر */}
           <div className="px-6 py-4 border-t border-gray-100 flex justify-end flex-shrink-0">
             <button
               onClick={onClose}
@@ -638,7 +700,6 @@ function OrderDetailModal({
         </div>
       </PortalModal>
 
-      {/* Status modal روی detail modal */}
       {statusModalOpen && (
         <StatusModal
           order={order}
@@ -653,9 +714,7 @@ function OrderDetailModal({
   );
 }
 
-// ─────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────
+// ── Page ──
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -678,7 +737,6 @@ export default function AdminOrdersPage() {
       total_revenue: 0,
     } as Stats,
   });
-
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -769,6 +827,22 @@ export default function AdminOrdersPage() {
       ),
     },
     {
+      header: "پرداخت",
+      render: (row: Order) => (
+        <div>
+          <span className="text-xs text-gray-600">
+            {row.payment_method === "receipt" ? "🏦 کارت به کارت" : "💳 آنلاین"}
+          </span>
+          {/* نشانه فیش در انتظار */}
+          {row.receipt_status === "pending" && (
+            <span className="block text-xs text-amber-500 font-medium mt-0.5">
+              ⏳ فیش در انتظار
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
       header: "وضعیت",
       render: (row: Order) => {
         const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.pending;
@@ -800,7 +874,6 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <Header title="مدیریت سفارشات" />
-
       <div className="p-6 space-y-6">
         {/* آمار */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -879,7 +952,6 @@ export default function AdminOrdersPage() {
               </Button>
             </div>
           </div>
-
           <div className="p-4 flex flex-wrap gap-2">
             {filters.map((f) => (
               <button
@@ -888,20 +960,12 @@ export default function AdminOrdersPage() {
                   setFilter(f.key);
                   setMeta((p) => ({ ...p, current_page: 1 }));
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                  filter === f.key
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${filter === f.key ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
               >
                 {f.label}
                 {f.count > 0 && (
                   <span
-                    className={`mr-1.5 px-1.5 py-0.5 rounded-full text-xs ${
-                      filter === f.key
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
+                    className={`mr-1.5 px-1.5 py-0.5 rounded-full text-xs ${filter === f.key ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"}`}
                   >
                     {f.count}
                   </span>
@@ -924,7 +988,6 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* مودال جزئیات */}
       {detailModalOpen &&
         (loadingOrder ? (
           <PortalModal>

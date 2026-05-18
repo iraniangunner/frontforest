@@ -1,7 +1,9 @@
 "use client";
 
+// app/_components/admin/Sidebar.tsx
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   HiOutlineHome,
   HiOutlineFolder,
@@ -9,72 +11,215 @@ import {
   HiOutlineCube,
   HiOutlineStar,
   HiOutlineLogout,
+  HiOutlineUsers,
+  HiOutlineShoppingCart,
+  HiOutlineCreditCard,
+  HiOutlineChatAlt,
+  HiX,
+  HiMenu,
+  HiChevronRight,
+  HiTag,
 } from "react-icons/hi";
 
 const menuItems = [
-  { path: "/admin", icon: HiOutlineHome, label: "داشبورد" },
-  { path: "/admin/categories", icon: HiOutlineFolder, label: "دسته‌بندی‌ها" },
-  { path: "/admin/tags", icon: HiOutlineTag, label: "تگ‌ها" },
-  { path: "/admin/components", icon: HiOutlineCube, label: "کامپوننت‌ها" },
-  { path: "/admin/reviews", icon: HiOutlineStar, label: "نظرات" },
-  { path: "/admin/contact", icon: HiOutlineStar, label: "پیام های ارسالی" },
-  { path: "/admin/orders", icon: HiOutlineStar, label: "مدیریت سفارشات" },
-  { path: "/admin/payment-inquiries", icon: HiOutlineStar, label: "استعلام پرداخت ها" },
+  { path: "/admin", icon: HiOutlineHome, label: "داشبورد", group: null },
+  {
+    path: "/admin/products",
+    icon: HiOutlineCube,
+    label: "محصولات",
+    group: "فروشگاه",
+  },
+  {
+    path: "/admin/categories",
+    icon: HiOutlineFolder,
+    label: "دسته‌بندی‌ها",
+    group: "فروشگاه",
+  },
+  { path: "/admin/tags", icon: HiOutlineTag, label: "تگ‌ها", group: "فروشگاه" },
+  {
+    path: "/admin/orders",
+    icon: HiOutlineShoppingCart,
+    label: "سفارشات",
+    group: "فروش",
+  },
+  {
+    path: "/admin/payment-inquiries",
+    icon: HiOutlineCreditCard,
+    label: "استعلام پرداخت",
+    group: "فروش",
+  },
+  {
+    path: "/admin/users",
+    icon: HiOutlineUsers,
+    label: "کاربران",
+    group: "کاربران",
+  },
+  {
+    path: "/admin/reviews",
+    icon: HiOutlineStar,
+    label: "نظرات",
+    group: "محتوا",
+  },
+  {
+    path: "/admin/contact",
+    icon: HiOutlineChatAlt,
+    label: "پیام‌های ارسالی",
+    group: "محتوا",
+  },
+
+  { path: "/admin/coupons", icon: HiTag, label: "کدهای تخفیف", group: "فروش" },
 ];
 
-export default function Sidebar() {
-  const pathname = usePathname();
+// گروه‌بندی آیتم‌ها
+const grouped = menuItems.reduce(
+  (acc, item) => {
+    const key = item.group || "__root__";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  },
+  {} as Record<string, typeof menuItems>,
+);
 
-  const handleLogout = async () => {
-    // Call your logout API
+const groupOrder = ["__root__", "فروشگاه", "فروش", "کاربران", "محتوا"];
+
+interface SidebarContentProps {
+  pathname: string;
+  onClose?: () => void;
+}
+
+function SidebarContent({ pathname, onClose }: SidebarContentProps) {
+  const handleLogout = () => {
     window.location.href = "/login";
   };
 
   return (
-    <aside className="fixed right-0 top-0 h-full w-64 bg-gray-900 text-white z-40">
-      {/* Logo */}
-      <div className="flex items-center justify-center h-16 border-b border-gray-800">
-        <h1 className="text-xl font-bold">پنل مدیریت</h1>
+    <div className="flex flex-col h-full">
+      {/* هدر */}
+      <div className="flex items-center justify-between h-16 px-5 border-b border-gray-800 flex-shrink-0">
+        <h1 className="text-lg font-bold text-white">پنل مدیریت</h1>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <HiX className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
-      {/* Menu */}
-      <nav className="p-4">
-        <ul className="space-y-2">
-          {menuItems.map((item) => {
-            const isActive =
-              item.path === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.path);
+      {/* منو */}
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        {groupOrder.map((group) => {
+          const items = grouped[group];
+          if (!items) return null;
 
-            return (
-              <li key={item.path}>
-                <Link
-                  href={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+          return (
+            <div key={group}>
+              {/* عنوان گروه */}
+              {group !== "__root__" && (
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest px-3 pt-4 pb-1.5">
+                  {group}
+                </p>
+              )}
 
-        {/* Logout */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 w-full"
-          >
-            <HiOutlineLogout className="w-5 h-5" />
-            <span>خروج</span>
-          </button>
-        </div>
+              {items.map((item) => {
+                const isActive =
+                  item.path === "/admin"
+                    ? pathname === "/admin"
+                    : pathname.startsWith(item.path);
+
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
+                    onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm ${
+                      isActive
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                        : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <span>{item.label}</span>
+                    {isActive && (
+                      <HiChevronRight className="w-4 h-4 mr-auto opacity-70" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })}
       </nav>
-    </aside>
+
+      {/* خروج */}
+      <div className="p-3 border-t border-gray-800 flex-shrink-0">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white w-full transition-all text-sm"
+        >
+          <HiOutlineLogout className="w-5 h-5 flex-shrink-0" />
+          <span>خروج از پنل</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // بستن drawer وقتی route عوض میشه
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // جلوگیری از scroll وقتی drawer بازه
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  return (
+    <>
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden lg:flex flex-col fixed right-0 top-0 h-full w-64 bg-gray-900 z-40">
+        <SidebarContent pathname={pathname} />
+      </aside>
+
+      {/* ── Mobile toggle button ── */}
+      <button
+        onClick={() => setOpen(true)}
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-gray-900 text-white rounded-xl shadow-lg"
+      >
+        <HiMenu className="w-5 h-5" />
+      </button>
+
+      {/* ── Mobile drawer ── */}
+      {open && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 flex justify-end"
+          dir="rtl"
+        >
+          {/* backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          {/* drawer */}
+          <div className="relative w-72 max-w-[85vw] h-full bg-gray-900 flex flex-col shadow-2xl">
+            <SidebarContent
+              pathname={pathname}
+              onClose={() => setOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

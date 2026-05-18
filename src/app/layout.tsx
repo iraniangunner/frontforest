@@ -60,7 +60,6 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <UserStatusProvider>
-              <Header />
               {children}
 
               <Toaster
@@ -70,7 +69,6 @@ export default function RootLayout({
                   style: { fontFamily: "Vazirmatn, sans-serif" },
                 }}
               />
-              <Footer />
             </UserStatusProvider>
           </CartProvider>
         </AuthProvider>

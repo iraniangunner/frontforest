@@ -1,11 +1,11 @@
 // app/products/page.tsx  ←  SERVER COMPONENT
+import Pagination from "@/app/_components/ui/Pagination";
+import ProductsFilter from "@/app/_components/ui/ProductsFilter";
+import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
+import ProductsToolbar from "@/app/_components/ui/ProductsToolbar";
 import { publicCategoriesAPI, publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import { Suspense } from "react";
-import ProductsFilter from "../_components/ui/ProductsFilter";
-import ProductsToolbar from "../_components/ui/ProductsToolbar";
-import ProductsGridWrapper from "../_components/ui/ProductsGridWrapper";
-import Pagination from "../_components/ui/Pagination";
 
 export const metadata = {
   title: "محصولات | فروشگاه",
@@ -217,7 +217,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               {products.length === 0 ? (
                 <EmptyState />
               ) : (
-                <ProductsGridWrapper products={products} view={view} isPending={false} />
+                <ProductsGridWrapper
+                  products={products}
+                  view={view}
+                  isPending={false}
+                />
               )}
             </Suspense>
 

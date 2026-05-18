@@ -339,6 +339,8 @@ export const checkoutAPI = {
     api.get("/payment/verify", {
       params: { Authority: authority, Status: status },
     }),
+  submitWithReceipt: (data: FormData) =>
+    api.post("/checkout/receipt", data, { requiresAuth: true }),
 };
 
 // Orders API
@@ -444,6 +446,14 @@ export const adminOrdersAPI = {
       {},
       { requiresAuth: true },
     ),
+
+  reviewReceipt: (
+    id: number,
+    data: { action: "approve" | "reject"; note?: string },
+  ) =>
+    api.post(`/admin/orders/${id}/review-receipt`, data, {
+      requiresAuth: true,
+    }),
 };
 
 // ─────────────────────────────────────────────
@@ -478,4 +488,61 @@ export const addressAPI = {
 export const couponAPI = {
   validate: (code: string, total: number) =>
     api.post("/coupon/validate", { code, total }, { requiresAuth: true }),
+};
+
+// ADMIN — USERS
+
+export const adminUsersAPI = {
+  getAll: (params?: Record<string, unknown>) =>
+    api.get("/admin/users", { params, requiresAuth: true }),
+
+  getOne: (id: number) => api.get(`/admin/users/${id}`, { requiresAuth: true }),
+
+  create: (data: {
+    name: string;
+    mobile: string;
+    email?: string;
+    password: string;
+    is_admin?: boolean;
+    is_active?: boolean;
+  }) => api.post("/admin/users", data, { requiresAuth: true }),
+
+  update: (
+    id: number,
+    data: {
+      name: string;
+      mobile: string;
+      email?: string;
+      password?: string;
+      is_admin?: boolean;
+      is_active?: boolean;
+    },
+  ) => api.put(`/admin/users/${id}`, data, { requiresAuth: true }),
+
+  delete: (id: number) =>
+    api.delete(`/admin/users/${id}`, { requiresAuth: true }),
+
+  toggleActive: (id: number) =>
+    api.patch(`/admin/users/${id}/toggle-active`, {}, { requiresAuth: true }),
+
+  toggleAdmin: (id: number) =>
+    api.patch(`/admin/users/${id}/toggle-admin`, {}, { requiresAuth: true }),
+
+  getOrders: (id: number, params?: Record<string, unknown>) =>
+    api.get(`/admin/users/${id}/orders`, { params, requiresAuth: true }),
+};
+
+//Coupons
+
+export const adminCouponsAPI = {
+  getAll: (params?: any) =>
+    api.get("/admin/coupons", { params, requiresAuth: true }),
+  create: (data: any) =>
+    api.post("/admin/coupons", data, { requiresAuth: true }),
+  update: (id: number, data: any) =>
+    api.put(`/admin/coupons/${id}`, data, { requiresAuth: true }),
+  delete: (id: number) =>
+    api.delete(`/admin/coupons/${id}`, { requiresAuth: true }),
+  toggle: (id: number) =>
+    api.patch(`/admin/coupons/${id}/toggle`, {}, { requiresAuth: true }),
 };

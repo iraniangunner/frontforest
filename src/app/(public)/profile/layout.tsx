@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AuthGuard } from "../_components/guards";
+import { AuthGuard } from "@/app/_components/guards";
 
 
 

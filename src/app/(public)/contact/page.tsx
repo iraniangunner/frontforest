@@ -1,7 +1,7 @@
 /// app/contact/page.tsx
 
 import { HiMail, HiPhone, HiLocationMarker } from "react-icons/hi";
-import ContactForm from "../_components/ui/ContactForm";
+import ContactForm from "@/app/_components/ui/ContactForm";
 
 export const metadata = {
   title: "تماس یا ما | فرانت فارست",
