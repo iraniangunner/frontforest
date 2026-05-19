@@ -42,12 +42,12 @@ const menuItems = [
     label: "سفارشات",
     group: "فروش",
   },
-  {
-    path: "/admin/payment-inquiries",
-    icon: HiOutlineCreditCard,
-    label: "استعلام پرداخت",
-    group: "فروش",
-  },
+  // {
+  //   path: "/admin/payment-inquiries",
+  //   icon: HiOutlineCreditCard,
+  //   label: "استعلام پرداخت",
+  //   group: "فروش",
+  // },
   {
     path: "/admin/users",
     icon: HiOutlineUsers,
