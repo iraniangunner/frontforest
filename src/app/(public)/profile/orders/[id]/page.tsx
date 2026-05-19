@@ -49,12 +49,10 @@ interface Order {
   tracking_code: string | null;
   status_note: string | null;
   items: OrderItem[];
-  // ── فیش پرداخت ──
-  payment_method: string; // online | receipt
+  payment_method: string;
   payment_receipt_url: string | null;
-  receipt_status: string | null; // pending | approved | rejected
+  receipt_status: string | null;
   receipt_note: string | null;
-  // ─────────────────
   shipping: {
     receiver_name: string;
     receiver_mobile: string;
@@ -203,7 +201,6 @@ function OrderTimeline({
         const date = timeline[step.key as keyof typeof timeline];
         const Icon = step.icon;
         const isLast = index === steps.length - 1;
-
         return (
           <div key={step.key} className="flex gap-4">
             <div className="flex flex-col items-center">
@@ -215,18 +212,24 @@ function OrderTimeline({
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${isCompleted ? "text-white" : "text-gray-300"}`}
+                  className={`w-4 h-4 ${
+                    isCompleted ? "text-white" : "text-gray-300"
+                  }`}
                 />
               </div>
               {!isLast && (
                 <div
-                  className={`w-0.5 h-8 my-1 ${isCompleted ? "bg-green-300" : "bg-gray-200"}`}
+                  className={`w-0.5 h-8 my-1 ${
+                    isCompleted ? "bg-green-300" : "bg-gray-200"
+                  }`}
                 />
               )}
             </div>
             <div className="pb-6 flex-1">
               <p
-                className={`font-medium text-sm ${isCompleted ? "text-gray-900" : "text-gray-400"}`}
+                className={`font-medium text-sm ${
+                  isCompleted ? "text-gray-900" : "text-gray-400"
+                }`}
               >
                 {step.label}
               </p>
@@ -243,7 +246,7 @@ function OrderTimeline({
   );
 }
 
-// ── ReceiptSection — نمایش وضعیت فیش برای کاربر ──
+// ── ReceiptSection ──
 function ReceiptSection({
   order,
   onUploaded,
@@ -256,8 +259,9 @@ function ReceiptSection({
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  if (order.payment_method !== "receipt" || order.status === "canceled") return null;
-  
+  if (order.payment_method !== "receipt" || order.status === "canceled")
+    return null;
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -290,32 +294,30 @@ function ReceiptSection({
 
   return (
     <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200">
-      <h2 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+      <h2 className="font-semibold text-amber-800 mb-3">
         🏦 پرداخت کارت به کارت
       </h2>
 
-      {/* وضعیت فیش */}
       <div
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium mb-4 ${
           order.receipt_status === "pending"
             ? "bg-amber-100 text-amber-700"
             : order.receipt_status === "approved"
-              ? "bg-green-100 text-green-700"
-              : order.receipt_status === "rejected"
-                ? "bg-red-100 text-red-600"
-                : "bg-gray-100 text-gray-500"
+            ? "bg-green-100 text-green-700"
+            : order.receipt_status === "rejected"
+            ? "bg-red-100 text-red-600"
+            : "bg-gray-100 text-gray-500"
         }`}
       >
         {order.receipt_status === "pending"
           ? "⏳ فیش در انتظار بررسی"
           : order.receipt_status === "approved"
-            ? "✅ فیش تایید شده"
-            : order.receipt_status === "rejected"
-              ? "❌ فیش رد شده"
-              : "در انتظار آپلود فیش"}
+          ? "✅ فیش تایید شده"
+          : order.receipt_status === "rejected"
+          ? "❌ فیش رد شده"
+          : "در انتظار آپلود فیش"}
       </div>
 
-      {/* تصویر فیش فعلی */}
       {order.payment_receipt_url && (
         <div className="mb-4">
           <p className="text-xs text-amber-700 mb-2">فیش آپلود شده:</p>
@@ -333,7 +335,6 @@ function ReceiptSection({
         </div>
       )}
 
-      {/* توضیح رد فیش */}
       {order.receipt_status === "rejected" && order.receipt_note && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
           <p className="text-xs text-red-600 font-medium mb-1">دلیل رد:</p>
@@ -344,11 +345,8 @@ function ReceiptSection({
       {!order.payment_receipt_url && order.status === "pending" && (
         <div className="space-y-3">
           <p className="text-xs text-amber-700">
-            {order.receipt_status === "rejected"
-              ? "لطفاً فیش معتبر آپلود کنید:"
-              : "لطفاً فیش پرداخت را آپلود کنید:"}
+            لطفاً فیش پرداخت را آپلود کنید:
           </p>
-
           {preview && (
             <div className="relative w-32 h-32 mb-2">
               <Image
@@ -369,7 +367,6 @@ function ReceiptSection({
               </button>
             </div>
           )}
-
           <label className="inline-flex items-center gap-2 px-4 py-2 border border-amber-300 rounded-xl text-sm text-amber-700 hover:border-amber-400 cursor-pointer bg-white transition-colors">
             <HiUpload className="w-4 h-4" />
             {file ? "تغییر فیش" : "انتخاب تصویر فیش"}
@@ -381,7 +378,6 @@ function ReceiptSection({
               onChange={handleFile}
             />
           </label>
-
           {file && (
             <button
               onClick={handleUpload}
@@ -406,6 +402,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [confirming, setConfirming] = useState(false); // ← تایید دریافت
 
   useEffect(() => {
     if (orderId) loadOrder();
@@ -455,6 +452,21 @@ export default function OrderDetailPage() {
     }
   };
 
+  // ── تایید دریافت کالا ──
+  const handleConfirmDelivery = async () => {
+    if (!order || !confirm("آیا کالا را دریافت کرده‌اید؟")) return;
+    setConfirming(true);
+    try {
+      await ordersAPI.confirmDelivery(order.id);
+      toast.success("دریافت کالا تایید شد");
+      loadOrder();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -489,7 +501,6 @@ export default function OrderDetailPage() {
                 <StatusIcon className="w-3.5 h-3.5" />
                 {STATUS[order.status]?.label || order.status_label}
               </span>
-              {/* نشانه روش پرداخت */}
               {order.payment_method === "receipt" && (
                 <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full">
                   🏦 کارت به کارت
@@ -499,38 +510,53 @@ export default function OrderDetailPage() {
           </div>
 
           {/* دکمه‌های اکشن */}
-          {order.status === "pending" && order.payment_method === "online" && (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            {/* آنلاین pending */}
+            {order.status === "pending" &&
+              order.payment_method === "online" && (
+                <>
+                  <button
+                    onClick={handleRepay}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition"
+                  >
+                    پرداخت
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={cancelling}
+                    className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
+                  >
+                    {cancelling ? "..." : "لغو"}
+                  </button>
+                </>
+              )}
+            {/* فیش pending */}
+            {order.status === "pending" &&
+              order.payment_method === "receipt" && (
+                <button
+                  onClick={handleCancel}
+                  disabled={cancelling}
+                  className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
+                >
+                  {cancelling ? "..." : "لغو سفارش"}
+                </button>
+              )}
+            {/* تایید دریافت */}
+            {order.status === "shipped" && (
               <button
-                onClick={handleRepay}
-                className="px-4 py-2 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition"
+                onClick={handleConfirmDelivery}
+                disabled={confirming}
+                className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition"
               >
-                پرداخت
+                {confirming ? "..." : "✅ تایید دریافت کالا"}
               </button>
-              <button
-                onClick={handleCancel}
-                disabled={cancelling}
-                className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
-              >
-                {cancelling ? "..." : "لغو"}
-              </button>
-            </div>
-          )}
-          {order.status === "pending" && order.payment_method === "receipt" && (
-            <button
-              onClick={handleCancel}
-              disabled={cancelling}
-              className="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
-            >
-              {cancelling ? "..." : "لغو سفارش"}
-            </button>
-          )}
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* ستون چپ */}
           <div className="lg:col-span-2 space-y-4">
-            {/* ── بخش فیش پرداخت ── */}
             <ReceiptSection order={order} onUploaded={loadOrder} />
 
             {/* آیتم‌ها */}

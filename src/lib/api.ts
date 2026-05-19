@@ -365,6 +365,9 @@ export const ordersAPI = {
   getPurchases: (params?: Record<string, unknown>) =>
     api.get("/purchases", { params, requiresAuth: true } as any),
 
+  confirmDelivery: (id: number) =>
+    api.post(`/orders/${id}/confirm-delivery`, {}, { requiresAuth: true }),
+
   // Check if component is purchased
   // check: (componentId: number) =>
   //   api.get(`/purchases/check/${componentId}`, { requiresAuth: true } as any),
