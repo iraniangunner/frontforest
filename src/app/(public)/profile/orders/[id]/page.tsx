@@ -256,8 +256,8 @@ function ReceiptSection({
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  if (order.payment_method !== "receipt") return null;
-
+  if (order.payment_method !== "receipt" || order.status === "canceled") return null;
+  
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;

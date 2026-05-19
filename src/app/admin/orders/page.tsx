@@ -396,7 +396,7 @@ function ReceiptSection({
     }
   };
 
-  if (order.payment_method !== "receipt") return null;
+  if (order.payment_method !== "receipt" || !order.receipt_status) return null;
 
   return (
     <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
