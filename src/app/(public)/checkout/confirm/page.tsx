@@ -81,7 +81,7 @@ export default function CheckoutConfirmPage() {
   const [paying, setPaying] = useState(false);
 
   // روش پرداخت
-  const [payMethod, setPayMethod] = useState<"online" | "receipt">("online");
+  const [payMethod, setPayMethod] = useState<"online" | "receipt">("receipt");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
@@ -353,6 +353,7 @@ export default function CheckoutConfirmPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
+                disabled
                 onClick={() => setPayMethod("online")}
                 className={`flex items-center justify-center gap-2 p-3.5 border-2 rounded-xl text-sm font-medium transition-all ${
                   payMethod === "online"
