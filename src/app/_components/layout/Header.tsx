@@ -20,7 +20,7 @@ import {
   HiLocationMarker,
 } from "react-icons/hi";
 import { MdStorefront } from "react-icons/md";
-import { Trees } from "lucide-react";
+import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { logoutAction } from "@/app/_actions/auth";
@@ -124,24 +124,18 @@ export default function Header() {
             : "bg-white border-b border-gray-100"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex items-center justify-between h-16">
             {/* ── Logo ── */}
-            <Link
-              href="/"
-              className="flex items-center gap-3 group flex-shrink-0"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-105 transition-all duration-300">
-                <Trees className="w-6 h-6 text-white" />
-              </div>
-              <div className="hidden sm:flex items-center">
-                <span className="text-xl font-black bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent">
-                  فرانت
-                </span>
-                <span className="text-xl font-black bg-gradient-to-r from-emerald-500 to-emerald-600 bg-clip-text text-transparent">
-                  فارست
-                </span>
-              </div>
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/images/petra-logo.png" // ← فایل رو بذار توی public/logo.png
+                alt="فانتوم پلاس"
+                width={120}
+                height={40}
+                className="w-auto object-contain"
+                priority
+              />
             </Link>
 
             {/* ── Desktop Nav ── */}
@@ -206,7 +200,9 @@ export default function Header() {
                       </span>
                     </div>
                     <HiChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block ${userMenuOpen ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 text-gray-400 transition-transform duration-200 hidden sm:block ${
+                        userMenuOpen ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
@@ -337,7 +333,9 @@ export default function Header() {
 
         {/* ── Mobile Menu ── */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ${mobileMenuOpen ? "max-h-[400px]" : "max-h-0"}`}
+          className={`lg:hidden overflow-hidden transition-all duration-300 ${
+            mobileMenuOpen ? "max-h-[400px]" : "max-h-0"
+          }`}
         >
           <div className="px-4 py-4 bg-gray-50 border-t border-gray-100 space-y-1">
             {navLinks.map((link) => (

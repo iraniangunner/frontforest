@@ -45,8 +45,8 @@ const yekanbakh = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "خانه | فرانت فارست",
-  description: "مرجع کامپوننت های Nextjs , Tailwind css",
+  title: "نمایندگی انحصاری فانتوم پلاس در ایران",
+  description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
 };
 
 export default function RootLayout({

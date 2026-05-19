@@ -1,17 +1,17 @@
 // app/about/page.tsx
-
 import Link from "next/link";
 
 export const metadata = {
-  title: "درباره ما | فرانت فارست",
-  description: "با فرانت فارست آشنا شوید - مرجع کامپوننت‌های آماده فرانت‌اند",
+  title: "درباره ما | نمایندگی انحصاری فانتوم پلاس در ایران",
+  description:
+    "نمایندگی انحصاری فانتوم پلاس در ایران - ارائه محصولات اصل با گارانتی معتبر",
 };
 
 const values = [
   {
-    title: "کیفیت",
+    title: "اصالت کالا",
     description:
-      "تمام کامپوننت‌ها با بالاترین استانداردهای کدنویسی توسعه داده می‌شوند.",
+      "تمامی محصولات دارای گارانتی اصالت و مستقیماً از کارخانه تامین می‌شوند.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -29,9 +29,9 @@ const values = [
     ),
   },
   {
-    title: "سرعت",
+    title: "ارسال سریع",
     description:
-      "کامپوننت‌های بهینه‌سازی شده برای بهترین عملکرد و سرعت بارگذاری.",
+      "ارسال به سراسر کشور با پست پیشتاز و تیپاکس در کمترین زمان ممکن.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -50,7 +50,7 @@ const values = [
   },
   {
     title: "پشتیبانی",
-    description: "تیم پشتیبانی ما همیشه آماده پاسخگویی به سوالات شماست.",
+    description: "تیم پشتیبانی ما آماده پاسخگویی به سوالات و رفع مشکلات شماست.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -68,9 +68,8 @@ const values = [
     ),
   },
   {
-    title: "به‌روزرسانی",
-    description:
-      "کامپوننت‌ها به صورت مداوم با آخرین تکنولوژی‌ها به‌روز می‌شوند.",
+    title: "گارانتی",
+    description: "تمامی محصولات دارای گارانتی معتبر و خدمات پس از فروش هستند.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -92,7 +91,7 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="bg-white" dir="rtl">
-      {/* Hero Section */}
+      {/* Hero */}
       <div className="relative isolate overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
@@ -100,11 +99,12 @@ export default function AboutPage() {
               درباره ما
             </span>
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-              درباره فرانت فارست
+              نمایندگی انحصاری فانتوم پلاس در ایران
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              ما با هدف ساده‌سازی فرآیند توسعه وب، مجموعه‌ای از کامپوننت‌های
-              آماده و حرفه‌ای را برای توسعه‌دهندگان فراهم کرده‌ایم.
+              ما با افتخار به عنوان نمایندگی انحصاری برند فانتوم پلاس در ایران،
+              بهترین محصولات را با گارانتی اصالت و خدمات پس از فروش معتبر ارائه
+              می‌دهیم.
             </p>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Mission Section */}
+      {/* Mission */}
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700 ring-1 ring-inset ring-teal-600/20 mb-4">
@@ -134,20 +134,21 @@ export default function AboutPage() {
             ماموریت ما
           </h2>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            در فرانت فارست، ما معتقدیم که توسعه‌دهندگان باید بیشتر وقت خود را
-            صرف خلق ویژگی‌های جدید کنند، نه بازنویسی کامپوننت‌های تکراری.
+            به عنوان نمایندگی انحصاری فانتوم پلاس در ایران، ماموریت ما ارائه
+            محصولات اصل با بالاترین کیفیت، قیمت مناسب و خدمات پس از فروش قابل
+            اطمینان است.
           </p>
           <p className="mt-4 text-lg leading-8 text-gray-600">
-            به همین دلیل، مجموعه‌ای از کامپوننت‌های آماده، تست شده و بهینه‌سازی
-            شده را ارائه می‌دهیم که می‌توانید به راحتی در پروژه‌های خود استفاده
-            کنید.
+            ما متعهدیم که تجربه خرید آسان، امن و رضایت‌بخشی را برای مشتریان
+            سراسر ایران فراهم کنیم و با ارسال سریع و گارانتی معتبر، اعتماد شما
+            را جلب کنیم.
           </p>
           <div className="mt-8">
             <Link
-              href="/components"
+              href="/products"
               className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-500 transition-colors"
             >
-              مشاهده کامپوننت‌ها
+              مشاهده محصولات
               <svg
                 className="w-4 h-4 rotate-180"
                 fill="none"
@@ -166,7 +167,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Values Section */}
+      {/* Values */}
       <div className="bg-gray-50 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
@@ -174,10 +175,10 @@ export default function AboutPage() {
               ارزش‌ها
             </span>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              ارزش‌های ما
+              چرا ما را انتخاب کنید؟
             </h2>
             <p className="mt-4 text-lg text-gray-600">
-              اصولی که ما را در مسیر توسعه محصولات باکیفیت هدایت می‌کنند.
+              اصولی که ما را در مسیر ارائه بهترین خدمات هدایت می‌کنند.
             </p>
           </div>
 

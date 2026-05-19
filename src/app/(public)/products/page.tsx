@@ -8,8 +8,8 @@ import { FilterParams } from "@/types";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "محصولات | فروشگاه",
-  description: "خرید آنلاین محصولات",
+  title: "محصولات | نمایندگی انحصاری فانتوم پلاس در ایران",
+  description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
 };
 
 interface PageProps {
