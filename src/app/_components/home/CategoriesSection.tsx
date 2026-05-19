@@ -15,7 +15,12 @@ export default function CategoriesSection({ categories }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* هدر */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">دسته‌بندی‌ها</h2>
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-5 bg-teal-600 rounded-full" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              دسته بندی ها
+            </h2>
+          </div>
           <Link
             href="/products"
             className="text-sm text-teal-600 hover:text-teal-800 font-medium transition-colors"
@@ -29,7 +34,9 @@ export default function CategoriesSection({ categories }: Props) {
           {categories.map((cat) => {
             // URL — اگه فرزند داشت همه فرزندان رو فیلتر کن
             const href = cat.children?.length
-              ? `/products?${cat.children.map((c) => `categories[]=${c.slug}`).join("&")}`
+              ? `/products?${cat.children
+                  .map((c) => `categories[]=${c.slug}`)
+                  .join("&")}`
               : `/products?categories[]=${cat.slug}`;
 
             return (

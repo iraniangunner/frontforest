@@ -4,6 +4,7 @@ import { publicCategoriesAPI, publicProductsAPI } from "@/lib/api";
 import LatestProductsSection from "../_components/home/LatestProductsSection";
 import CategoriesSection from "../_components/home/CategoriesSection";
 import HeroCarousel from "../_components/home/HeroCarousel";
+import { FeaturesSection } from "../_components/home";
 
 export default async function HomePage() {
   const [slidesRes, catsRes, latestRes] = await Promise.all([
@@ -22,6 +23,7 @@ export default async function HomePage() {
       <HeroCarousel products={slides} />
       <CategoriesSection categories={categories} />
       <LatestProductsSection products={products} />
+      <FeaturesSection />
     </main>
   );
 }

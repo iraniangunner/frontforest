@@ -1,68 +1,65 @@
 // components/home/FeaturesSection.tsx
-
 import {
-  HiCode,
-  HiLightningBolt,
-  HiColorSwatch,
+  HiTruck,
   HiShieldCheck,
-  HiTemplate,
+  HiCreditCard,
+  HiSupport,
   HiRefresh,
+  HiLocationMarker,
 } from "react-icons/hi";
 
 const features = [
   {
-    icon: HiCode,
-    title: "کد تمیز و استاندارد",
-    description: "تمامی کامپوننت‌ها با رعایت بهترین استانداردها نوشته شده‌اند",
+    icon: HiTruck,
+    title: "ارسال سریع",
+    description:
+      "ارسال به سراسر کشور با پست پیشتاز و تیپاکس در کمترین زمان ممکن",
     color: "bg-blue-500",
   },
   {
-    icon: HiLightningBolt,
-    title: "عملکرد سریع",
-    description: "بهینه‌سازی شده برای بهترین عملکرد و سرعت بارگذاری",
-    color: "bg-yellow-500",
-  },
-  {
-    icon: HiColorSwatch,
-    title: "قابل شخصی‌سازی",
-    description: "به راحتی می‌توانید استایل‌ها را مطابق نیاز تغییر دهید",
-    color: "bg-purple-500",
-  },
-  {
     icon: HiShieldCheck,
-    title: "پشتیبانی مداوم",
-    description: "به‌روزرسانی منظم و پشتیبانی فنی برای تمام محصولات",
+    title: "ضمانت اصالت کالا",
+    description: "تمامی محصولات دارای ضمانت اصالت و گارانتی معتبر هستند",
     color: "bg-green-500",
   },
   {
-    icon: HiTemplate,
-    title: "طراحی واکنش‌گرا",
-    description: "سازگار با تمام دستگاه‌ها و اندازه‌های صفحه نمایش",
-    color: "bg-pink-500",
+    icon: HiCreditCard,
+    title: "پرداخت امن",
+    description: "پرداخت آنلاین امن از طریق درگاه زرین‌پال و کارت به کارت",
+    color: "bg-purple-500",
+  },
+  {
+    icon: HiSupport,
+    title: "پشتیبانی ۲۴ ساعته",
+    description:
+      "تیم پشتیبانی ما آماده پاسخگویی به سوالات شما در تمام ساعات است",
+    color: "bg-yellow-500",
   },
   {
     icon: HiRefresh,
-    title: "به‌روزرسانی رایگان",
-    description: "تمام به‌روزرسانی‌های آینده به صورت رایگان در اختیار شماست",
+    title: "۷ روز ضمانت بازگشت",
+    description:
+      "در صورت عدم رضایت، تا ۷ روز پس از دریافت کالا امکان مرجوعی دارید",
+    color: "bg-red-500",
+  },
+  {
+    icon: HiLocationMarker,
+    title: "رهگیری آنلاین سفارش",
+    description: "وضعیت سفارش خود را در هر لحظه از طریق پنل کاربری پیگیری کنید",
     color: "bg-indigo-500",
   },
 ];
 
 export default function FeaturesSection() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            چرا فرانت‌فارست؟
+            چرا از ما خرید کنید؟
           </h2>
-          {/* <p className="text-gray-500 max-w-2xl mx-auto">
-            ما بهترین کامپوننت‌های React را با کیفیت بالا و قیمت مناسب ارائه می‌دهیم
-          </p> */}
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div
@@ -77,7 +74,9 @@ export default function FeaturesSection() {
               <h3 className="text-xl font-bold text-gray-900 mb-3">
                 {feature.title}
               </h3>
-              <p className="text-gray-500 leading-relaxed">{feature.description}</p>
+              <p className="text-gray-500 leading-relaxed">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
