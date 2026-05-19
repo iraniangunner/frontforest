@@ -23,7 +23,6 @@ import {
 import { ordersAPI, checkoutAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
-// ── Types ──
 interface OrderItem {
   id: number;
   product_id: number;
@@ -47,6 +46,7 @@ interface Order {
   coupon_discount: number;
   total: number;
   tracking_code: string | null;
+  shipping_carrier: string | null; // ← اضافه
   status_note: string | null;
   items: OrderItem[];
   payment_method: string;
@@ -82,6 +82,13 @@ const formatDate = (d: string | null) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+// ── شرکت‌های حمل‌ونقل ──
+const CARRIERS: Record<string, { label: string; url: string }> = {
+  post: { label: "پست ملی", url: "https://tracking.post.ir" },
+  snapbox: { label: "اسنپ‌باکس", url: "https://snapbox.ir/tracking" },
+  tipax: { label: "تیپاکس", url: "https://tipax.com.ir/fa/tracking" },
 };
 
 const STATUS: Record<
@@ -212,24 +219,18 @@ function OrderTimeline({
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${
-                    isCompleted ? "text-white" : "text-gray-300"
-                  }`}
+                  className={`w-4 h-4 ${isCompleted ? "text-white" : "text-gray-300"}`}
                 />
               </div>
               {!isLast && (
                 <div
-                  className={`w-0.5 h-8 my-1 ${
-                    isCompleted ? "bg-green-300" : "bg-gray-200"
-                  }`}
+                  className={`w-0.5 h-8 my-1 ${isCompleted ? "bg-green-300" : "bg-gray-200"}`}
                 />
               )}
             </div>
             <div className="pb-6 flex-1">
               <p
-                className={`font-medium text-sm ${
-                  isCompleted ? "text-gray-900" : "text-gray-400"
-                }`}
+                className={`font-medium text-sm ${isCompleted ? "text-gray-900" : "text-gray-400"}`}
               >
                 {step.label}
               </p>
@@ -297,25 +298,24 @@ function ReceiptSection({
       <h2 className="font-semibold text-amber-800 mb-3">
         🏦 پرداخت کارت به کارت
       </h2>
-
       <div
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium mb-4 ${
           order.receipt_status === "pending"
             ? "bg-amber-100 text-amber-700"
             : order.receipt_status === "approved"
-            ? "bg-green-100 text-green-700"
-            : order.receipt_status === "rejected"
-            ? "bg-red-100 text-red-600"
-            : "bg-gray-100 text-gray-500"
+              ? "bg-green-100 text-green-700"
+              : order.receipt_status === "rejected"
+                ? "bg-red-100 text-red-600"
+                : "bg-gray-100 text-gray-500"
         }`}
       >
         {order.receipt_status === "pending"
           ? "⏳ فیش در انتظار بررسی"
           : order.receipt_status === "approved"
-          ? "✅ فیش تایید شده"
-          : order.receipt_status === "rejected"
-          ? "❌ فیش رد شده"
-          : "در انتظار آپلود فیش"}
+            ? "✅ فیش تایید شده"
+            : order.receipt_status === "rejected"
+              ? "❌ فیش رد شده"
+              : "در انتظار آپلود فیش"}
       </div>
 
       {order.payment_receipt_url && (
@@ -402,7 +402,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
-  const [confirming, setConfirming] = useState(false); // ← تایید دریافت
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (orderId) loadOrder();
@@ -452,7 +452,6 @@ export default function OrderDetailPage() {
     }
   };
 
-  // ── تایید دریافت کالا ──
   const handleConfirmDelivery = async () => {
     if (!order || !confirm("آیا کالا را دریافت کرده‌اید؟")) return;
     setConfirming(true);
@@ -511,7 +510,6 @@ export default function OrderDetailPage() {
 
           {/* دکمه‌های اکشن */}
           <div className="flex gap-2">
-            {/* آنلاین pending */}
             {order.status === "pending" &&
               order.payment_method === "online" && (
                 <>
@@ -530,7 +528,6 @@ export default function OrderDetailPage() {
                   </button>
                 </>
               )}
-            {/* فیش pending */}
             {order.status === "pending" &&
               order.payment_method === "receipt" && (
                 <button
@@ -541,7 +538,6 @@ export default function OrderDetailPage() {
                   {cancelling ? "..." : "لغو سفارش"}
                 </button>
               )}
-            {/* تایید دریافت */}
             {order.status === "shipped" && (
               <button
                 onClick={handleConfirmDelivery}
@@ -639,14 +635,35 @@ export default function OrderDetailPage() {
                 <p className="text-2xl font-bold text-indigo-700 font-mono tracking-wider">
                   {order.tracking_code}
                 </p>
-                <a
-                  href="https://tracking.post.ir"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-indigo-500 hover:text-indigo-700 mt-1 inline-block"
-                >
-                  رهگیری در سایت پست ملی ←
-                </a>
+
+                {/* ── شرکت حمل‌ونقل ── */}
+                <div className="mt-2 flex items-center gap-3 flex-wrap">
+                  {order.shipping_carrier &&
+                  CARRIERS[order.shipping_carrier] ? (
+                    <>
+                      <span className="text-xs text-indigo-600">
+                        ارسال از طریق {CARRIERS[order.shipping_carrier].label}
+                      </span>
+                      <a
+                        href={CARRIERS[order.shipping_carrier].url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-500 hover:text-indigo-700 underline"
+                      >
+                        رهگیری ←
+                      </a>
+                    </>
+                  ) : (
+                    <a
+                      href="https://tracking.post.ir"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-indigo-500 hover:text-indigo-700"
+                    >
+                      رهگیری در سایت پست ملی ←
+                    </a>
+                  )}
+                </div>
               </div>
             )}
 
@@ -676,13 +693,10 @@ export default function OrderDetailPage() {
 
           {/* ستون راست */}
           <div className="space-y-4">
-            {/* Timeline */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">پیگیری سفارش</h2>
               <OrderTimeline status={order.status} timeline={order.timeline} />
             </div>
-
-            {/* خلاصه مالی */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">خلاصه مالی</h2>
               <div className="space-y-2.5 text-sm">

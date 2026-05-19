@@ -26,6 +26,7 @@ import {
 import { adminOrdersAPI } from "@/lib/api";
 import toast from "react-hot-toast";
 
+// ── Types ──
 interface OrderItem {
   id: number;
   product_title: string;
@@ -46,15 +47,14 @@ interface Order {
   status: string;
   status_label: string;
   tracking_code: string | null;
+  shipping_carrier: string | null; // ← اضافه
   status_note: string | null;
   items_count: number;
   items?: OrderItem[];
-  // ── فیش پرداخت ──
-  payment_method: string; // online | receipt
+  payment_method: string;
   payment_receipt_url: string | null;
-  receipt_status: string | null; // pending | approved | rejected
+  receipt_status: string | null;
   receipt_note: string | null;
-  // ─────────────────
   user: { id: number; name: string; mobile: string; email?: string };
   shipping?: {
     receiver_name: string;
@@ -99,6 +99,12 @@ const formatDate = (d: string | null) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+const CARRIERS: Record<string, string> = {
+  post: "پست ملی",
+  snapbox: "اسنپ‌باکس",
+  tipax: "تیپاکس",
 };
 
 const STATUS_CONFIG: Record<
@@ -210,7 +216,9 @@ function StatusModal({
   );
   const [note, setNote] = useState("");
   const [trackingCode, setTrackingCode] = useState(order.tracking_code || "");
+  const [carrier, setCarrier] = useState(""); // ← اضافه
   const [saving, setSaving] = useState(false);
+
   const inp =
     "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition";
 
@@ -220,16 +228,22 @@ function StatusModal({
       toast.error("کد رهگیری الزامی است");
       return;
     }
+    if (selectedStatus === "shipped" && !carrier) {
+      toast.error("شرکت حمل‌ونقل را انتخاب کنید");
+      return;
+    }
+
     setSaving(true);
     try {
       await adminOrdersAPI.updateStatus(order.id, {
         status: selectedStatus as any,
         note: note.trim() || undefined,
         tracking_code: trackingCode.trim() || undefined,
+        shipping_carrier: carrier || undefined, // ← اضافه
       });
       toast.success("وضعیت بروزرسانی شد — SMS ارسال شد");
       onSuccess();
-      onClose();
+      onClose(); // ← fix: بستن modal
     } catch (err: any) {
       toast.error(err.response?.data?.message || "خطا در بروزرسانی");
     } finally {
@@ -268,6 +282,7 @@ function StatusModal({
               </span>
             </p>
           </div>
+
           {transitions.length === 0 ? (
             <p className="text-center text-sm text-gray-500 py-4">
               این سفارش قابل تغییر وضعیت نیست
@@ -316,23 +331,43 @@ function StatusModal({
                   ))}
                 </div>
               </div>
+
+              {/* فیلدهای ارسال */}
               {selectedStatus === "shipped" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    کد رهگیری پستی <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    value={trackingCode}
-                    onChange={(e) => setTrackingCode(e.target.value)}
-                    placeholder="کد رهگیری را وارد کنید"
-                    dir="ltr"
-                    className={inp}
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    این کد در SMS به مشتری ارسال میشه
-                  </p>
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      شرکت حمل‌ونقل <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={carrier}
+                      onChange={(e) => setCarrier(e.target.value)}
+                      className={inp}
+                    >
+                      <option value="">انتخاب کنید</option>
+                      <option value="post">پست ملی</option>
+                      <option value="snapbox">اسنپ‌باکس</option>
+                      <option value="tipax">تیپاکس</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      کد رهگیری پستی <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      value={trackingCode}
+                      onChange={(e) => setTrackingCode(e.target.value)}
+                      placeholder="کد رهگیری را وارد کنید"
+                      dir="ltr"
+                      className={inp}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      این کد در SMS به مشتری ارسال میشه
+                    </p>
+                  </div>
+                </>
               )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   یادداشت (اختیاری)
@@ -345,6 +380,7 @@ function StatusModal({
                   className={inp}
                 />
               </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={onClose}
@@ -357,7 +393,8 @@ function StatusModal({
                   disabled={
                     saving ||
                     !selectedStatus ||
-                    (selectedStatus === "shipped" && !trackingCode.trim())
+                    (selectedStatus === "shipped" &&
+                      (!trackingCode.trim() || !carrier))
                   }
                   className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
                 >
@@ -403,7 +440,6 @@ function ReceiptSection({
       <p className="font-semibold text-amber-800 text-sm">
         🏦 پرداخت کارت به کارت
       </p>
-
       {order.payment_receipt_url && (
         <a
           href={order.payment_receipt_url}
@@ -417,7 +453,6 @@ function ReceiptSection({
           />
         </a>
       )}
-
       <div
         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
           order.receipt_status === "pending"
@@ -433,13 +468,11 @@ function ReceiptSection({
             ? "✅ تایید شده"
             : "❌ رد شده"}
       </div>
-
       {order.receipt_note && (
         <p className="text-xs text-gray-600 bg-white rounded-lg p-2 border border-amber-100">
           توضیح: {order.receipt_note}
         </p>
       )}
-
       {order.receipt_status === "pending" && (
         <div className="flex gap-2 pt-1">
           <button
@@ -497,7 +530,6 @@ function OrderDetailModal({
                 <StatusIcon className="w-3.5 h-3.5" />
                 {statusCfg.label}
               </span>
-              {/* نشانه روش پرداخت */}
               <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
                 {order.payment_method === "receipt"
                   ? "🏦 کارت به کارت"
@@ -527,7 +559,6 @@ function OrderDetailModal({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* ستون راست */}
               <div className="space-y-4">
-                {/* ── بخش فیش پرداخت ── */}
                 <ReceiptSection
                   order={order}
                   onReviewed={() => {
@@ -536,7 +567,6 @@ function OrderDetailModal({
                   }}
                 />
 
-                {/* آیتم‌ها */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3 text-sm">
                     آیتم‌های سفارش ({order.items?.length || order.items_count})
@@ -563,7 +593,6 @@ function OrderDetailModal({
                   </div>
                 </div>
 
-                {/* آدرس */}
                 {order.shipping?.address && (
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-2 text-sm flex items-center gap-1.5">
@@ -588,12 +617,19 @@ function OrderDetailModal({
                   <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
                     <p className="text-xs text-indigo-600 mb-1 flex items-center gap-1">
                       <HiTruck className="w-3.5 h-3.5" /> کد رهگیری پستی
+                      {order.shipping_carrier &&
+                        CARRIERS[order.shipping_carrier] && (
+                          <span className="mr-1">
+                            — {CARRIERS[order.shipping_carrier]}
+                          </span>
+                        )}
                     </p>
                     <p className="text-xl font-bold text-indigo-700 font-mono">
                       {order.tracking_code}
                     </p>
                   </div>
                 )}
+
                 {order.status_note && (
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
                     <p className="text-xs text-amber-600 mb-1">یادداشت</p>
@@ -707,6 +743,8 @@ function OrderDetailModal({
           onSuccess={() => {
             onStatusChange();
             setStatusModalOpen(false);
+            // ← fix: detail modal هم بسته میشه تا data آپدیت بشه
+            onClose();
           }}
         />
       )}
@@ -833,7 +871,6 @@ export default function AdminOrdersPage() {
           <span className="text-xs text-gray-600">
             {row.payment_method === "receipt" ? "🏦 کارت به کارت" : "💳 آنلاین"}
           </span>
-          {/* نشانه فیش در انتظار */}
           {row.receipt_status === "pending" && (
             <span className="block text-xs text-amber-500 font-medium mt-0.5">
               ⏳ فیش در انتظار
@@ -875,7 +912,6 @@ export default function AdminOrdersPage() {
     <div>
       <Header title="مدیریت سفارشات" />
       <div className="p-6 space-y-6">
-        {/* آمار */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
@@ -910,29 +946,28 @@ export default function AdminOrdersPage() {
               ic: "text-purple-600",
               isText: true,
             },
-          ].map((stat, i) => (
+          ].map((s, i) => (
             <div
               key={i}
               className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3"
             >
               <div
-                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${stat.bg}`}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}
               >
-                <stat.icon className={`w-5 h-5 ${stat.ic}`} />
+                <s.icon className={`w-5 h-5 ${s.ic}`} />
               </div>
               <div>
-                <p className="text-xs text-gray-500">{stat.label}</p>
+                <p className="text-xs text-gray-500">{s.label}</p>
                 <p
-                  className={`font-bold text-gray-900 ${stat.isText ? "text-sm" : "text-xl"}`}
+                  className={`font-bold text-gray-900 ${s.isText ? "text-sm" : "text-xl"}`}
                 >
-                  {stat.value}
+                  {s.value}
                 </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* جستجو + فیلتر */}
         <div className="bg-white rounded-xl shadow-sm">
           <div className="p-4 border-b border-gray-100">
             <div className="flex gap-3">
@@ -975,7 +1010,6 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        {/* جدول */}
         <div className="bg-white rounded-xl shadow-sm">
           <Table columns={columns} data={orders} loading={loading} />
           <Pagination

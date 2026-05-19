@@ -435,6 +435,8 @@ export const adminOrdersAPI = {
       status: string;
       note?: string;
       tracking_code?: string;
+      shipping_carrier?:string;
+      
     },
   ) => api.patch(`/admin/orders/${id}/status`, data, { requiresAuth: true }),
 
