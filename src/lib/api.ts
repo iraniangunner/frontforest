@@ -498,22 +498,11 @@ export const adminUsersAPI = {
 
   getOne: (id: number) => api.get(`/admin/users/${id}`, { requiresAuth: true }),
 
-  create: (data: {
-    name: string;
-    mobile: string;
-    email?: string;
-    password: string;
-    is_admin?: boolean;
-    is_active?: boolean;
-  }) => api.post("/admin/users", data, { requiresAuth: true }),
 
   update: (
     id: number,
     data: {
       name: string;
-      mobile: string;
-      email?: string;
-      password?: string;
       is_admin?: boolean;
       is_active?: boolean;
     },

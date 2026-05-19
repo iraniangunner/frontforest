@@ -1,7 +1,7 @@
 "use client";
 
 // app/admin/users/page.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Header from "@/app/_components/admin/Header";
 import Button from "@/app/_components/admin/Button";
@@ -11,7 +11,6 @@ import Pagination from "@/app/_components/admin/Pagination";
 import { adminUsersAPI } from "@/lib/api";
 import {
   HiSearch,
-  HiPlus,
   HiPencil,
   HiTrash,
   HiEye,
@@ -20,13 +19,9 @@ import {
   HiCheckCircle,
   HiShieldCheck,
   HiX,
-  HiCheck,
 } from "react-icons/hi";
 import toast from "react-hot-toast";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 interface User {
   id: number;
   name: string;
@@ -48,27 +43,13 @@ interface Stats {
   new_this_month: number;
 }
 
+// فقط نام و ایمیل قابل ویرایش — موبایل read-only
 interface FormData {
   name: string;
-  mobile: string;
-  email: string;
-  password: string;
   is_admin: boolean;
   is_active: boolean;
 }
 
-const emptyForm: FormData = {
-  name: "",
-  mobile: "",
-  email: "",
-  password: "",
-  is_admin: false,
-  is_active: true,
-};
-
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
 const fmtPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " ت";
 const fmtDate = (d: string | null) => {
   if (!d) return "—";
@@ -79,9 +60,6 @@ const fmtDate = (d: string | null) => {
   });
 };
 
-// ─────────────────────────────────────────────
-// Portal Modal
-// ─────────────────────────────────────────────
 function PortalModal({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -99,13 +77,11 @@ function PortalModal({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>,
-    document.body,
+    document.body
   );
 }
 
-// ─────────────────────────────────────────────
-// User Detail Modal
-// ─────────────────────────────────────────────
+// ── جزئیات کاربر ──
 function UserDetailModal({
   userId,
   onClose,
@@ -140,7 +116,6 @@ function UserDetailModal({
             <HiX className="w-4 h-4" />
           </button>
         </div>
-
         <div className="p-6">
           {loading ? (
             <div className="space-y-3">
@@ -153,7 +128,6 @@ function UserDetailModal({
             </div>
           ) : user ? (
             <div className="space-y-5">
-              {/* avatar + نام */}
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-xl font-bold flex-shrink-0">
                   {user.avatar ? (
@@ -175,8 +149,6 @@ function UserDetailModal({
                   </div>
                 </div>
               </div>
-
-              {/* اطلاعات */}
               <div className="grid grid-cols-2 gap-3 text-sm">
                 {[
                   { label: "موبایل", value: user.mobile, dir: "ltr" },
@@ -200,8 +172,6 @@ function UserDetailModal({
                   </div>
                 ))}
               </div>
-
-              {/* آخرین سفارشات */}
               {user.recent_orders?.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-2">
@@ -234,7 +204,6 @@ function UserDetailModal({
             </div>
           ) : null}
         </div>
-
         <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
           <button
             onClick={onClose}
@@ -248,30 +217,21 @@ function UserDetailModal({
   );
 }
 
-// ─────────────────────────────────────────────
-// Form Modal (ایجاد / ویرایش)
-// ─────────────────────────────────────────────
-function UserFormModal({
-  editing,
+// ── فرم ویرایش — فقط برای کاربر موجود، بدون ساخت جدید ──
+function UserEditModal({
+  user,
   onClose,
   onSuccess,
 }: {
-  editing: User | null;
+  user: User;
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [form, setForm] = useState<FormData>(
-    editing
-      ? {
-          name: editing.name,
-          mobile: editing.mobile,
-          email: editing.email || "",
-          password: "",
-          is_admin: editing.is_admin,
-          is_active: editing.is_active,
-        }
-      : emptyForm,
-  );
+  const [form, setForm] = useState<FormData>({
+    name: user.name,
+    is_admin: user.is_admin,
+    is_active: user.is_active,
+  });
   const [saving, setSaving] = useState(false);
 
   const inp =
@@ -281,13 +241,8 @@ function UserFormModal({
     e.preventDefault();
     setSaving(true);
     try {
-      if (editing) {
-        await adminUsersAPI.update(editing.id, form);
-        toast.success("کاربر بروزرسانی شد");
-      } else {
-        await adminUsersAPI.create(form as any);
-        toast.success("کاربر ایجاد شد");
-      }
+      await adminUsersAPI.update(user.id, form);
+      toast.success("کاربر بروزرسانی شد");
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -304,6 +259,34 @@ function UserFormModal({
     }
   };
 
+  const Toggle = ({
+    value,
+    onChange,
+    label,
+    color = "teal",
+  }: {
+    value: boolean;
+    onChange: () => void;
+    label: string;
+    color?: string;
+  }) => (
+    <label className="flex items-center gap-2 cursor-pointer">
+      <div
+        onClick={onChange}
+        className={`w-10 h-5 rounded-full transition-colors relative ${
+          value ? `bg-${color}-500` : "bg-gray-200"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+            value ? "translate-x-5" : "translate-x-0.5"
+          }`}
+        />
+      </div>
+      <span className="text-sm text-gray-700">{label}</span>
+    </label>
+  );
+
   return (
     <PortalModal>
       <div
@@ -312,9 +295,7 @@ function UserFormModal({
       />
       <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="font-bold text-gray-900">
-            {editing ? "ویرایش کاربر" : "کاربر جدید"}
-          </h2>
+          <h2 className="font-bold text-gray-900">ویرایش کاربر</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
@@ -322,118 +303,75 @@ function UserFormModal({
             <HiX className="w-4 h-4" />
           </button>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  نام <span className="text-red-500">*</span>
-                </label>
-                <input
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                  placeholder="نام کاربر"
-                  className={inp}
-                  required
-                />
+            {/* موبایل — read-only */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                موبایل
+              </label>
+              <div
+                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 font-mono"
+                dir="ltr"
+              >
+                {user.mobile}
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  موبایل <span className="text-red-500">*</span>
-                </label>
-                <input
-                  value={form.mobile}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, mobile: e.target.value }))
-                  }
-                  placeholder="09..."
-                  className={inp}
-                  dir="ltr"
-                  required
-                />
-              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                موبایل قابل تغییر نیست
+              </p>
             </div>
 
+            {/* نام */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                نام <span className="text-red-500">*</span>
+              </label>
+              <input
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+                placeholder="نام کاربر"
+                className={inp}
+                required
+              />
+            </div>
+
+            {/* ایمیل */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 ایمیل
               </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
-                placeholder="example@email.com"
-                className={inp}
+              <div
+                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500"
                 dir="ltr"
-              />
+              >
+                {user.email || "—"}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                ایمیل قابل تغییر نیست
+              </p>
             </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                رمز عبور{" "}
-                {editing && (
-                  <span className="text-gray-400 font-normal">
-                    (خالی = بدون تغییر)
-                  </span>
-                )}
-                {!editing && <span className="text-red-500"> *</span>}
-              </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-                placeholder="حداقل ۸ کاراکتر"
-                className={inp}
-                dir="ltr"
-                required={!editing}
-              />
-            </div>
-
+            {/* toggle ها */}
             <div className="flex items-center gap-6 pt-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  onClick={() =>
-                    setForm((f) => ({ ...f, is_active: !f.is_active }))
-                  }
-                  className={`w-10 h-5 rounded-full transition-colors relative ${(f: any) => (f ? "" : "")} ${
-                    form.is_active ? "bg-teal-500" : "bg-gray-200"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                      form.is_active ? "translate-x-5" : "translate-x-0.5"
-                    }`}
-                  />
-                </div>
-                <span className="text-sm text-gray-700">فعال</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  onClick={() =>
-                    setForm((f) => ({ ...f, is_admin: !f.is_admin }))
-                  }
-                  className={`w-10 h-5 rounded-full transition-colors relative ${
-                    form.is_admin ? "bg-blue-500" : "bg-gray-200"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                      form.is_admin ? "translate-x-5" : "translate-x-0.5"
-                    }`}
-                  />
-                </div>
-                <span className="text-sm text-gray-700">ادمین</span>
-              </label>
+              <Toggle
+                value={form.is_active}
+                onChange={() =>
+                  setForm((f) => ({ ...f, is_active: !f.is_active }))
+                }
+                label="فعال"
+                color="teal"
+              />
+              <Toggle
+                value={form.is_admin}
+                onChange={() =>
+                  setForm((f) => ({ ...f, is_admin: !f.is_admin }))
+                }
+                label="ادمین"
+                color="blue"
+              />
             </div>
           </div>
-
           <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
             <button
               type="button"
@@ -447,7 +385,7 @@ function UserFormModal({
               disabled={saving}
               className="flex-1 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 disabled:opacity-50 transition-colors"
             >
-              {saving ? "در حال ذخیره..." : editing ? "بروزرسانی" : "ایجاد"}
+              {saving ? "در حال ذخیره..." : "بروزرسانی"}
             </button>
           </div>
         </form>
@@ -456,15 +394,12 @@ function UserFormModal({
   );
 }
 
-// ─────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "admin">(
-    "all",
+    "all"
   );
   const [meta, setMeta] = useState({
     current_page: 1,
@@ -472,10 +407,8 @@ export default function AdminUsersPage() {
     total: 0,
     stats: { total: 0, active: 0, admins: 0, new_this_month: 0 } as Stats,
   });
-
   const [detailId, setDetailId] = useState<number | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [formOpen, setFormOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -626,10 +559,7 @@ export default function AdminUsersPage() {
             <HiEye className="w-4 h-4" />
           </button>
           <button
-            onClick={() => {
-              setEditingUser(row);
-              setFormOpen(true);
-            }}
+            onClick={() => setEditingUser(row)}
             className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
             title="ویرایش"
           >
@@ -661,7 +591,6 @@ export default function AdminUsersPage() {
   return (
     <div>
       <Header title="مدیریت کاربران" />
-
       <div className="p-6 space-y-5">
         {/* آمار */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -731,18 +660,8 @@ export default function AdminUsersPage() {
             <Button onClick={load} variant="primary" size="sm">
               جستجو
             </Button>
-            <Button
-              onClick={() => {
-                setEditingUser(null);
-                setFormOpen(true);
-              }}
-              size="sm"
-            >
-              <HiPlus className="w-4 h-4 ml-1" /> کاربر جدید
-            </Button>
           </div>
 
-          {/* تب‌های فیلتر */}
           <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-gray-100">
             {FILTERS.map((f) => (
               <button
@@ -783,18 +702,14 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Modals */}
       {detailId !== null && (
         <UserDetailModal userId={detailId} onClose={() => setDetailId(null)} />
       )}
 
-      {formOpen && (
-        <UserFormModal
-          editing={editingUser}
-          onClose={() => {
-            setFormOpen(false);
-            setEditingUser(null);
-          }}
+      {editingUser && (
+        <UserEditModal
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
           onSuccess={load}
         />
       )}
