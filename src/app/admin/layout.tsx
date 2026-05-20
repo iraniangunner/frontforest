@@ -1,6 +1,8 @@
 // app/admin/layout.tsx
 import { AdminGuard } from "../_components/guards";
 import Sidebar from "../_components/admin/Sidebar";
+import { Suspense } from "react";
+import TopLoader from "../_components/home/TopLoader";
 
 export default function AdminLayout({
   children,
@@ -9,6 +11,9 @@ export default function AdminLayout({
 }) {
   return (
     <AdminGuard>
+      <Suspense>
+        <TopLoader />
+      </Suspense>
       <div className="flex min-h-screen bg-gray-100" dir="rtl">
         <Sidebar />
         {/* desktop: margin برای sidebar — موبایل: بدون margin */}
