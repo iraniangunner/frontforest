@@ -18,6 +18,7 @@ import {
   HiPhone,
   HiInformationCircle,
   HiLocationMarker,
+  HiNewspaper,
 } from "react-icons/hi";
 import { MdStorefront } from "react-icons/md";
 import Image from "next/image";
@@ -33,6 +34,7 @@ const navLinks = [
   { href: "/", label: "خانه", icon: HiHome },
   { href: "/products", label: "محصولات", icon: MdStorefront },
   { href: "/about", label: "درباره ما", icon: HiInformationCircle },
+  { href: "/posts", label: "اخبار", icon: HiNewspaper },
   { href: "/contact", label: "تماس با ما", icon: HiPhone },
 ];
 

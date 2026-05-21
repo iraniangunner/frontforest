@@ -540,3 +540,64 @@ export const adminCouponsAPI = {
   toggle: (id: number) =>
     api.patch(`/admin/coupons/${id}/toggle`, {}, { requiresAuth: true }),
 };
+
+
+// ── Posts Public ──
+export const postsAPI = {
+  getAll: (params?: any) =>
+    api.get("/posts", { params }),
+
+  getOne: (slug: string) =>
+    api.get(`/posts/${slug}`),
+
+  getComments: (slug: string) =>
+    api.get(`/posts/${slug}/comments`),
+
+  addComment: (slug: string, data: { body: string }) =>
+    api.post(`/posts/${slug}/comments`, data, { requiresAuth: true }),
+};
+
+// ── Admin Posts ──
+export const adminPostsAPI = {
+  getAll: (params?: any) =>
+    api.get("/admin/posts", { params, requiresAuth: true }),
+
+  getOne: (id: number) =>
+    api.get(`/admin/posts/${id}`, { requiresAuth: true }),
+
+  create: (data: FormData) =>
+    api.post("/admin/posts", data, { requiresAuth: true }),
+
+  update: (id: number, data: FormData) =>
+    api.put(`/admin/posts/${id}`, data, { requiresAuth: true }),
+
+  delete: (id: number) =>
+    api.delete(`/admin/posts/${id}`, { requiresAuth: true }),
+
+  toggle: (id: number) =>
+    api.patch(`/admin/posts/${id}/toggle`, {}, { requiresAuth: true }),
+};
+
+// ── Admin Comments ──
+export const adminCommentsAPI = {
+  getAll: (params?: any) =>
+    api.get("/admin/comments", { params, requiresAuth: true }),
+
+  getOne: (id: number) =>
+    api.get(`/admin/comments/${id}`, { requiresAuth: true }),
+
+  approve: (id: number) =>
+    api.patch(`/admin/comments/${id}/approve`, {}, { requiresAuth: true }),
+
+  reject: (id: number) =>
+    api.patch(`/admin/comments/${id}/reject`, {}, { requiresAuth: true }),
+
+  delete: (id: number) =>
+    api.delete(`/admin/comments/${id}`, { requiresAuth: true }),
+
+  reply: (id: number, body: string) =>
+    api.put(`/admin/comments/${id}/reply`, { body }, { requiresAuth: true }),
+
+  deleteReply: (id: number) =>
+    api.delete(`/admin/comments/${id}/reply`, { requiresAuth: true }),
+};

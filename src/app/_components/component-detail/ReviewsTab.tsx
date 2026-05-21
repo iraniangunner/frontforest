@@ -5,6 +5,8 @@ import { HiStar } from "react-icons/hi";
 import toast from "react-hot-toast";
 import { publicProductsAPI } from "@/lib/api";
 import { Review } from "@/types";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 interface ReviewsTabProps {
   slug: string;
@@ -38,9 +40,7 @@ function StarRating({
         >
           <HiStar
             className={`w-5 h-5 transition-colors ${
-              i <= (hovered || rating)
-                ? "text-yellow-400"
-                : "text-gray-200"
+              i <= (hovered || rating) ? "text-yellow-400" : "text-gray-200"
             }`}
           />
         </button>
@@ -55,10 +55,12 @@ export default function ReviewsTab({
   reviewsCount,
   rating,
 }: ReviewsTabProps) {
-  const [reviews, setReviews]   = useState<Review[]>(initialReviews);
+  const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm]         = useState({ rating: 5, comment: "" });
+  const [form, setForm] = useState({ rating: 5, comment: "" });
+
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +80,6 @@ export default function ReviewsTab({
 
   return (
     <div className="space-y-6">
-
       {/* خلاصه امتیاز */}
       <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-xl">
         <div className="text-center">
@@ -108,14 +109,27 @@ export default function ReviewsTab({
       </div>
 
       {/* دکمه ثبت نظر */}
-      {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-blue-300 hover:text-blue-600 transition text-sm"
-        >
-          + نظر خود را بنویسید
-        </button>
-      )}
+      {!showForm &&
+        (user ? (
+          <button
+            onClick={() => setShowForm(true)}
+            className="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 hover:border-blue-300 hover:text-blue-600 transition text-sm"
+          >
+            + نظر خود را بنویسید
+          </button>
+        ) : (
+          <div className="text-center py-5 bg-gray-50 rounded-xl border border-gray-200">
+            <p className="text-gray-500 text-sm mb-3">
+              برای ثبت نظر باید وارد شوید
+            </p>
+            <Link
+              href="/login"
+              className="inline-block px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
+            >
+              ورود به حساب
+            </Link>
+          </div>
+        ))}
 
       {/* فرم نظر */}
       {showForm && (
@@ -167,18 +181,25 @@ export default function ReviewsTab({
 
       {/* لیست نظرات */}
       {reviews.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">هنوز نظری ثبت نشده است.</p>
+        <p className="text-gray-500 text-center py-8">
+          هنوز نظری ثبت نشده است.
+        </p>
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} className="border border-gray-100 rounded-xl p-4">
+            <div
+              key={review.id}
+              className="border border-gray-100 rounded-xl p-4"
+            >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm">
                     {review.user.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-gray-800">{review.user.name}</p>
+                    <p className="font-medium text-sm text-gray-800">
+                      {review.user.name}
+                    </p>
                     <p className="text-xs text-gray-400">
                       {new Date(review.created_at).toLocaleDateString("fa-IR")}
                     </p>
@@ -187,12 +208,16 @@ export default function ReviewsTab({
                 <StarRating rating={review.rating} />
               </div>
 
-              <p className="text-gray-700 text-sm leading-relaxed">{review.comment}</p>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                {review.comment}
+              </p>
 
               {/* پاسخ ادمین */}
               {review.admin_reply && (
                 <div className="mt-3 mr-4 p-3 bg-gray-50 rounded-lg border-r-2 border-blue-400">
-                  <p className="text-xs font-medium text-blue-600 mb-1">پاسخ فروشگاه</p>
+                  <p className="text-xs font-medium text-blue-600 mb-1">
+                    پاسخ فروشگاه
+                  </p>
                   <p className="text-sm text-gray-700">{review.admin_reply}</p>
                 </div>
               )}
