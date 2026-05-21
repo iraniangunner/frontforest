@@ -4,7 +4,7 @@ import { AuthGuard } from "@/app/_components/guards";
 
 
 export const metadata: Metadata = {
-  title: "پروفایل | فرانت فارست",
+  title: "پروفایل | نمایندگی انحصاری فانتوم پلاس در ایران",
   description: "پروفایل کاربری شما",
 };
 
