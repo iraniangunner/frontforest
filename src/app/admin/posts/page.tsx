@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import Header from "@/app/_components/admin/Header";
 import Button from "@/app/_components/admin/Button";
 import Table from "@/app/_components/admin/Table";
+import Badge from "@/app/_components/admin/Badge";
 import Pagination from "@/app/_components/admin/Pagination";
 import { adminPostsAPI } from "@/lib/api";
 import {
@@ -45,7 +46,7 @@ const CATEGORIES = [
   { key: "tutorial", label: "آموزش" },
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
+const CAT_COLORS: Record<string, string> = {
   news: "bg-blue-100 text-blue-700",
   article: "bg-teal-100 text-teal-700",
   product: "bg-purple-100 text-purple-700",
@@ -168,12 +169,19 @@ function PostFormModal({
       />
       <div className="relative bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <h2 className="font-bold text-gray-900">
-            {editing ? "ویرایش مقاله" : "مقاله جدید"}
-          </h2>
+          <div>
+            <h2 className="font-bold text-gray-900">
+              {editing ? "ویرایش مقاله" : "مقاله جدید"}
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {editing
+                ? "اطلاعات مقاله را ویرایش کنید"
+                : "مقاله جدید ایجاد کنید"}
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
           >
             <HiX className="w-4 h-4" />
           </button>
@@ -242,7 +250,6 @@ function PostFormModal({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {/* دسته‌بندی */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   دسته‌بندی <span className="text-red-500">*</span>
@@ -261,8 +268,6 @@ function PostFormModal({
                   ))}
                 </select>
               </div>
-
-              {/* وضعیت */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   وضعیت <span className="text-red-500">*</span>
@@ -280,7 +285,6 @@ function PostFormModal({
               </div>
             </div>
 
-            {/* slug */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 Slug
@@ -299,7 +303,6 @@ function PostFormModal({
               </p>
             </div>
 
-            {/* خلاصه */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 خلاصه
@@ -315,7 +318,6 @@ function PostFormModal({
               />
             </div>
 
-            {/* محتوا */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 محتوا <span className="text-red-500">*</span>
@@ -332,7 +334,6 @@ function PostFormModal({
               />
             </div>
 
-            {/* تاریخ انتشار */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 تاریخ انتشار
@@ -425,10 +426,10 @@ export default function AdminPostsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("آیا مطمئن هستید؟")) return;
+    if (!confirm("آیا مطمئن هستید؟\nنظرات مرتبط هم حذف میشن.")) return;
     try {
       await adminPostsAPI.delete(id);
-      toast.success("حذف شد");
+      toast.success("مقاله حذف شد");
       load();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "خطا");
@@ -444,11 +445,8 @@ export default function AdminPostsPage() {
     }
   };
 
-  const STATUS_FILTERS = [
-    { key: "all", label: "همه وضعیت‌ها" },
-    { key: "published", label: "منتشر شده" },
-    { key: "draft", label: "پیش‌نویس" },
-  ];
+  const publishedCount = posts.filter((p) => p.status === "published").length;
+  const draftCount = posts.filter((p) => p.status === "draft").length;
 
   const columns = [
     {
@@ -469,10 +467,13 @@ export default function AdminPostsPage() {
             )}
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-gray-900 text-sm truncate max-w-[180px]">
+            <p className="font-medium text-gray-900 text-sm truncate max-w-[200px]">
               {row.title}
             </p>
-            <p className="text-xs text-gray-400 font-mono" dir="ltr">
+            <p
+              className="text-xs text-gray-400 font-mono truncate max-w-[200px]"
+              dir="ltr"
+            >
               {row.slug}
             </p>
           </div>
@@ -483,7 +484,7 @@ export default function AdminPostsPage() {
       header: "دسته‌بندی",
       render: (row: Post) => (
         <span
-          className={`px-2.5 py-1 rounded-lg text-xs font-medium ${CATEGORY_COLORS[row.category] || "bg-gray-100 text-gray-600"}`}
+          className={`px-2.5 py-1 rounded-lg text-xs font-medium ${CAT_COLORS[row.category] || "bg-gray-100 text-gray-600"}`}
         >
           {row.category_label}
         </span>
@@ -498,10 +499,10 @@ export default function AdminPostsPage() {
     {
       header: "بازدید",
       render: (row: Post) => (
-        <div className="flex items-center gap-1 text-sm text-gray-600">
+        <span className="flex items-center gap-1 text-sm text-gray-600">
           <HiEye className="w-4 h-4 text-gray-400" />
           {row.views.toLocaleString("fa-IR")}
-        </div>
+        </span>
       ),
     },
     {
@@ -515,24 +516,13 @@ export default function AdminPostsPage() {
     {
       header: "وضعیت",
       render: (row: Post) => (
-        <button onClick={() => handleToggle(row.id)}>
-          <span
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-              row.status === "published"
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {row.status === "published" ? (
-              <>
-                <HiCheckCircle className="w-3.5 h-3.5" /> منتشر
-              </>
-            ) : (
-              <>
-                <HiClock className="w-3.5 h-3.5" /> پیش‌نویس
-              </>
-            )}
-          </span>
+        <button
+          onClick={() => handleToggle(row.id)}
+          title="کلیک برای تغییر وضعیت"
+        >
+          <Badge variant={row.status === "published" ? "success" : "warning"}>
+            {row.status === "published" ? "منتشر" : "پیش‌نویس"}
+          </Badge>
         </button>
       ),
     },
@@ -565,7 +555,7 @@ export default function AdminPostsPage() {
       <Header title="مدیریت مقالات" />
       <div className="p-6 space-y-5">
         {/* آمار */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {[
             {
               label: "کل مقالات",
@@ -576,38 +566,31 @@ export default function AdminPostsPage() {
             },
             {
               label: "منتشر شده",
-              value: posts.filter((p) => p.status === "published").length,
+              value: publishedCount,
               icon: HiCheckCircle,
               bg: "bg-green-100",
               ic: "text-green-600",
             },
             {
               label: "پیش‌نویس",
-              value: posts.filter((p) => p.status === "draft").length,
+              value: draftCount,
               icon: HiClock,
-              bg: "bg-gray-100",
-              ic: "text-gray-600",
-            },
-            {
-              label: "بازدید کل",
-              value: posts.reduce((a, p) => a + p.views, 0),
-              icon: HiEye,
-              bg: "bg-purple-100",
-              ic: "text-purple-600",
+              bg: "bg-amber-100",
+              ic: "text-amber-600",
             },
           ].map((s, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3"
+              className="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4"
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.bg}`}
               >
-                <s.icon className={`w-5 h-5 ${s.ic}`} />
+                <s.icon className={`w-6 h-6 ${s.ic}`} />
               </div>
               <div>
-                <p className="text-xs text-gray-500">{s.label}</p>
-                <p className="text-xl font-bold text-gray-900">
+                <p className="text-sm text-gray-500">{s.label}</p>
+                <p className="text-2xl font-bold text-gray-900 mt-0.5">
                   {s.value.toLocaleString("fa-IR")}
                 </p>
               </div>
@@ -616,7 +599,7 @@ export default function AdminPostsPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm">
-          {/* جستجو */}
+          {/* جستجو و دکمه جدید */}
           <div className="p-4 border-b border-gray-100 flex gap-3">
             <div className="flex-1 relative">
               <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -643,57 +626,49 @@ export default function AdminPostsPage() {
             </Button>
           </div>
 
-          {/* فیلتر وضعیت */}
-          <div className="px-4 py-2 flex flex-wrap gap-2 border-b border-gray-100">
-            {STATUS_FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => {
-                  setFilter(f.key);
-                  setMeta((p) => ({ ...p, current_page: 1 }));
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                  filter === f.key
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-
-            <div className="w-px h-5 bg-gray-200 mx-1 self-center" />
-
-            {/* فیلتر دسته‌بندی */}
-            <button
-              onClick={() => {
-                setCatFilter("all");
+          {/* فیلترها */}
+          <div className="px-4 py-3 flex items-center gap-3 border-b border-gray-100">
+            <select
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.target.value);
                 setMeta((p) => ({ ...p, current_page: 1 }));
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                catFilter === "all"
-                  ? "bg-gray-800 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-teal-500 outline-none bg-white cursor-pointer"
             >
-              همه دسته‌ها
-            </button>
-            {CATEGORIES.map((c) => (
+              <option value="all">همه وضعیت‌ها</option>
+              <option value="published">منتشر شده</option>
+              <option value="draft">پیش‌نویس</option>
+            </select>
+
+            <select
+              value={catFilter}
+              onChange={(e) => {
+                setCatFilter(e.target.value);
+                setMeta((p) => ({ ...p, current_page: 1 }));
+              }}
+              className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-teal-500 outline-none bg-white cursor-pointer"
+            >
+              <option value="all">همه دسته‌ها</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+
+            {(filter !== "all" || catFilter !== "all") && (
               <button
-                key={c.key}
                 onClick={() => {
-                  setCatFilter(c.key);
+                  setFilter("all");
+                  setCatFilter("all");
                   setMeta((p) => ({ ...p, current_page: 1 }));
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                  catFilter === c.key
-                    ? `${CATEGORY_COLORS[c.key]} ring-1 ring-current`
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className="text-xs text-gray-400 hover:text-red-500 transition"
               >
-                {c.label}
+                پاک کردن فیلتر ✕
               </button>
-            ))}
+            )}
           </div>
 
           <Table columns={columns} data={posts} loading={loading} />

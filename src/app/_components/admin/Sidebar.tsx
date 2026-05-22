@@ -13,8 +13,9 @@ import {
   HiOutlineLogout,
   HiOutlineUsers,
   HiOutlineShoppingCart,
-  HiOutlineCreditCard,
   HiOutlineChatAlt,
+  HiOutlineNewspaper,
+  HiOutlineAnnotation,
   HiX,
   HiMenu,
   HiChevronRight,
@@ -42,12 +43,7 @@ const menuItems = [
     label: "سفارشات",
     group: "فروش",
   },
-  // {
-  //   path: "/admin/payment-inquiries",
-  //   icon: HiOutlineCreditCard,
-  //   label: "استعلام پرداخت",
-  //   group: "فروش",
-  // },
+  { path: "/admin/coupons", icon: HiTag, label: "کدهای تخفیف", group: "فروش" },
   {
     path: "/admin/users",
     icon: HiOutlineUsers,
@@ -55,9 +51,21 @@ const menuItems = [
     group: "کاربران",
   },
   {
+    path: "/admin/posts",
+    icon: HiOutlineNewspaper,
+    label: "مقالات",
+    group: "محتوا",
+  },
+  {
+    path: "/admin/comments",
+    icon: HiOutlineAnnotation,
+    label: "نظرات مقالات",
+    group: "محتوا",
+  },
+  {
     path: "/admin/reviews",
     icon: HiOutlineStar,
-    label: "نظرات",
+    label: "نظرات محصولات",
     group: "محتوا",
   },
   {
@@ -66,11 +74,8 @@ const menuItems = [
     label: "پیام‌های ارسالی",
     group: "محتوا",
   },
-
-  { path: "/admin/coupons", icon: HiTag, label: "کدهای تخفیف", group: "فروش" },
 ];
 
-// گروه‌بندی آیتم‌ها
 const grouped = menuItems.reduce(
   (acc, item) => {
     const key = item.group || "__root__";
@@ -89,10 +94,6 @@ interface SidebarContentProps {
 }
 
 function SidebarContent({ pathname, onClose }: SidebarContentProps) {
-  const handleLogout = () => {
-    window.location.href = "/login";
-  };
-
   return (
     <div className="flex flex-col h-full">
       {/* هدر */}
@@ -113,22 +114,18 @@ function SidebarContent({ pathname, onClose }: SidebarContentProps) {
         {groupOrder.map((group) => {
           const items = grouped[group];
           if (!items) return null;
-
           return (
             <div key={group}>
-              {/* عنوان گروه */}
               {group !== "__root__" && (
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest px-3 pt-4 pb-1.5">
                   {group}
                 </p>
               )}
-
               {items.map((item) => {
                 const isActive =
                   item.path === "/admin"
                     ? pathname === "/admin"
                     : pathname.startsWith(item.path);
-
                 return (
                   <Link
                     key={item.path}
@@ -156,7 +153,7 @@ function SidebarContent({ pathname, onClose }: SidebarContentProps) {
       {/* خروج */}
       <div className="p-3 border-t border-gray-800 flex-shrink-0">
         <button
-          onClick={handleLogout}
+          onClick={() => (window.location.href = "/login")}
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800 hover:text-white w-full transition-all text-sm"
         >
           <HiOutlineLogout className="w-5 h-5 flex-shrink-0" />
@@ -171,12 +168,10 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // بستن drawer وقتی route عوض میشه
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // جلوگیری از scroll وقتی drawer بازه
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -187,12 +182,12 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop */}
       <aside className="hidden lg:flex flex-col fixed right-0 top-0 h-full w-64 bg-gray-900 z-40">
         <SidebarContent pathname={pathname} />
       </aside>
 
-      {/* ── Mobile toggle button ── */}
+      {/* Mobile toggle */}
       <button
         onClick={() => setOpen(true)}
         className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-gray-900 text-white rounded-xl shadow-lg"
@@ -200,18 +195,16 @@ export default function Sidebar() {
         <HiMenu className="w-5 h-5" />
       </button>
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       {open && (
         <div
           className="lg:hidden fixed inset-0 z-50 flex justify-end"
           dir="rtl"
         >
-          {/* backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          {/* drawer */}
           <div className="relative w-72 max-w-[85vw] h-full bg-gray-900 flex flex-col shadow-2xl">
             <SidebarContent
               pathname={pathname}

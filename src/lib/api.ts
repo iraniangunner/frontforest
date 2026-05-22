@@ -569,7 +569,7 @@ export const adminPostsAPI = {
     api.post("/admin/posts", data, { requiresAuth: true }),
 
   update: (id: number, data: FormData) =>
-    api.put(`/admin/posts/${id}`, data, { requiresAuth: true }),
+    api.post(`/admin/posts/${id}`, data, { requiresAuth: true }),
 
   delete: (id: number) =>
     api.delete(`/admin/posts/${id}`, { requiresAuth: true }),
@@ -596,7 +596,7 @@ export const adminCommentsAPI = {
     api.delete(`/admin/comments/${id}`, { requiresAuth: true }),
 
   reply: (id: number, body: string) =>
-    api.put(`/admin/comments/${id}/reply`, { body }, { requiresAuth: true }),
+    api.post(`/admin/comments/${id}/reply`, { body }, { requiresAuth: true }),
 
   deleteReply: (id: number) =>
     api.delete(`/admin/comments/${id}/reply`, { requiresAuth: true }),

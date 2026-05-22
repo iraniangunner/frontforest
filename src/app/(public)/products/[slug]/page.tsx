@@ -1,8 +1,6 @@
-
-
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import ProductDetail from "@/app/_components/component-detail/ProductDetail";
+import ProductDetail from "@/app/_components/product/ProductDetail";
 
 interface Props {
   params: { slug: string };
@@ -12,7 +10,7 @@ async function getProduct(slug: string) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 } },
     );
     if (!response.ok) return null;
     const data = await response.json();
@@ -26,7 +24,7 @@ async function getRelatedProducts(slug: string) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}/related?per_page=4`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
     if (!response.ok) return [];
     const data = await response.json();
@@ -40,7 +38,7 @@ async function getProductReviews(slug: string) {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}/reviews`,
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
     if (!response.ok) return [];
     const data = await response.json();
@@ -79,4 +77,3 @@ export default async function ProductPage({ params }: Props) {
     />
   );
 }
-

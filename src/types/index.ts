@@ -209,3 +209,31 @@ export interface Order {
   created_at: string;
   paid_at: string | null;
 }
+
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  thumbnail: string | null;
+  category: string;
+  category_label: string;
+  views: number;
+  published_at: string | null;
+  author: { id: number; name: string };
+}
+
+export interface Reply {
+  id: number;
+  body: string;
+  created_at: string;
+  user: { id: number; name: string };
+}
+
+export interface Comment {
+  id: number;
+  body: string;
+  created_at: string;
+  user: { id: number; name: string };
+  replies: Reply[];
+}
