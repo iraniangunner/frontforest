@@ -49,12 +49,15 @@ export default function ProfilePage() {
     }
   };
 
-  const profileComplete = !!(user?.email && user?.mobile);
-  const missingField = !user?.email
-    ? "ایمیل"
-    : !user?.mobile
-      ? "شماره موبایل"
-      : null;
+  // const profileComplete = !!(user?.email && user?.mobile);
+  // const missingField = !user?.email
+  //   ? "ایمیل"
+  //   : !user?.mobile
+  //     ? "شماره موبایل"
+  //     : null;
+
+const profileComplete = !!user?.mobile;
+const missingField = !user?.mobile ? "شماره موبایل" : null;
 
   const statCards = [
     {
@@ -135,11 +138,11 @@ export default function ProfilePage() {
                   📱 {user.mobile}
                 </p>
               )}
-              {user?.email && (
+              {/* {user?.email && (
                 <p className="text-sm text-gray-500" dir="ltr">
                   ✉️ {user.email}
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* badge پروفایل */}
