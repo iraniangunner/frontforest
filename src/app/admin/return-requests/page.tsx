@@ -18,6 +18,7 @@ import {
   HiEye,
   HiCreditCard,
   HiTruck,
+  HiCurrencyDollar,
 } from "react-icons/hi";
 import toast from "react-hot-toast";
 
@@ -30,12 +31,15 @@ interface ReturnItem {
 interface ReturnRequest {
   id: number;
   status: "pending" | "approved" | "rejected";
+  refund_status: "pending" | "refunded";
   reason: string;
   description: string | null;
   admin_note: string | null;
-
+  bank_card_number: string | null;
+  bank_card_owner: string | null;
   return_tracking_code: string | null;
   return_carrier: string | null;
+  refunded_at: string | null;
   created_at: string;
   order: {
     id: number;
@@ -45,13 +49,7 @@ interface ReturnRequest {
     coupon_discount: number;
     subtotal: number;
   };
-  user: {
-    id: number;
-    name: string;
-    mobile: string;
-    bank_card_number: string | null;
-    bank_card_owner: string | null;
-  };
+  user: { id: number; name: string; mobile: string };
   items: ReturnItem[];
 }
 
@@ -87,7 +85,7 @@ const fmtDate = (d: string) =>
 function calcRefundAmount(request: ReturnRequest): number {
   const returnedSubtotal = request.items.reduce(
     (sum, item) => sum + item.order_item.paid_price * item.quantity,
-    0
+    0,
   );
   const totalDiscount = request.order.coupon_discount || 0;
   if (totalDiscount > 0 && request.order.subtotal > 0) {
@@ -114,7 +112,7 @@ function PortalModal({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -130,6 +128,20 @@ function DetailModal({
   const [adminNote, setAdminNote] = useState(request.admin_note || "");
   const [saving, setSaving] = useState(false);
   const refundAmount = calcRefundAmount(request);
+
+  const handleMarkRefunded = async () => {
+    setSaving(true);
+    try {
+      await returnRequestsAPI.markRefunded(request.id);
+      toast.success("واریز ثبت شد — SMS به کاربر ارسال شد");
+      onAction();
+      onClose();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleApprove = async () => {
     setSaving(true);
@@ -205,15 +217,15 @@ function DetailModal({
                   request.status === "approved"
                     ? "success"
                     : request.status === "rejected"
-                    ? "danger"
-                    : "warning"
+                      ? "danger"
+                      : "warning"
                 }
               >
                 {request.status === "approved"
                   ? "تایید شده"
                   : request.status === "rejected"
-                  ? "رد شده"
-                  : "در انتظار"}
+                    ? "رد شده"
+                    : "در انتظار"}
               </Badge>
             </div>
           </div>
@@ -287,17 +299,17 @@ function DetailModal({
             <p className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
               <HiCreditCard className="w-3.5 h-3.5" /> اطلاعات بانکی
             </p>
-            {request.user.bank_card_number ? (
+            {request.bank_card_number ? (
               <div className="bg-blue-50 rounded-xl px-4 py-3 border border-blue-100 space-y-1">
                 <p
                   className="text-base font-mono font-bold text-blue-900 tracking-widest"
                   dir="ltr"
                 >
-                  {request.user.bank_card_number.replace(/(\d{4})(?=\d)/g, "$1-")}
+                  {request.bank_card_number.replace(/(\d{4})(?=\d)/g, "$1-")}
                 </p>
-                {request.user.bank_card_owner && (
+                {request.bank_card_owner && (
                   <p className="text-xs text-blue-700">
-                    {request.user.bank_card_owner}
+                    {request.bank_card_owner}
                   </p>
                 )}
               </div>
@@ -348,6 +360,7 @@ function DetailModal({
           </div>
         </div>
 
+        {/* دکمه‌های تایید/رد — فقط pending */}
         {request.status === "pending" && (
           <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
             <button
@@ -365,6 +378,39 @@ function DetailModal({
               <HiCheck className="w-4 h-4" />{" "}
               {saving ? "در حال ثبت..." : "تایید مرجوعی"}
             </button>
+          </div>
+        )}
+
+        {/* دکمه واریز — بعد از approved و دریافت کد رهگیری */}
+        {request.status === "approved" && request.return_tracking_code && (
+          <div className="px-6 py-4 border-t flex-shrink-0">
+            {request.refund_status === "refunded" ? (
+              <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-200">
+                <HiCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-green-800">
+                    مبلغ واریز شده
+                  </p>
+                  {request.refunded_at && (
+                    <p className="text-xs text-green-600">
+                      {new Date(request.refunded_at).toLocaleDateString(
+                        "fa-IR",
+                        { year: "numeric", month: "long", day: "numeric" },
+                      )}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleMarkRefunded}
+                disabled={saving}
+                className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+              >
+                <HiCurrencyDollar className="w-4 h-4" />
+                {saving ? "در حال ثبت..." : "ثبت واریز مبلغ به کاربر"}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -438,9 +484,9 @@ export default function AdminReturnRequestsPage() {
     {
       header: "کارت بانکی",
       render: (row: ReturnRequest) =>
-        row.user.bank_card_number ? (
+        row.bank_card_number ? (
           <span className="text-xs font-mono text-gray-700" dir="ltr">
-            {row.user.bank_card_number.replace(/(\d{4})(?=\d)/g, "$1-")}
+            {row.bank_card_number.replace(/(\d{4})(?=\d)/g, "$1-")}
           </span>
         ) : (
           <span className="text-xs text-red-400">ثبت نشده</span>
@@ -472,15 +518,15 @@ export default function AdminReturnRequestsPage() {
             row.status === "approved"
               ? "success"
               : row.status === "rejected"
-              ? "danger"
-              : "warning"
+                ? "danger"
+                : "warning"
           }
         >
           {row.status === "approved"
             ? "تایید شده"
             : row.status === "rejected"
-            ? "رد شده"
-            : "در انتظار"}
+              ? "رد شده"
+              : "در انتظار"}
         </Badge>
       ),
     },

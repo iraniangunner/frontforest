@@ -10,6 +10,7 @@ import {
   HiX,
   HiCreditCard,
   HiTruck,
+  HiPencil,
 } from "react-icons/hi";
 import { ordersAPI, returnRequestsAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -58,7 +59,7 @@ const fmt = (n: number) => Number(n).toLocaleString("fa-IR");
 const inp =
   "w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition";
 
-// ── فرم ثبت کد رهگیری ──
+// ── فرم ثبت/ویرایش کد رهگیری ──
 function TrackingForm({
   returnRequest,
   onSuccess,
@@ -66,8 +67,9 @@ function TrackingForm({
   returnRequest: ReturnRequest;
   onSuccess: () => void;
 }) {
+  const [editing, setEditing] = useState(false);
   const [trackingCode, setTrackingCode] = useState(
-    returnRequest.return_tracking_code || ""
+    returnRequest.return_tracking_code || "",
   );
   const [carrier, setCarrier] = useState(returnRequest.return_carrier || "");
   const [saving, setSaving] = useState(false);
@@ -89,6 +91,7 @@ function TrackingForm({
         return_carrier: carrier,
       });
       toast.success("کد رهگیری ثبت شد");
+      setEditing(false);
       onSuccess();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "خطا در ثبت کد رهگیری");
@@ -97,7 +100,8 @@ function TrackingForm({
     }
   };
 
-  if (returnRequest.return_tracking_code) {
+  // کد رهگیری ثبت شده — نمایش
+  if (returnRequest.return_tracking_code && !editing) {
     return (
       <div className="bg-white rounded-2xl p-5 shadow-sm">
         <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -108,41 +112,50 @@ function TrackingForm({
             {CARRIERS.find((c) => c.key === returnRequest.return_carrier)
               ?.label || returnRequest.return_carrier}
           </p>
-          <p className="text-xl font-bold text-indigo-700 font-mono tracking-wider">
+          <p
+            className="text-xl font-bold text-indigo-700 font-mono tracking-wider"
+            dir="ltr"
+          >
             {returnRequest.return_tracking_code}
           </p>
           <p className="text-xs text-indigo-500 mt-2">✅ کد رهگیری ثبت شده</p>
         </div>
         <button
           onClick={() => {
-            // اجازه ویرایش
-            returnRequestsAPI.submitTracking(returnRequest.id, {
-              return_tracking_code: returnRequest.return_tracking_code!,
-              return_carrier: returnRequest.return_carrier!,
-            });
+            setTrackingCode(returnRequest.return_tracking_code!);
+            setCarrier(returnRequest.return_carrier!);
+            setEditing(true);
           }}
-          className="mt-3 text-xs text-teal-600 hover:underline"
+          className="mt-3 flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 transition"
         >
-          ویرایش کد رهگیری
+          <HiPencil className="w-3.5 h-3.5" /> ویرایش کد رهگیری
         </button>
       </div>
     );
   }
 
+  // فرم ثبت/ویرایش
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm">
       <h2 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-        <HiTruck className="w-5 h-5 text-indigo-500" /> ارسال کالا به انبار
+        <HiTruck className="w-5 h-5 text-indigo-500" />
+        {editing ? "ویرایش کد رهگیری" : "ارسال کالا به انبار"}
       </h2>
-      <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100 mb-4">
-        <p className="text-sm text-indigo-800 font-medium mb-1">آدرس انبار:</p>
-        <p className="text-sm text-indigo-700">
-          تهران — [آدرس انبار را وارد کنید]
-        </p>
-        <p className="text-xs text-indigo-500 mt-2">
-          پس از ارسال کالا، کد رهگیری را در زیر وارد کنید
-        </p>
-      </div>
+
+      {!editing && (
+        <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100 mb-4">
+          <p className="text-sm text-indigo-800 font-medium mb-1">
+            آدرس انبار:
+          </p>
+          <p className="text-sm text-indigo-700">
+            تهران — [آدرس انبار را وارد کنید]
+          </p>
+          <p className="text-xs text-indigo-500 mt-2">
+            پس از ارسال کالا، کد رهگیری را در زیر وارد کنید
+          </p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -174,13 +187,28 @@ function TrackingForm({
             className={inp}
           />
         </div>
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full py-3 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
-        >
-          {saving ? "در حال ثبت..." : "ثبت کد رهگیری"}
-        </button>
+        <div className="flex gap-2">
+          {editing && (
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
+            >
+              انصراف
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
+          >
+            {saving
+              ? "در حال ثبت..."
+              : editing
+                ? "ذخیره تغییرات"
+                : "ثبت کد رهگیری"}
+          </button>
+        </div>
       </form>
     </div>
   );
@@ -195,7 +223,7 @@ export default function ReturnRequestPage() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -208,7 +236,7 @@ export default function ReturnRequestPage() {
   >({});
   const [bankCard, setBankCard] = useState(user?.bank_card_number || "");
   const [bankCardOwner, setBankCardOwner] = useState(
-    user?.bank_card_owner || ""
+    user?.bank_card_owner || "",
   );
 
   useEffect(() => {
@@ -224,23 +252,29 @@ export default function ReturnRequestPage() {
     try {
       const orderRes = await ordersAPI.getOne(orderId);
       const o: Order = orderRes.data.data;
+
       if (o.status !== "delivered" && o.status !== "returned") {
         toast.error("فقط سفارشات تحویل داده شده قابل مرجوعی هستند");
         router.replace(`/profile/orders/${orderId}`);
         return;
       }
+
       setOrder(o);
       const rr = (o as any).return_request;
-      console.log('return_request:', rr);  // ← اضافه کن
       if (rr) setReturnRequest(rr);
-      const init: Record<number, { selected:boolean; quantity:number }> = {};
-      o.items.forEach(item => { init[item.id] = { selected:false, quantity:1 }; });
+
+      const init: Record<number, { selected: boolean; quantity: number }> = {};
+      o.items.forEach((item) => {
+        init[item.id] = { selected: false, quantity: 1 };
+      });
       setSelectedItems(init);
     } catch (err: any) {
-      console.error('loadData error:', err);
+      console.error("loadData error:", err);
       toast.error("خطا در دریافت اطلاعات");
       router.replace("/profile/orders");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleItem = (id: number) => {
@@ -300,7 +334,7 @@ export default function ReturnRequestPage() {
           return_tracking_code: null,
           return_carrier: null,
           admin_note: null,
-        }
+        },
       );
       setSubmitted(true);
     } catch (err: any) {
@@ -406,7 +440,7 @@ export default function ReturnRequestPage() {
           </div>
         </div>
 
-        {/* درخواست رد شده — میتونه دوباره بزنه */}
+        {/* درخواست رد شده */}
         {returnRequest?.status === "rejected" && (
           <div className="bg-red-50 rounded-2xl p-4 border border-red-200 mb-4 flex items-start gap-3">
             <HiX className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -478,7 +512,7 @@ export default function ReturnRequestPage() {
                             setQty(
                               item.id,
                               selectedItems[item.id].quantity - 1,
-                              item.quantity
+                              item.quantity,
                             )
                           }
                           className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
@@ -487,7 +521,7 @@ export default function ReturnRequestPage() {
                         </button>
                         <span className="w-6 text-center text-sm font-medium">
                           {selectedItems[item.id].quantity.toLocaleString(
-                            "fa-IR"
+                            "fa-IR",
                           )}
                         </span>
                         <button
@@ -496,7 +530,7 @@ export default function ReturnRequestPage() {
                             setQty(
                               item.id,
                               selectedItems[item.id].quantity + 1,
-                              item.quantity
+                              item.quantity,
                             )
                           }
                           className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
