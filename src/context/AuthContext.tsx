@@ -9,6 +9,8 @@ interface User {
   email:string;
   mobile: string;
   is_admin:boolean;
+  bank_card_number:string;
+  bank_card_owner:string;
 }
 
 interface AuthContextType {

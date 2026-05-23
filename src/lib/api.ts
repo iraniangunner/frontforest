@@ -110,7 +110,7 @@ api.interceptors.response.use(
 
       return Promise.reject(err);
     }
-  },
+  }
 );
 
 export default api;
@@ -213,7 +213,7 @@ export const productsAPI = {
     api.patch(
       `/admin/products/${id}/toggle-featured`,
       {},
-      { requiresAuth: true },
+      { requiresAuth: true }
     ),
 
   updateStock: (id: number, stock: number) =>
@@ -271,7 +271,7 @@ export const reviewsAPI = {
     api.post(
       `/admin/reviews/${id}/reply`,
       { admin_reply: adminReply },
-      { requiresAuth: true },
+      { requiresAuth: true }
     ),
 
   deleteReply: (id: number) =>
@@ -412,7 +412,7 @@ export const contactAPI = {
     api.patch(
       `/admin/contact/${id}/status/${status}`,
       {},
-      { requiresAuth: true },
+      { requiresAuth: true }
     ),
 
   delete: (id: number) =>
@@ -435,9 +435,8 @@ export const adminOrdersAPI = {
       status: string;
       note?: string;
       tracking_code?: string;
-      shipping_carrier?:string;
-      
-    },
+      shipping_carrier?: string;
+    }
   ) => api.patch(`/admin/orders/${id}/status`, data, { requiresAuth: true }),
 
   // زرین‌پال
@@ -449,12 +448,12 @@ export const adminOrdersAPI = {
     api.post(
       `/admin/orders/${orderId}/manual-verify`,
       {},
-      { requiresAuth: true },
+      { requiresAuth: true }
     ),
 
   reviewReceipt: (
     id: number,
-    data: { action: "approve" | "reject"; note?: string },
+    data: { action: "approve" | "reject"; note?: string }
   ) =>
     api.post(`/admin/orders/${id}/review-receipt`, data, {
       requiresAuth: true,
@@ -503,14 +502,13 @@ export const adminUsersAPI = {
 
   getOne: (id: number) => api.get(`/admin/users/${id}`, { requiresAuth: true }),
 
-
   update: (
     id: number,
     data: {
       name: string;
       is_admin?: boolean;
       is_active?: boolean;
-    },
+    }
   ) => api.put(`/admin/users/${id}`, data, { requiresAuth: true }),
 
   delete: (id: number) =>
@@ -541,17 +539,13 @@ export const adminCouponsAPI = {
     api.patch(`/admin/coupons/${id}/toggle`, {}, { requiresAuth: true }),
 };
 
-
 // ── Posts Public ──
 export const postsAPI = {
-  getAll: (params?: any) =>
-    api.get("/posts", { params }),
+  getAll: (params?: any) => api.get("/posts", { params }),
 
-  getOne: (slug: string) =>
-    api.get(`/posts/${slug}`),
+  getOne: (slug: string) => api.get(`/posts/${slug}`),
 
-  getComments: (slug: string) =>
-    api.get(`/posts/${slug}/comments`),
+  getComments: (slug: string) => api.get(`/posts/${slug}/comments`),
 
   addComment: (slug: string, data: { body: string }) =>
     api.post(`/posts/${slug}/comments`, data, { requiresAuth: true }),
@@ -562,8 +556,7 @@ export const adminPostsAPI = {
   getAll: (params?: any) =>
     api.get("/admin/posts", { params, requiresAuth: true }),
 
-  getOne: (id: number) =>
-    api.get(`/admin/posts/${id}`, { requiresAuth: true }),
+  getOne: (id: number) => api.get(`/admin/posts/${id}`, { requiresAuth: true }),
 
   create: (data: FormData) =>
     api.post("/admin/posts", data, { requiresAuth: true }),
@@ -600,4 +593,48 @@ export const adminCommentsAPI = {
 
   deleteReply: (id: number) =>
     api.delete(`/admin/comments/${id}/reply`, { requiresAuth: true }),
+};
+
+export const adminDashboardAPI = {
+  getStats: () => api.get("/admin/dashboard/stats", { requiresAuth: true }),
+};
+
+export const returnRequestsAPI = {
+  // کاربر
+  getAll: () => api.get("/profile/return-requests", { requiresAuth: true }),
+  create: (
+    orderId: number,
+    data: {
+      reason: string;
+      description?: string;
+      bank_card_number: string;
+      bank_card_owner: string;
+      items: { order_item_id: number; quantity: number }[];
+    }
+  ) => api.post(`/orders/${orderId}/return`, data, { requiresAuth: true }),
+  submitTracking: (
+    id: number,
+    data: { return_tracking_code: string; return_carrier: string }
+  ) =>
+    api.patch(`/profile/return-requests/${id}/tracking`, data, {
+      requiresAuth: true,
+    }),
+
+  // ادمین
+  adminGetAll: (params?: any) =>
+    api.get("/admin/return-requests", { params, requiresAuth: true }),
+  adminGetOne: (id: number) =>
+    api.get(`/admin/return-requests/${id}`, { requiresAuth: true }),
+  approve: (id: number, admin_note?: string) =>
+    api.patch(
+      `/admin/return-requests/${id}/approve`,
+      { admin_note },
+      { requiresAuth: true }
+    ),
+  reject: (id: number, admin_note?: string) =>
+    api.patch(
+      `/admin/return-requests/${id}/reject`,
+      { admin_note },
+      { requiresAuth: true }
+    ),
 };

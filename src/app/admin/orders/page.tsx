@@ -170,14 +170,9 @@ const TRANSITIONS: Record<string, { status: string; label: string }[]> = {
     { status: "shipped", label: "ارسال شد" },
     { status: "canceled", label: "لغو سفارش" },
   ],
-  shipped: [
-    { status: "delivered", label: "تحویل شد" },
-    { status: "returned", label: "مرجوعی" },
-  ],
-  delivered: [{ status: "returned", label: "مرجوعی" }],
+  shipped: [{ status: "delivered", label: "تحویل شد" }],
   pending: [{ status: "canceled", label: "لغو سفارش" }],
 };
-
 // ── Portal ──
 function PortalModal({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -196,7 +191,7 @@ function PortalModal({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -212,7 +207,7 @@ function StatusModal({
 }) {
   const transitions = TRANSITIONS[order.status] || [];
   const [selectedStatus, setSelectedStatus] = useState(
-    transitions[0]?.status || "",
+    transitions[0]?.status || ""
   );
   const [note, setNote] = useState("");
   const [trackingCode, setTrackingCode] = useState(order.tracking_code || "");
@@ -297,7 +292,11 @@ function StatusModal({
                   {transitions.map((t) => (
                     <label
                       key={t.status}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${selectedStatus === t.status ? "border-blue-500 bg-blue-50" : "border-gray-100 hover:border-gray-200"}`}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${
+                        selectedStatus === t.status
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-100 hover:border-gray-200"
+                      }`}
                     >
                       <input
                         type="radio"
@@ -420,7 +419,7 @@ function ReceiptSection({
   const [reviewing, setReviewing] = useState(false);
 
   const handleReview = async (action: "approve" | "reject") => {
-    const note = action === "reject" ? (prompt("دلیل رد فیش:") ?? "") : "";
+    const note = action === "reject" ? prompt("دلیل رد فیش:") ?? "" : "";
     setReviewing(true);
     try {
       await adminOrdersAPI.reviewReceipt(order.id, { action, note });
@@ -458,15 +457,15 @@ function ReceiptSection({
           order.receipt_status === "pending"
             ? "bg-amber-100 text-amber-700"
             : order.receipt_status === "approved"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-600"
         }`}
       >
         {order.receipt_status === "pending"
           ? "⏳ در انتظار بررسی"
           : order.receipt_status === "approved"
-            ? "✅ تایید شده"
-            : "❌ رد شده"}
+          ? "✅ تایید شده"
+          : "❌ رد شده"}
       </div>
       {order.receipt_note && (
         <p className="text-xs text-gray-600 bg-white rounded-lg p-2 border border-amber-100">
@@ -959,7 +958,9 @@ export default function AdminOrdersPage() {
               <div>
                 <p className="text-xs text-gray-500">{s.label}</p>
                 <p
-                  className={`font-bold text-gray-900 ${s.isText ? "text-sm" : "text-xl"}`}
+                  className={`font-bold text-gray-900 ${
+                    s.isText ? "text-sm" : "text-xl"
+                  }`}
                 >
                   {s.value}
                 </p>
@@ -995,12 +996,20 @@ export default function AdminOrdersPage() {
                   setFilter(f.key);
                   setMeta((p) => ({ ...p, current_page: 1 }));
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${filter === f.key ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
+                  filter === f.key
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
               >
                 {f.label}
                 {f.count > 0 && (
                   <span
-                    className={`mr-1.5 px-1.5 py-0.5 rounded-full text-xs ${filter === f.key ? "bg-white/20 text-white" : "bg-gray-200 text-gray-600"}`}
+                    className={`mr-1.5 px-1.5 py-0.5 rounded-full text-xs ${
+                      filter === f.key
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
                   >
                     {f.count}
                   </span>

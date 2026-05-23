@@ -20,6 +20,7 @@ import {
   HiMenu,
   HiChevronRight,
   HiTag,
+  HiOutlineRefresh,
 } from "react-icons/hi";
 
 const menuItems = [
@@ -44,6 +45,12 @@ const menuItems = [
     group: "فروش",
   },
   { path: "/admin/coupons", icon: HiTag, label: "کدهای تخفیف", group: "فروش" },
+  {
+    path: "/admin/return-requests",
+    icon: HiOutlineRefresh,
+    label: "مرجوعی‌ها",
+    group: "فروش",
+  },
   {
     path: "/admin/users",
     icon: HiOutlineUsers,
@@ -76,15 +83,12 @@ const menuItems = [
   },
 ];
 
-const grouped = menuItems.reduce(
-  (acc, item) => {
-    const key = item.group || "__root__";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(item);
-    return acc;
-  },
-  {} as Record<string, typeof menuItems>,
-);
+const grouped = menuItems.reduce((acc, item) => {
+  const key = item.group || "__root__";
+  if (!acc[key]) acc[key] = [];
+  acc[key].push(item);
+  return acc;
+}, {} as Record<string, typeof menuItems>);
 
 const groupOrder = ["__root__", "فروشگاه", "فروش", "کاربران", "محتوا"];
 

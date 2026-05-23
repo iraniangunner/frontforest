@@ -197,10 +197,13 @@ export async function sendOtpAction(prevState: any, formData: FormData) {
   }
 
   const isMobile = /^09[0-9]{9}$/.test(identifier);
-  const isEmail  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
   if (!isMobile && !isEmail) {
-    return { isSuccess: false, error: "یک شماره موبایل یا ایمیل معتبر وارد کنید" };
+    return {
+      isSuccess: false,
+      error: "یک شماره موبایل یا ایمیل معتبر وارد کنید",
+    };
   }
 
   const body = isMobile ? { mobile: identifier } : { email: identifier };
@@ -223,7 +226,10 @@ export async function sendOtpAction(prevState: any, formData: FormData) {
     }
 
     if (!res.ok) {
-      return { isSuccess: false, error: data.message || "خطا در ارسال کد تایید" };
+      return {
+        isSuccess: false,
+        error: data.message || "خطا در ارسال کد تایید",
+      };
     }
 
     return {
@@ -242,7 +248,7 @@ export async function sendOtpAction(prevState: any, formData: FormData) {
 // ========================
 export async function verifyOtpAction(prevState: any, formData: FormData) {
   const identifier = (formData.get("identifier") as string)?.trim();
-  const code       = formData.get("code") as string;
+  const code = formData.get("code") as string;
 
   if (!identifier || !code) {
     return { isSuccess: false, error: "اطلاعات را کامل وارد کنید" };
@@ -253,7 +259,7 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
   }
 
   const isMobile = /^09[0-9]{9}$/.test(identifier);
-  const body     = isMobile
+  const body = isMobile
     ? { mobile: identifier, code }
     : { email: identifier, code };
 
@@ -296,16 +302,12 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
   }
 }
 
-
-
-
-
 // ارسال OTP برای تایید موبایل/ایمیل در settings
 export async function sendVerifyOtpAction(prevState: any, formData: FormData) {
   const mobile = formData.get("mobile") as string;
-  const email  = formData.get("email") as string;
+  const email = formData.get("email") as string;
 
-  const c           = await cookies();
+  const c = await cookies();
   const accessToken = c.get("access_token")?.value;
 
   if (!accessToken) return { isSuccess: false, error: "لطفا دوباره وارد شوید" };
@@ -324,8 +326,14 @@ export async function sendVerifyOtpAction(prevState: any, formData: FormData) {
 
     const data = await res.json().catch(() => ({}));
 
-    if (res.status === 429) return { isSuccess: false, error: data.message || "لطفا صبر کنید", retryAfter: data.retry_after };
-    if (!res.ok)           return { isSuccess: false, error: data.message || "خطا در ارسال کد" };
+    if (res.status === 429)
+      return {
+        isSuccess: false,
+        error: data.message || "لطفا صبر کنید",
+        retryAfter: data.retry_after,
+      };
+    if (!res.ok)
+      return { isSuccess: false, error: data.message || "خطا در ارسال کد" };
 
     return { isSuccess: true, error: "", expiresIn: data.expires_in || 300 };
   } catch {
@@ -334,12 +342,15 @@ export async function sendVerifyOtpAction(prevState: any, formData: FormData) {
 }
 
 // تایید OTP
-export async function confirmVerifyOtpAction(prevState: any, formData: FormData) {
+export async function confirmVerifyOtpAction(
+  prevState: any,
+  formData: FormData
+) {
   const mobile = formData.get("mobile") as string;
-  const email  = formData.get("email") as string;
-  const code   = formData.get("code") as string;
+  const email = formData.get("email") as string;
+  const code = formData.get("code") as string;
 
-  const c           = await cookies();
+  const c = await cookies();
   const accessToken = c.get("access_token")?.value;
 
   if (!accessToken) return { isSuccess: false, error: "لطفا دوباره وارد شوید" };
@@ -358,7 +369,8 @@ export async function confirmVerifyOtpAction(prevState: any, formData: FormData)
 
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) return { isSuccess: false, error: data.message || "کد نامعتبر است" };
+    if (!res.ok)
+      return { isSuccess: false, error: data.message || "کد نامعتبر است" };
 
     // آپدیت cookie
     c.set("profile_complete", "true", {
@@ -380,7 +392,7 @@ export async function confirmVerifyOtpAction(prevState: any, formData: FormData)
 // ========================
 export async function logoutAction() {
   const c = await cookies();
-  const accessToken  = c.get("access_token")?.value;
+  const accessToken = c.get("access_token")?.value;
   const refreshToken = c.get("refresh_token")?.value;
 
   try {
@@ -404,10 +416,11 @@ export async function logoutAction() {
 // Update Profile
 // ========================
 export async function updateProfileAction(prevState: any, formData: FormData) {
-  const name  = formData.get("name") as string;
-  const email = formData.get("email") as string;
+  const name = formData.get("name") as string;
+  const bank_card_number = formData.get("bank_card_number") as string;
+  const bank_card_owner = formData.get("bank_card_owner") as string;
 
-  const c           = await cookies();
+  const c = await cookies();
   const accessToken = c.get("access_token")?.value;
 
   if (!accessToken) {
@@ -421,18 +434,18 @@ export async function updateProfileAction(prevState: any, formData: FormData) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify({ name, bank_card_number, bank_card_owner }),
     });
 
     const data = await res.json().catch(() => ({}));
 
-    if (res.status === 401) {
+    if (res.status === 401)
       return { isSuccess: false, error: "لطفا دوباره وارد شوید" };
-    }
-
-    if (!res.ok) {
-      return { isSuccess: false, error: data.message || "خطا در ذخیره اطلاعات" };
-    }
+    if (!res.ok)
+      return {
+        isSuccess: false,
+        error: data.message || "خطا در ذخیره اطلاعات",
+      };
 
     return { isSuccess: true, error: "" };
   } catch {

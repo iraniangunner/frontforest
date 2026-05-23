@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "../_components/admin/Header";
-import { adminOrdersAPI, adminUsersAPI, adminCouponsAPI } from "../../lib/api";
+import { adminDashboardAPI } from "../../lib/api";
 import {
   HiShoppingBag,
   HiUsers,
@@ -10,8 +10,12 @@ import {
   HiClock,
   HiCheckCircle,
   HiTruck,
-  HiTag,
   HiCube,
+  HiX,
+  HiCreditCard,
+  HiReceiptTax,
+  HiCalendar,
+  HiRefresh,
 } from "react-icons/hi";
 
 interface Stats {
@@ -23,17 +27,23 @@ interface Stats {
     shipped: number;
     delivered: number;
     canceled: number;
+    returned: number;
+    this_month: number;
     total_revenue: number;
+    revenue_online: number;
+    revenue_card: number;
+    revenue_this_month: number;
+    revenue_returned: number;
   };
   users: {
     total: number;
     active: number;
     new_this_month: number;
   };
-  coupons: number;
 }
 
 const fmt = (n: number) => Number(n).toLocaleString("fa-IR");
+const fmtRev = (n: number) => `${Number(n).toLocaleString("fa-IR")} ت`;
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -45,32 +55,8 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const [ordersRes, usersRes] = await Promise.all([
-        adminOrdersAPI.getAll({ per_page: 1 }),
-        adminUsersAPI.getAll({ per_page: 1 }),
-      ]);
-
-      const os = ordersRes.data.meta?.stats || {};
-      const us = usersRes.data.meta?.stats || {};
-
-      setStats({
-        orders: {
-          total: os.total ?? 0,
-          pending: os.pending ?? 0,
-          paid: os.paid ?? 0,
-          processing: os.processing ?? 0,
-          shipped: os.shipped ?? 0,
-          delivered: os.delivered ?? 0,
-          canceled: os.canceled ?? 0,
-          total_revenue: os.total_revenue ?? 0,
-        },
-        users: {
-          total: us.total ?? 0,
-          active: us.active ?? 0,
-          new_this_month: us.new_this_month ?? 0,
-        },
-        coupons: 0,
-      });
+      const res = await adminDashboardAPI.getStats();
+      setStats(res.data.data);
     } catch (err) {
       console.error("Error loading stats:", err);
     } finally {
@@ -89,9 +75,99 @@ export default function DashboardPage() {
     <div>
       <Header title="داشبورد" />
       <div className="p-6 space-y-6">
-        {/* ── آمار سفارشات ── */}
+        {/* ── درآمد ── */}
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 mb-3">سفارشات</h2>
+          <h2 className="text-sm font-semibold text-gray-500 mb-3">درآمد</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              {
+                title: "درآمد کل",
+                value: fmtRev(stats?.orders.total_revenue ?? 0),
+                icon: HiCurrencyDollar,
+                color: "bg-emerald-500",
+              },
+              {
+                title: "پرداخت آنلاین",
+                value: fmtRev(stats?.orders.revenue_online ?? 0),
+                icon: HiCreditCard,
+                color: "bg-blue-500",
+              },
+              {
+                title: "کارت به کارت",
+                value: fmtRev(stats?.orders.revenue_card ?? 0),
+                icon: HiReceiptTax,
+                color: "bg-purple-500",
+              },
+              {
+                title: "مرجوعی",
+                value: fmtRev(stats?.orders.revenue_returned ?? 0),
+                icon: HiRefresh,
+                color: "bg-red-400",
+              },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4"
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
+                >
+                  <s.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{s.title}</p>
+                  <p className="font-bold text-gray-900 text-lg mt-0.5">
+                    {s.value}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── این ماه ── */}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 mb-3">این ماه</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              {
+                title: "سفارشات این ماه",
+                value: fmt(stats?.orders.this_month ?? 0),
+                icon: HiCalendar,
+                color: "bg-teal-500",
+              },
+              {
+                title: "درآمد این ماه",
+                value: fmtRev(stats?.orders.revenue_this_month ?? 0),
+                icon: HiCurrencyDollar,
+                color: "bg-teal-600",
+              },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4"
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
+                >
+                  <s.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{s.title}</p>
+                  <p className="font-bold text-gray-900 text-lg mt-0.5">
+                    {s.value}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── وضعیت سفارشات ── */}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 mb-3">
+            وضعیت سفارشات
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
@@ -125,22 +201,22 @@ export default function DashboardPage() {
                 color: "bg-green-500",
               },
               {
-                title: "لغو شده",
-                value: fmt(stats?.orders.canceled ?? 0),
-                icon: HiShoppingBag,
-                color: "bg-gray-400",
-              },
-              {
                 title: "پرداخت شده",
                 value: fmt(stats?.orders.paid ?? 0),
                 icon: HiCheckCircle,
                 color: "bg-teal-500",
               },
               {
-                title: "درآمد کل",
-                value: `${fmt(stats?.orders.total_revenue ?? 0)} ت`,
-                icon: HiCurrencyDollar,
-                color: "bg-emerald-500",
+                title: "مرجوع شده",
+                value: fmt(stats?.orders.returned ?? 0),
+                icon: HiRefresh,
+                color: "bg-orange-400",
+              },
+              {
+                title: "لغو شده",
+                value: fmt(stats?.orders.canceled ?? 0),
+                icon: HiX,
+                color: "bg-red-400",
               },
             ].map((s, i) => (
               <div
@@ -148,13 +224,13 @@ export default function DashboardPage() {
                 className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3"
               >
                 <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
                 >
                   <s.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">{s.title}</p>
-                  <p className="font-bold text-gray-900 text-sm mt-0.5">
+                  <p className="font-bold text-gray-900 text-base mt-0.5">
                     {s.value}
                   </p>
                 </div>
@@ -163,7 +239,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── آمار کاربران ── */}
+        {/* ── کاربران ── */}
         <div>
           <h2 className="text-sm font-semibold text-gray-500 mb-3">کاربران</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -192,7 +268,7 @@ export default function DashboardPage() {
                 className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3"
               >
                 <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}
                 >
                   <s.icon className="w-5 h-5 text-white" />
                 </div>

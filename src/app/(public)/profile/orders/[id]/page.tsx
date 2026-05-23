@@ -46,7 +46,7 @@ interface Order {
   coupon_discount: number;
   total: number;
   tracking_code: string | null;
-  shipping_carrier: string | null; // ← اضافه
+  shipping_carrier: string | null;
   status_note: string | null;
   items: OrderItem[];
   payment_method: string;
@@ -70,6 +70,7 @@ interface Order {
     cancelled_at: string | null;
   };
   latest_transaction: { ref_id: string | null; status: string } | null;
+  return_request: { id: number; status: string } | null;
 }
 
 const formatPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " تومان";
@@ -84,7 +85,6 @@ const formatDate = (d: string | null) => {
   });
 };
 
-// ── شرکت‌های حمل‌ونقل ──
 const CARRIERS: Record<string, { label: string; url: string }> = {
   post: { label: "پست ملی", url: "https://tracking.post.ir" },
   snapbox: { label: "اسنپ‌باکس", url: "https://snapbox.ir/tracking" },
@@ -219,18 +219,24 @@ function OrderTimeline({
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${isCompleted ? "text-white" : "text-gray-300"}`}
+                  className={`w-4 h-4 ${
+                    isCompleted ? "text-white" : "text-gray-300"
+                  }`}
                 />
               </div>
               {!isLast && (
                 <div
-                  className={`w-0.5 h-8 my-1 ${isCompleted ? "bg-green-300" : "bg-gray-200"}`}
+                  className={`w-0.5 h-8 my-1 ${
+                    isCompleted ? "bg-green-300" : "bg-gray-200"
+                  }`}
                 />
               )}
             </div>
             <div className="pb-6 flex-1">
               <p
-                className={`font-medium text-sm ${isCompleted ? "text-gray-900" : "text-gray-400"}`}
+                className={`font-medium text-sm ${
+                  isCompleted ? "text-gray-900" : "text-gray-400"
+                }`}
               >
                 {step.label}
               </p>
@@ -303,19 +309,19 @@ function ReceiptSection({
           order.receipt_status === "pending"
             ? "bg-amber-100 text-amber-700"
             : order.receipt_status === "approved"
-              ? "bg-green-100 text-green-700"
-              : order.receipt_status === "rejected"
-                ? "bg-red-100 text-red-600"
-                : "bg-gray-100 text-gray-500"
+            ? "bg-green-100 text-green-700"
+            : order.receipt_status === "rejected"
+            ? "bg-red-100 text-red-600"
+            : "bg-gray-100 text-gray-500"
         }`}
       >
         {order.receipt_status === "pending"
           ? "⏳ فیش در انتظار بررسی"
           : order.receipt_status === "approved"
-            ? "✅ فیش تایید شده"
-            : order.receipt_status === "rejected"
-              ? "❌ فیش رد شده"
-              : "در انتظار آپلود فیش"}
+          ? "✅ فیش تایید شده"
+          : order.receipt_status === "rejected"
+          ? "❌ فیش رد شده"
+          : "در انتظار آپلود فیش"}
       </div>
 
       {order.payment_receipt_url && (
@@ -393,6 +399,56 @@ function ReceiptSection({
   );
 }
 
+// ── دکمه مرجوعی ──
+function ReturnButton({ order }: { order: Order }) {
+  if (order.status !== "delivered") return null;
+
+  const rr = order.return_request;
+
+  // هنوز درخواست نداده
+  if (!rr)
+    return (
+      <Link
+        href={`/profile/orders/${order.id}/return`}
+        className="px-4 py-2 border border-orange-200 text-orange-600 rounded-xl text-sm font-medium hover:bg-orange-50 transition"
+      >
+        درخواست مرجوعی
+      </Link>
+    );
+
+  // در انتظار بررسی
+  if (rr.status === "pending")
+    return (
+      <span className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-200 rounded-xl text-sm font-medium">
+        ⏳ مرجوعی در انتظار بررسی
+      </span>
+    );
+
+  // تایید شده — لینک به صفحه ثبت کد رهگیری
+  if (rr.status === "approved")
+    return (
+      <Link
+        href={`/profile/orders/${order.id}/return`}
+        className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-xl text-sm font-medium hover:bg-green-100 transition"
+      >
+        ✅ ثبت کد رهگیری مرجوعی
+      </Link>
+    );
+
+  // رد شده — میتونه دوباره درخواست بده
+  if (rr.status === "rejected")
+    return (
+      <Link
+        href={`/profile/orders/${order.id}/return`}
+        className="px-4 py-2 border border-orange-200 text-orange-600 rounded-xl text-sm font-medium hover:bg-orange-50 transition"
+      >
+        ثبت مجدد درخواست مرجوعی
+      </Link>
+    );
+
+  return null;
+}
+
 // ── Page ──
 export default function OrderDetailPage() {
   const params = useParams();
@@ -420,9 +476,7 @@ export default function OrderDetailPage() {
       } else if (error.response?.status === 403) {
         toast.error("دسترسی غیرمجاز");
         router.push("/profile/orders");
-      } else {
-        toast.error("خطا در دریافت سفارش");
-      }
+      } else toast.error("خطا در دریافت سفارش");
     } finally {
       setLoading(false);
     }
@@ -509,7 +563,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* دکمه‌های اکشن */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {order.status === "pending" &&
               order.payment_method === "online" && (
                 <>
@@ -547,11 +601,11 @@ export default function OrderDetailPage() {
                 {confirming ? "..." : "✅ تایید دریافت کالا"}
               </button>
             )}
+            <ReturnButton order={order} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* ستون چپ */}
           <div className="lg:col-span-2 space-y-4">
             <ReceiptSection order={order} onUploaded={loadOrder} />
 
@@ -635,8 +689,6 @@ export default function OrderDetailPage() {
                 <p className="text-2xl font-bold text-indigo-700 font-mono tracking-wider">
                   {order.tracking_code}
                 </p>
-
-                {/* ── شرکت حمل‌ونقل ── */}
                 <div className="mt-2 flex items-center gap-3 flex-wrap">
                   {order.shipping_carrier &&
                   CARRIERS[order.shipping_carrier] ? (
@@ -667,7 +719,6 @@ export default function OrderDetailPage() {
               </div>
             )}
 
-            {/* یادداشت */}
             {order.status_note && (
               <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
                 <p className="text-sm text-amber-800">
@@ -677,7 +728,6 @@ export default function OrderDetailPage() {
               </div>
             )}
 
-            {/* پشتیبانی */}
             <div className="bg-teal-50 rounded-2xl p-4 border border-teal-100">
               <p className="text-sm text-teal-800 mb-2">
                 سوالی درباره سفارش دارید؟
@@ -691,7 +741,6 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* ستون راست */}
           <div className="space-y-4">
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <h2 className="font-semibold text-gray-900 mb-4">پیگیری سفارش</h2>

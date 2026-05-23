@@ -338,6 +338,7 @@ import {
   HiMail,
   HiCheckCircle,
   HiExclamationCircle,
+  HiCreditCard,
 } from "react-icons/hi";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -390,11 +391,10 @@ function VerifyField({
 
   const formatTime = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
-
   const label = type === "email" ? "ایمیل" : "شماره موبایل";
   const placeholder = type === "email" ? "email@example.com" : "09123456789";
 
-  if (step === "input") {
+  if (step === "input")
     return (
       <form action={sendAction} className="space-y-3">
         <input type="hidden" name={type} value={value} />
@@ -404,7 +404,7 @@ function VerifyField({
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           dir={type === "email" ? "ltr" : "rtl"}
-          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-400 transition text-sm"
         />
         {sendState.error && (
           <p className="text-red-600 text-xs">{sendState.error}</p>
@@ -418,13 +418,11 @@ function VerifyField({
         </button>
       </form>
     );
-  }
 
   return (
     <form action={confirmAction} className="space-y-3">
       <input type="hidden" name={type} value={value} />
       <input type="hidden" name="code" value={code} />
-
       <p className="text-sm text-slate-600">
         کد ارسال شده به{" "}
         <span className="font-medium" dir="ltr">
@@ -432,13 +430,10 @@ function VerifyField({
         </span>{" "}
         را وارد کنید
       </p>
-
       <OtpInput value={code} onChange={setCode} />
-
       {confirmState.error && (
         <p className="text-red-600 text-xs">{confirmState.error}</p>
       )}
-
       <div className="text-center text-xs text-slate-500">
         {countdown > 0 ? (
           <span>ارسال مجدد تا {formatTime(countdown)}</span>
@@ -455,7 +450,6 @@ function VerifyField({
           </button>
         )}
       </div>
-
       <div className="flex gap-2">
         <button
           type="button"
@@ -483,14 +477,29 @@ function VerifyField({
 export default function SettingsPage() {
   const { user, refreshUser } = useAuth();
 
-  const [nameState, nameAction] = useFormState(updateProfileAction, {
+  const [formState, formAction] = useFormState(updateProfileAction, {
     isSuccess: false,
     error: "",
   });
 
+  // bank card state جدا از form — چون نیاز به مقدار اولیه از user داریم
+  const [bankCard, setBankCard] = useState(user?.bank_card_number || "");
+  const [bankCardOwner, setBankCardOwner] = useState(
+    user?.bank_card_owner || ""
+  );
+
   useEffect(() => {
-    if (nameState.isSuccess) refreshUser();
-  }, [nameState.isSuccess]);
+    if (formState.isSuccess) refreshUser();
+  }, [formState.isSuccess]);
+
+  // sync با user وقتی refreshUser صدا زده میشه
+  useEffect(() => {
+    if (user?.bank_card_number) setBankCard(user.bank_card_number);
+    if (user?.bank_card_owner) setBankCardOwner(user.bank_card_owner);
+  }, [user]);
+
+  const inp =
+    "w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-sm";
 
   return (
     <div
@@ -517,7 +526,6 @@ export default function SettingsPage() {
             <HiPhone className="w-5 h-5 text-slate-500" />
             <h2 className="font-semibold text-slate-800">شماره موبایل</h2>
           </div>
-
           {user?.mobile ? (
             <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
               <span className="text-slate-700 font-mono" dir="ltr">
@@ -551,7 +559,6 @@ export default function SettingsPage() {
               اختیاری
             </span>
           </div>
-
           {user?.email ? (
             <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
               <span className="text-slate-700" dir="ltr">
@@ -571,27 +578,30 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* فرم نام */}
+        {/* فرم نام + کارت بانکی */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">
             <HiUser className="w-5 h-5 text-slate-500" />
             <h2 className="font-semibold text-slate-800">اطلاعات شخصی</h2>
           </div>
 
-          {nameState.isSuccess && (
+          {formState.isSuccess && (
             <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4">
               <HiCheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-              <p className="text-emerald-700 text-sm">نام با موفقیت ذخیره شد</p>
+              <p className="text-emerald-700 text-sm">
+                اطلاعات با موفقیت ذخیره شد
+              </p>
             </div>
           )}
 
-          {nameState.error && (
+          {formState.error && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
-              <p className="text-red-700 text-sm">{nameState.error}</p>
+              <p className="text-red-700 text-sm">{formState.error}</p>
             </div>
           )}
 
-          <form action={nameAction} className="space-y-4">
+          <form action={formAction} className="space-y-5">
+            {/* نام */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 نام و نام خانوادگی
@@ -601,14 +611,67 @@ export default function SettingsPage() {
                 name="name"
                 defaultValue={user?.name || ""}
                 placeholder="نام خود را وارد کنید"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-sm"
+                className={inp}
               />
             </div>
+
+            {/* کارت بانکی */}
+            <div className="pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2 mb-4">
+                <HiCreditCard className="w-5 h-5 text-slate-500" />
+                <h3 className="font-semibold text-slate-800">اطلاعات بانکی</h3>
+                <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">
+                  اختیاری
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mb-4">
+                در صورت مرجوعی، مبلغ به این کارت واریز میشه
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    شماره کارت
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_card_number"
+                    value={bankCard}
+                    onChange={(e) =>
+                      setBankCard(
+                        e.target.value.replace(/\D/g, "").slice(0, 16)
+                      )
+                    }
+                    placeholder="1234567890123456"
+                    dir="ltr"
+                    maxLength={16}
+                    className={`${inp} font-mono tracking-widest`}
+                  />
+                  <p className="text-xs text-slate-400 mt-1">
+                    {bankCard.length}/16
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    نام صاحب کارت
+                  </label>
+                  <input
+                    type="text"
+                    name="bank_card_owner"
+                    value={bankCardOwner}
+                    onChange={(e) => setBankCardOwner(e.target.value)}
+                    placeholder="نام و نام خانوادگی"
+                    className={inp}
+                  />
+                </div>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all duration-200"
             >
-              ذخیره نام
+              ذخیره اطلاعات
             </button>
           </form>
         </div>
