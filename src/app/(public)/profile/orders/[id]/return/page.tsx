@@ -39,6 +39,7 @@ interface ReturnRequest {
   return_tracking_code: string | null;
   return_carrier: string | null;
   admin_note: string | null;
+  refund_status?: string;
 }
 
 const REASONS = [
@@ -69,7 +70,7 @@ function TrackingForm({
 }) {
   const [editing, setEditing] = useState(false);
   const [trackingCode, setTrackingCode] = useState(
-    returnRequest.return_tracking_code || "",
+    returnRequest.return_tracking_code || ""
   );
   const [carrier, setCarrier] = useState(returnRequest.return_carrier || "");
   const [saving, setSaving] = useState(false);
@@ -205,8 +206,8 @@ function TrackingForm({
             {saving
               ? "در حال ثبت..."
               : editing
-                ? "ذخیره تغییرات"
-                : "ثبت کد رهگیری"}
+              ? "ذخیره تغییرات"
+              : "ثبت کد رهگیری"}
           </button>
         </div>
       </form>
@@ -223,7 +224,7 @@ export default function ReturnRequestPage() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(
-    null,
+    null
   );
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -236,7 +237,7 @@ export default function ReturnRequestPage() {
   >({});
   const [bankCard, setBankCard] = useState(user?.bank_card_number || "");
   const [bankCardOwner, setBankCardOwner] = useState(
-    user?.bank_card_owner || "",
+    user?.bank_card_owner || ""
   );
 
   useEffect(() => {
@@ -261,7 +262,15 @@ export default function ReturnRequestPage() {
 
       setOrder(o);
       const rr = (o as any).return_request;
-      if (rr) setReturnRequest(rr);
+      if (rr) {
+        setReturnRequest(rr);
+        // اگه واریز شده برگردون
+        if (rr.refund_status === "refunded") {
+          toast.error("مبلغ این مرجوعی قبلاً واریز شده");
+          router.replace(`/profile/orders/${orderId}`);
+          return;
+        }
+      }
 
       const init: Record<number, { selected: boolean; quantity: number }> = {};
       o.items.forEach((item) => {
@@ -334,7 +343,7 @@ export default function ReturnRequestPage() {
           return_tracking_code: null,
           return_carrier: null,
           admin_note: null,
-        },
+        }
       );
       setSubmitted(true);
     } catch (err: any) {
@@ -512,7 +521,7 @@ export default function ReturnRequestPage() {
                             setQty(
                               item.id,
                               selectedItems[item.id].quantity - 1,
-                              item.quantity,
+                              item.quantity
                             )
                           }
                           className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
@@ -521,7 +530,7 @@ export default function ReturnRequestPage() {
                         </button>
                         <span className="w-6 text-center text-sm font-medium">
                           {selectedItems[item.id].quantity.toLocaleString(
-                            "fa-IR",
+                            "fa-IR"
                           )}
                         </span>
                         <button
@@ -530,7 +539,7 @@ export default function ReturnRequestPage() {
                             setQty(
                               item.id,
                               selectedItems[item.id].quantity + 1,
-                              item.quantity,
+                              item.quantity
                             )
                           }
                           className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
