@@ -527,7 +527,6 @@ export default function AdminUsersPage() {
       render: (row: User) => (
         <div className="text-center">
           <p className="font-semibold text-gray-900">{row.orders_count}</p>
-          <p className="text-xs text-gray-400">{fmtPrice(row.total_spent)}</p>
         </div>
       ),
     },

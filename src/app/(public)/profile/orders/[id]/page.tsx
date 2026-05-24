@@ -219,18 +219,24 @@ function OrderTimeline({
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${isCompleted ? "text-white" : "text-gray-300"}`}
+                  className={`w-4 h-4 ${
+                    isCompleted ? "text-white" : "text-gray-300"
+                  }`}
                 />
               </div>
               {!isLast && (
                 <div
-                  className={`w-0.5 h-8 my-1 ${isCompleted ? "bg-green-300" : "bg-gray-200"}`}
+                  className={`w-0.5 h-8 my-1 ${
+                    isCompleted ? "bg-green-300" : "bg-gray-200"
+                  }`}
                 />
               )}
             </div>
             <div className="pb-6 flex-1">
               <p
-                className={`font-medium text-sm ${isCompleted ? "text-gray-900" : "text-gray-400"}`}
+                className={`font-medium text-sm ${
+                  isCompleted ? "text-gray-900" : "text-gray-400"
+                }`}
               >
                 {step.label}
               </p>
@@ -303,19 +309,19 @@ function ReceiptSection({
           order.receipt_status === "pending"
             ? "bg-amber-100 text-amber-700"
             : order.receipt_status === "approved"
-              ? "bg-green-100 text-green-700"
-              : order.receipt_status === "rejected"
-                ? "bg-red-100 text-red-600"
-                : "bg-gray-100 text-gray-500"
+            ? "bg-green-100 text-green-700"
+            : order.receipt_status === "rejected"
+            ? "bg-red-100 text-red-600"
+            : "bg-gray-100 text-gray-500"
         }`}
       >
         {order.receipt_status === "pending"
           ? "⏳ فیش در انتظار بررسی"
           : order.receipt_status === "approved"
-            ? "✅ فیش تایید شده"
-            : order.receipt_status === "rejected"
-              ? "❌ فیش رد شده"
-              : "در انتظار آپلود فیش"}
+          ? "✅ فیش تایید شده"
+          : order.receipt_status === "rejected"
+          ? "❌ فیش رد شده"
+          : "در انتظار آپلود فیش"}
       </div>
 
       {order.payment_receipt_url && (
@@ -399,52 +405,63 @@ function ReturnButton({ order }: { order: Order }) {
 
   const rr = order.return_request;
 
-  // هنوز درخواست نداده
-  if (!rr)
+  // چک ۷ روز
+  const deliveredAt = order.timeline?.delivered_at;
+  const daysSince = deliveredAt
+    ? Math.floor(
+        (Date.now() - new Date(deliveredAt).getTime()) / (1000 * 60 * 60 * 24)
+      )
+    : null;
+  const isExpired = daysSince !== null && daysSince > 7;
+
+  // درخواست قبلی رد شده — دیگه نمیتونه بزنه
+  if (rr?.status === "rejected")
     return (
-      <Link
-        href={`/profile/orders/${order.id}/return`}
-        className="px-4 py-2 border border-orange-200 text-orange-600 rounded-xl text-sm font-medium hover:bg-orange-50 transition"
-      >
-        درخواست مرجوعی
-      </Link>
+      <span className="px-4 py-2 bg-red-50 text-red-500 border border-red-200 rounded-xl text-sm font-medium">
+        ❌ مرجوعی رد شده
+      </span>
     );
 
   // در انتظار بررسی
-  if (rr.status === "pending")
+  if (rr?.status === "pending")
     return (
       <span className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-200 rounded-xl text-sm font-medium">
         ⏳ مرجوعی در انتظار بررسی
       </span>
     );
 
-  // رد شده — میتونه دوباره درخواست بده
-  if (rr.status === "rejected")
-    return (
-      <Link
-        href={`/profile/orders/${order.id}/return`}
-        className="px-4 py-2 border border-orange-200 text-orange-600 rounded-xl text-sm font-medium hover:bg-orange-50 transition"
-      >
-        ثبت مجدد درخواست مرجوعی
-      </Link>
-    );
-
   // تایید شده
-  if (rr.status === "approved") {
-    // واریز شده
+  if (rr?.status === "approved") {
     if (rr.refund_status === "refunded")
       return (
         <span className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-xl text-sm font-medium">
           ✅ مبلغ واریز شده
         </span>
       );
-    // هنوز واریز نشده — ثبت کد رهگیری
     return (
       <Link
         href={`/profile/orders/${order.id}/return`}
         className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-xl text-sm font-medium hover:bg-green-100 transition"
       >
         ✅ ثبت کد رهگیری مرجوعی
+      </Link>
+    );
+  }
+
+  // هنوز درخواست نداده
+  if (!rr) {
+    if (isExpired)
+      return (
+        <span className="px-4 py-2 bg-gray-50 text-gray-400 border border-gray-200 rounded-xl text-sm">
+          مهلت مرجوعی تمام شده
+        </span>
+      );
+    return (
+      <Link
+        href={`/profile/orders/${order.id}/return`}
+        className="px-4 py-2 border border-orange-200 text-orange-600 rounded-xl text-sm font-medium hover:bg-orange-50 transition"
+      >
+        درخواست مرجوعی
       </Link>
     );
   }

@@ -14,12 +14,13 @@ import {
   HiCube,
   HiTruck,
   HiRefresh,
+  HiSearch,
+  HiX,
 } from "react-icons/hi";
 import { ordersAPI } from "@/lib/api";
 import Pagination from "@/app/_components/ui/Pagination";
 import toast from "react-hot-toast";
 
-// ── Types ──
 interface Order {
   id: number;
   order_number: string;
@@ -44,7 +45,6 @@ interface Stats {
   returned: number;
 }
 
-// ── وضعیت نمایشی ──
 function getDisplay(order: Order) {
   if (order.payment_method === "receipt" && order.status === "pending") {
     return {
@@ -131,6 +131,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [stats, setStats] = useState<Stats>({
@@ -144,24 +145,22 @@ export default function OrdersPage() {
     returned: 0,
   });
 
-  // ── هر بار filter یا page عوض شد fetch کن ──
   useEffect(() => {
-    load(filter, page);
+    load(filter, page, search);
   }, [filter, page]);
 
-  const load = async (f: string, p: number) => {
+  const load = async (f: string, p: number, s: string) => {
     setLoading(true);
     try {
       const res = await ordersAPI.getAll({
         page: p,
         per_page: 10,
         status: f || undefined,
+        search: s.trim() || undefined,
       });
       setOrders(res.data.data || []);
       setLastPage(res.data.meta?.last_page ?? 1);
-      if (res.data.meta?.stats) {
-        setStats(res.data.meta.stats);
-      }
+      if (res.data.meta?.stats) setStats(res.data.meta.stats);
     } catch {
       toast.error("خطا در دریافت سفارشات");
     } finally {
@@ -173,9 +172,14 @@ export default function OrdersPage() {
     setFilter(key);
     setPage(1);
   };
-
-  const handlePage = (p: number) => {
-    setPage(p);
+  const handleSearch = () => {
+    setPage(1);
+    load(filter, 1, search);
+  };
+  const handleClear = () => {
+    setSearch("");
+    setPage(1);
+    load(filter, 1, "");
   };
 
   const getCount = (key: string): number => {
@@ -195,6 +199,36 @@ export default function OrdersPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          {/* سرچ */}
+          <div className="p-4 border-b border-gray-100">
+            <div className="relative">
+              <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="جستجو با شماره سفارش..."
+                className="w-full pr-9 pl-9 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+              />
+              {search ? (
+                <button
+                  onClick={handleClear}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <HiX className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSearch}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-600 transition"
+                >
+                  <HiSearch className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* فیلترها */}
           <div className="p-4 border-b border-gray-100 flex flex-wrap gap-2">
             {FILTER_ITEMS.map((f) => {
@@ -243,11 +277,9 @@ export default function OrdersPage() {
             <div className="p-16 text-center">
               <HiShoppingBag className="w-14 h-14 text-gray-200 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">
-                {filter
-                  ? "سفارشی با این وضعیت یافت نشد"
-                  : "هنوز سفارشی ثبت نشده"}
+                {filter || search ? "سفارشی یافت نشد" : "هنوز سفارشی ثبت نشده"}
               </p>
-              {!filter && (
+              {!filter && !search && (
                 <Link
                   href="/products"
                   className="inline-block mt-5 px-5 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors"
@@ -323,13 +355,12 @@ export default function OrdersPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {lastPage > 1 && (
             <div className="px-4 py-4 border-t border-gray-100">
               <Pagination
                 currentPage={page}
                 lastPage={lastPage}
-                onPageChange={handlePage}
+                onPageChange={setPage}
               />
             </div>
           )}
