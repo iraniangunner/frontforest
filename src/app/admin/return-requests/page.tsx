@@ -361,7 +361,7 @@ function DetailModal({
           </div>
         </div>
 
-        {/* دکمه‌های تایید/رد — فقط pending */}
+        {/* دکمه‌های تایید/رد */}
         {request.status === "pending" && (
           <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
             <button
@@ -382,7 +382,7 @@ function DetailModal({
           </div>
         )}
 
-        {/* دکمه واریز — بعد از approved و دریافت کد رهگیری */}
+        {/* دکمه واریز */}
         {request.status === "approved" && request.return_tracking_code && (
           <div className="px-6 py-4 border-t flex-shrink-0">
             {request.refund_status === "refunded" ? (
@@ -423,6 +423,7 @@ export default function AdminReturnRequestsPage() {
   const [requests, setRequests] = useState<ReturnRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [stats, setStats] = useState<Stats>({
     total: 0,
     pending: 0,
@@ -431,19 +432,19 @@ export default function AdminReturnRequestsPage() {
   });
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 });
   const [selected, setSelected] = useState<ReturnRequest | null>(null);
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    load();
+    load(search);
   }, [meta.current_page, filter]);
 
-  const load = async () => {
+  const load = async (s: string = search) => {
     setLoading(true);
     try {
       const res = await returnRequestsAPI.adminGetAll({
         page: meta.current_page,
         per_page: 15,
         status: filter !== "all" ? filter : undefined,
+        search: s.trim() || undefined,
       });
       setRequests(res.data.data);
       setMeta((p) => ({ ...p, last_page: res.data.meta.last_page }));
@@ -453,6 +454,16 @@ export default function AdminReturnRequestsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    setMeta((p) => ({ ...p, current_page: 1 }));
+    load(search);
+  };
+  const handleClear = () => {
+    setSearch("");
+    setMeta((p) => ({ ...p, current_page: 1 }));
+    load("");
   };
 
   const columns = [
@@ -601,24 +612,43 @@ export default function AdminReturnRequestsPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm">
-          <div className="p-4 border-b flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1">
-              <h3 className="font-semibold text-gray-900 flex-shrink-0">
-                لیست درخواست‌ها
-              </h3>
-              <div className="relative flex-1 max-w-xs">
+          {/* سرچ + فیلتر */}
+          <div className="p-4 border-b flex flex-wrap items-center gap-3">
+            <h3 className="font-semibold text-gray-900 flex-shrink-0">
+              لیست درخواست‌ها
+            </h3>
+
+            {/* searchbox */}
+            <div className="flex items-center gap-2 flex-1 min-w-0 max-w-sm">
+              <div className="relative flex-1">
                 <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && load()}
-                  placeholder="جستجو با شماره سفارش یا موبایل..."
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="شماره سفارش، نام یا موبایل..."
                   className="w-full pr-9 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
                 />
               </div>
+              <button
+                onClick={handleSearch}
+                className="px-3 py-2 bg-teal-600 text-white rounded-xl text-sm hover:bg-teal-700 transition flex-shrink-0"
+              >
+                جستجو
+              </button>
+              {search && (
+                <button
+                  onClick={handleClear}
+                  className="px-3 py-2 border border-gray-200 text-gray-500 rounded-xl text-sm hover:bg-gray-50 transition flex-shrink-0"
+                >
+                  پاک
+                </button>
+              )}
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* فیلترها */}
+            <div className="flex items-center gap-2 mr-auto">
               {[
                 { key: "all", label: "همه" },
                 { key: "pending", label: "در انتظار" },
@@ -639,6 +669,7 @@ export default function AdminReturnRequestsPage() {
               ))}
             </div>
           </div>
+
           <Table columns={columns} data={requests} loading={loading} />
           <Pagination
             currentPage={meta.current_page}
@@ -654,7 +685,7 @@ export default function AdminReturnRequestsPage() {
         <DetailModal
           request={selected}
           onClose={() => setSelected(null)}
-          onAction={load}
+          onAction={() => load(search)}
         />
       )}
     </div>
