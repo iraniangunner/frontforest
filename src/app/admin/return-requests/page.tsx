@@ -83,14 +83,30 @@ const fmtDate = (d: string) =>
     day: "numeric",
   });
 
+// function calcRefundAmount(request: ReturnRequest): number {
+//   const returnedSubtotal = request.items.reduce(
+//     (sum, item) => sum + item.order_item.paid_price * item.quantity,
+//     0
+//   );
+//   const totalDiscount = request.order.coupon_discount || 0;
+//   if (totalDiscount > 0 && request.order.subtotal > 0) {
+//     const ratio = totalDiscount / request.order.subtotal;
+//     return Math.round(returnedSubtotal * (1 - ratio));
+//   }
+//   return returnedSubtotal;
+// }
+
 function calcRefundAmount(request: ReturnRequest): number {
   const returnedSubtotal = request.items.reduce(
-    (sum, item) => sum + item.order_item.paid_price * item.quantity,
-    0
+    (sum, item) => sum + item.order_item.paid_price * item.quantity, 0,
   );
+
   const totalDiscount = request.order.coupon_discount || 0;
-  if (totalDiscount > 0 && request.order.subtotal > 0) {
-    const ratio = totalDiscount / request.order.subtotal;
+  // ← باید روی subtotal - discount حساب بشه نه subtotal
+  const netBeforeCoupon = request.order.subtotal - (request.order.discount || 0);
+
+  if (totalDiscount > 0 && netBeforeCoupon > 0) {
+    const ratio = totalDiscount / netBeforeCoupon;
     return Math.round(returnedSubtotal * (1 - ratio));
   }
   return returnedSubtotal;

@@ -145,21 +145,23 @@ export default function CheckoutConfirmPage() {
   };
 
   // ── کوپن ──
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return;
-    setCouponLoading(true);
-    setCouponError("");
-    try {
-      const res = await couponAPI.validate(couponCode.trim(), summary.total);
-      setCouponData(res.data.data);
-      toast.success("کد تخفیف اعمال شد");
-    } catch (err: any) {
-      setCouponError(err.response?.data?.message || "کد تخفیف نامعتبر است");
-      setCouponData(null);
-    } finally {
-      setCouponLoading(false);
-    }
-  };
+ const handleApplyCoupon = async () => {
+  if (!couponCode.trim()) return;
+  setCouponLoading(true);
+  setCouponError("");
+  try {
+    // ← summary.total که subtotal - discount هست
+    const netTotal = summary.subtotal - summary.discount;
+    const res = await couponAPI.validate(couponCode.trim(), netTotal);
+    setCouponData(res.data.data);
+    toast.success("کد تخفیف اعمال شد");
+  } catch (err: any) {
+    setCouponError(err.response?.data?.message || "کد تخفیف نامعتبر است");
+    setCouponData(null);
+  } finally {
+    setCouponLoading(false);
+  }
+};
 
   const handleRemoveCoupon = () => {
     setCouponData(null);
