@@ -264,9 +264,16 @@ export default function ReturnRequestPage() {
       const rr = (o as any).return_request;
       if (rr) {
         setReturnRequest(rr);
+
         // اگه واریز شده برگردون
         if (rr.refund_status === "refunded") {
           toast.error("مبلغ این مرجوعی قبلاً واریز شده");
+          router.replace(`/profile/orders/${orderId}`);
+          return;
+        }
+
+        if (rr.status === "rejected") {
+          toast.error("مرجوعی رد شده");
           router.replace(`/profile/orders/${orderId}`);
           return;
         }

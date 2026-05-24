@@ -19,6 +19,7 @@ import {
   HiCreditCard,
   HiTruck,
   HiCurrencyDollar,
+  HiSearch,
 } from "react-icons/hi";
 import toast from "react-hot-toast";
 
@@ -85,7 +86,7 @@ const fmtDate = (d: string) =>
 function calcRefundAmount(request: ReturnRequest): number {
   const returnedSubtotal = request.items.reduce(
     (sum, item) => sum + item.order_item.paid_price * item.quantity,
-    0,
+    0
   );
   const totalDiscount = request.order.coupon_discount || 0;
   if (totalDiscount > 0 && request.order.subtotal > 0) {
@@ -112,7 +113,7 @@ function PortalModal({ children }: { children: React.ReactNode }) {
     >
       {children}
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -217,15 +218,15 @@ function DetailModal({
                   request.status === "approved"
                     ? "success"
                     : request.status === "rejected"
-                      ? "danger"
-                      : "warning"
+                    ? "danger"
+                    : "warning"
                 }
               >
                 {request.status === "approved"
                   ? "تایید شده"
                   : request.status === "rejected"
-                    ? "رد شده"
-                    : "در انتظار"}
+                  ? "رد شده"
+                  : "در انتظار"}
               </Badge>
             </div>
           </div>
@@ -395,7 +396,7 @@ function DetailModal({
                     <p className="text-xs text-green-600">
                       {new Date(request.refunded_at).toLocaleDateString(
                         "fa-IR",
-                        { year: "numeric", month: "long", day: "numeric" },
+                        { year: "numeric", month: "long", day: "numeric" }
                       )}
                     </p>
                   )}
@@ -430,6 +431,7 @@ export default function AdminReturnRequestsPage() {
   });
   const [meta, setMeta] = useState({ current_page: 1, last_page: 1 });
   const [selected, setSelected] = useState<ReturnRequest | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     load();
@@ -518,15 +520,15 @@ export default function AdminReturnRequestsPage() {
             row.status === "approved"
               ? "success"
               : row.status === "rejected"
-                ? "danger"
-                : "warning"
+              ? "danger"
+              : "warning"
           }
         >
           {row.status === "approved"
             ? "تایید شده"
             : row.status === "rejected"
-              ? "رد شده"
-              : "در انتظار"}
+            ? "رد شده"
+            : "در انتظار"}
         </Badge>
       ),
     },
@@ -600,7 +602,22 @@ export default function AdminReturnRequestsPage() {
 
         <div className="bg-white rounded-xl shadow-sm">
           <div className="p-4 border-b flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">لیست درخواست‌ها</h3>
+            <div className="flex items-center gap-3 flex-1">
+              <h3 className="font-semibold text-gray-900 flex-shrink-0">
+                لیست درخواست‌ها
+              </h3>
+              <div className="relative flex-1 max-w-xs">
+                <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && load()}
+                  placeholder="جستجو با شماره سفارش یا موبایل..."
+                  className="w-full pr-9 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                />
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               {[
                 { key: "all", label: "همه" },
