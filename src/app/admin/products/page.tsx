@@ -9,7 +9,15 @@ import Input from "@/app/_components/admin/Input";
 import Badge from "@/app/_components/admin/Badge";
 import Pagination from "@/app/_components/admin/Pagination";
 import { productsAPI, categoriesAPI, tagsAPI } from "../../../lib/api";
-import { HiPlus, HiPencil, HiTrash, HiStar, HiEye, HiCube } from "react-icons/hi";
+import {
+  HiPlus,
+  HiPencil,
+  HiTrash,
+  HiStar,
+  HiEye,
+  HiCube,
+  HiShoppingBag,
+} from "react-icons/hi";
 import toast from "react-hot-toast";
 
 // ─────────────────────────────────────────────
@@ -35,6 +43,7 @@ interface ProductItem {
   current_price: number;
   thumbnail: string | null;
   images: string[] | null;
+  sales_count: number;
   stock: number;
   low_stock_threshold: number;
   weight: number | null;
@@ -79,60 +88,82 @@ interface FormData {
   is_featured: boolean;
   is_active: boolean;
   thumbnail: File | null;
-  existingImages: string[];  // عکس‌های فعلی سرور
-  images: File[];            // عکس‌های جدید
+  existingImages: string[]; // عکس‌های فعلی سرور
+  images: File[]; // عکس‌های جدید
 }
 
 // ─────────────────────────────────────────────
 // StockBadge
 // ─────────────────────────────────────────────
-function StockBadge({ stock, threshold }: { stock: number; threshold: number }) {
+function StockBadge({
+  stock,
+  threshold,
+}: {
+  stock: number;
+  threshold: number;
+}) {
   if (stock === 0)
-    return <Badge variant="danger" size="sm">ناموجود</Badge>;
+    return (
+      <Badge variant="danger" size="sm">
+        ناموجود
+      </Badge>
+    );
   if (stock <= threshold)
-    return <Badge variant="warning" size="sm">{stock} عدد (کم)</Badge>;
-  return <Badge variant="success" size="sm">{stock} عدد</Badge>;
+    return (
+      <Badge variant="warning" size="sm">
+        {stock} عدد (کم)
+      </Badge>
+    );
+  return (
+    <Badge variant="success" size="sm">
+      {stock} عدد
+    </Badge>
+  );
 }
 
 // ─────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────
 export default function ProductsPage() {
-  const [products, setProducts]             = useState<ProductItem[]>([]);
-  const [categories, setCategories]         = useState<Category[]>([]);
-  const [tags, setTags]                     = useState<Tag[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [modalOpen, setModalOpen]           = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
-  const [saving, setSaving]                 = useState(false);
-  const [meta, setMeta]                     = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(
+    null,
+  );
+  const [saving, setSaving] = useState(false);
+  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
 
   const defaultForm: FormData = {
-    category_id:         "",
-    title:               "",
-    slug:                "",
-    short_description:   "",
-    description:         "",
-    sku:                 "",
-    brand:               "",
-    price:               0,
-    sale_price:          "",
-    weight:              "",
-    dimensions:          "",
-    stock:               0,
+    category_id: "",
+    title: "",
+    slug: "",
+    short_description: "",
+    description: "",
+    sku: "",
+    brand: "",
+    price: 0,
+    sale_price: "",
+    weight: "",
+    dimensions: "",
+    stock: 0,
     low_stock_threshold: 5,
-    tags:                [],
-    attributes:          [],
-    is_featured:         false,
-    is_active:           true,
-    thumbnail:           null,
-    existingImages:      [],
-    images:              [],
+    tags: [],
+    attributes: [],
+    is_featured: false,
+    is_active: true,
+    thumbnail: null,
+    existingImages: [],
+    images: [],
   };
 
   const [formData, setFormData] = useState<FormData>(defaultForm);
 
-  useEffect(() => { loadData(); }, [meta.current_page]);
+  useEffect(() => {
+    loadData();
+  }, [meta.current_page]);
 
   const loadData = async () => {
     setLoading(true);
@@ -144,7 +175,9 @@ export default function ProductsPage() {
       ]);
       setProducts(productsRes.data.data);
       setMeta(productsRes.data.meta);
-      setCategories(categoriesRes.data.data.filter((c: Category) => c.parent_id));
+      setCategories(
+        categoriesRes.data.data.filter((c: Category) => c.parent_id),
+      );
       setTags(tagsRes.data.data);
     } catch {
       toast.error("خطا در دریافت اطلاعات");
@@ -157,26 +190,28 @@ export default function ProductsPage() {
     if (product) {
       setEditingProduct(product);
       setFormData({
-        category_id:         product.category?.id?.toString() || "",
-        title:               product.title || "",
-        slug:                product.slug || "",
-        short_description:   product.short_description || "",
-        description:         product.description || "",
-        sku:                 product.sku || "",
-        brand:               product.brand || "",
-        price:               product.price || 0,
-        sale_price:          product.sale_price?.toString() || "",
-        weight:              product.weight?.toString() || "",
-        dimensions:          product.dimensions || "",
-        stock:               product.stock || 0,
+        category_id: product.category?.id?.toString() || "",
+        title: product.title || "",
+        slug: product.slug || "",
+        short_description: product.short_description || "",
+        description: product.description || "",
+        sku: product.sku || "",
+        brand: product.brand || "",
+        price: product.price || 0,
+        sale_price: product.sale_price?.toString() || "",
+        weight: product.weight?.toString() || "",
+        dimensions: product.dimensions || "",
+        stock: product.stock || 0,
         low_stock_threshold: product.low_stock_threshold || 5,
-        tags:                product.tags?.map((t) => t.id) || [],
-        attributes:          product.attributes?.map((a) => ({ key: a.key, value: a.value })) || [],
-        is_featured:         product.is_featured,
-        is_active:           product.is_active,
-        thumbnail:           null,
-        existingImages:      product.images || [],  // ← عکس‌های فعلی لود می‌شن
-        images:              [],
+        tags: product.tags?.map((t) => t.id) || [],
+        attributes:
+          product.attributes?.map((a) => ({ key: a.key, value: a.value })) ||
+          [],
+        is_featured: product.is_featured,
+        is_active: product.is_active,
+        thumbnail: null,
+        existingImages: product.images || [], // ← عکس‌های فعلی لود می‌شن
+        images: [],
       });
     } else {
       setEditingProduct(null);
@@ -185,7 +220,10 @@ export default function ProductsPage() {
     setModalOpen(true);
   };
 
-  const closeModal = () => { setModalOpen(false); setEditingProduct(null); };
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingProduct(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,21 +231,24 @@ export default function ProductsPage() {
     try {
       const data = new FormData();
 
-      data.append("category_id",         formData.category_id);
-      data.append("title",               formData.title);
-      data.append("slug",                formData.slug);
-      data.append("short_description",   formData.short_description);
-      data.append("description",         formData.description);
-      data.append("sku",                 formData.sku);
-      data.append("brand",               formData.brand);
-      data.append("price",               String(formData.price || 0));
-      data.append("sale_price",          formData.sale_price);
-      data.append("weight",              formData.weight);
-      data.append("dimensions",          formData.dimensions);
-      data.append("stock",               String(formData.stock || 0));
-      data.append("low_stock_threshold", String(formData.low_stock_threshold || 5));
-      data.append("is_featured",         formData.is_featured ? "1" : "0");
-      data.append("is_active",           formData.is_active   ? "1" : "0");
+      data.append("category_id", formData.category_id);
+      data.append("title", formData.title);
+      data.append("slug", formData.slug);
+      data.append("short_description", formData.short_description);
+      data.append("description", formData.description);
+      data.append("sku", formData.sku);
+      data.append("brand", formData.brand);
+      data.append("price", String(formData.price || 0));
+      data.append("sale_price", formData.sale_price);
+      data.append("weight", formData.weight);
+      data.append("dimensions", formData.dimensions);
+      data.append("stock", String(formData.stock || 0));
+      data.append(
+        "low_stock_threshold",
+        String(formData.low_stock_threshold || 5),
+      );
+      data.append("is_featured", formData.is_featured ? "1" : "0");
+      data.append("is_active", formData.is_active ? "1" : "0");
 
       // تگ‌ها
       formData.tags.forEach((id) => data.append("tags[]", id.toString()));
@@ -215,7 +256,7 @@ export default function ProductsPage() {
       // ویژگی‌ها
       formData.attributes.forEach((attr, i) => {
         if (attr.key.trim() && attr.value.trim()) {
-          data.append(`attributes[${i}][key]`,   attr.key.trim());
+          data.append(`attributes[${i}][key]`, attr.key.trim());
           data.append(`attributes[${i}][value]`, attr.value.trim());
         }
       });
@@ -225,7 +266,7 @@ export default function ProductsPage() {
 
       // عکس‌های فعلی که باقی مونده (حذف‌نشده)
       formData.existingImages.forEach((img) =>
-        data.append("existing_images[]", img)
+        data.append("existing_images[]", img),
       );
 
       // عکس‌های جدید
@@ -260,13 +301,21 @@ export default function ProductsPage() {
   };
 
   const handleToggle = async (id: number) => {
-    try { await productsAPI.toggle(id); loadData(); }
-    catch { toast.error("خطا در تغییر وضعیت"); }
+    try {
+      await productsAPI.toggle(id);
+      loadData();
+    } catch {
+      toast.error("خطا در تغییر وضعیت");
+    }
   };
 
   const handleToggleFeatured = async (id: number) => {
-    try { await productsAPI.toggleFeatured(id); loadData(); }
-    catch { toast.error("خطا در تغییر وضعیت"); }
+    try {
+      await productsAPI.toggleFeatured(id);
+      loadData();
+    } catch {
+      toast.error("خطا در تغییر وضعیت");
+    }
   };
 
   const handleTagToggle = (tagId: number) => {
@@ -324,8 +373,11 @@ export default function ProductsPage() {
       render: (row: ProductItem) => (
         <div className="flex items-center gap-3">
           {row.thumbnail ? (
-            <img src={row.thumbnail} alt={row.title}
-              className="w-12 h-12 rounded-lg object-cover" />
+            <img
+              src={row.thumbnail}
+              alt={row.title}
+              className="w-12 h-12 rounded-lg object-cover"
+            />
           ) : (
             <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
               <HiCube className="w-5 h-5 text-gray-400" />
@@ -334,7 +386,9 @@ export default function ProductsPage() {
           <div>
             <p className="font-medium">{row.title}</p>
             <p className="text-xs text-gray-500">{row.category?.name}</p>
-            {row.sku && <p className="text-xs text-gray-400 font-mono">SKU: {row.sku}</p>}
+            {row.sku && (
+              <p className="text-xs text-gray-400 font-mono">SKU: {row.sku}</p>
+            )}
           </div>
         </div>
       ),
@@ -345,7 +399,9 @@ export default function ProductsPage() {
         <div>
           <span className="font-medium">{formatPrice(row.current_price)}</span>
           {row.sale_price && (
-            <p className="text-xs text-gray-400 line-through">{formatPrice(row.price)}</p>
+            <p className="text-xs text-gray-400 line-through">
+              {formatPrice(row.price)}
+            </p>
           )}
         </div>
       ),
@@ -361,10 +417,16 @@ export default function ProductsPage() {
       render: (row: ProductItem) => (
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span className="flex items-center gap-1">
-            <HiEye className="w-4 h-4" />{row.views_count}
+            <HiEye className="w-4 h-4" />
+            {row.views_count}
           </span>
           <span className="flex items-center gap-1">
-            <HiStar className="w-4 h-4 text-yellow-500" />{row.rating}
+            <HiStar className="w-4 h-4 text-yellow-500" />
+            {row.rating}
+          </span>
+          <span className="flex items-center gap-1">
+            <HiShoppingBag className="w-4 h-4 text-teal-500" />
+            {row.sales_count ?? 0}
           </span>
         </div>
       ),
@@ -390,12 +452,16 @@ export default function ProductsPage() {
       header: "عملیات",
       render: (row: ProductItem) => (
         <div className="flex items-center gap-2">
-          <button onClick={() => openModal(row)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+          <button
+            onClick={() => openModal(row)}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+          >
             <HiPencil className="w-4 h-4" />
           </button>
-          <button onClick={() => handleDelete(row.id)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+          <button
+            onClick={() => handleDelete(row.id)}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+          >
             <HiTrash className="w-4 h-4" />
           </button>
         </div>
@@ -437,24 +503,45 @@ export default function ProductsPage() {
         title={editingProduct ? "ویرایش محصول" : "محصول جدید"}
         size="xl"
       >
-        <form onSubmit={handleSubmit}
-          className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 max-h-[70vh] overflow-y-auto px-1"
+        >
           {/* عنوان + اسلاگ */}
           <div className="grid grid-cols-2 gap-4">
-            <Input label="عنوان محصول" value={formData.title} required
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
-            <Input label="اسلاگ" value={formData.slug} dir="ltr" required
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })} />
+            <Input
+              label="عنوان محصول"
+              value={formData.title}
+              required
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+            />
+            <Input
+              label="اسلاگ"
+              value={formData.slug}
+              dir="ltr"
+              required
+              onChange={(e) =>
+                setFormData({ ...formData, slug: e.target.value })
+              }
+            />
           </div>
 
           {/* دسته‌بندی + برند */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">دسته‌بندی</label>
-              <select value={formData.category_id} required
-                onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                دسته‌بندی
+              </label>
+              <select
+                value={formData.category_id}
+                required
+                onChange={(e) =>
+                  setFormData({ ...formData, category_id: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+              >
                 <option value="">انتخاب دسته‌بندی</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -463,78 +550,174 @@ export default function ProductsPage() {
                 ))}
               </select>
             </div>
-            <Input label="برند" value={formData.brand}
-              onChange={(e) => setFormData({ ...formData, brand: e.target.value })} />
+            <Input
+              label="برند"
+              value={formData.brand}
+              onChange={(e) =>
+                setFormData({ ...formData, brand: e.target.value })
+              }
+            />
           </div>
 
           {/* SKU */}
-          <Input label="کد محصول (SKU)" value={formData.sku} dir="ltr"
-            onChange={(e) => setFormData({ ...formData, sku: e.target.value })} />
+          <Input
+            label="کد محصول (SKU)"
+            value={formData.sku}
+            dir="ltr"
+            onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+          />
 
           {/* توضیح کوتاه */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">توضیح کوتاه</label>
-            <textarea value={formData.short_description} rows={2}
-              onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              توضیح کوتاه
+            </label>
+            <textarea
+              value={formData.short_description}
+              rows={2}
+              onChange={(e) =>
+                setFormData({ ...formData, short_description: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+            />
           </div>
 
           {/* توضیحات کامل */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">توضیحات کامل</label>
-            <textarea value={formData.description} rows={4}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              توضیحات کامل
+            </label>
+            <textarea
+              value={formData.description}
+              rows={4}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+            />
           </div>
 
           {/* قیمت */}
           <div className="grid grid-cols-2 gap-4">
-            <Input label="قیمت (تومان)" type="number" min={0} value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })} />
-            <Input label="قیمت تخفیف‌خورده" type="number" min={0} value={formData.sale_price}
-              onChange={(e) => setFormData({ ...formData, sale_price: e.target.value })} />
+            <Input
+              label="قیمت (تومان)"
+              type="number"
+              min={0}
+              value={formData.price}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  price: parseInt(e.target.value) || 0,
+                })
+              }
+            />
+            <Input
+              label="قیمت تخفیف‌خورده"
+              type="number"
+              min={0}
+              value={formData.sale_price}
+              onChange={(e) =>
+                setFormData({ ...formData, sale_price: e.target.value })
+              }
+            />
           </div>
 
           {/* انبار */}
           <div className="grid grid-cols-3 gap-4">
-            <Input label="موجودی انبار" type="number" min={0} required value={formData.stock}
-              onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} />
-            <Input label="آستانه هشدار" type="number" min={0} value={formData.low_stock_threshold}
-              onChange={(e) => setFormData({ ...formData, low_stock_threshold: parseInt(e.target.value) || 5 })} />
-            <Input label="وزن (گرم)" type="number" min={0} dir="ltr" value={formData.weight}
-              onChange={(e) => setFormData({ ...formData, weight: e.target.value })} />
+            <Input
+              label="موجودی انبار"
+              type="number"
+              min={0}
+              required
+              value={formData.stock}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  stock: parseInt(e.target.value) || 0,
+                })
+              }
+            />
+            <Input
+              label="آستانه هشدار"
+              type="number"
+              min={0}
+              value={formData.low_stock_threshold}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  low_stock_threshold: parseInt(e.target.value) || 5,
+                })
+              }
+            />
+            <Input
+              label="وزن (گرم)"
+              type="number"
+              min={0}
+              dir="ltr"
+              value={formData.weight}
+              onChange={(e) =>
+                setFormData({ ...formData, weight: e.target.value })
+              }
+            />
           </div>
 
           {/* ابعاد */}
-          <Input label="ابعاد" value={formData.dimensions} dir="ltr" placeholder="مثال: 10x5x3"
-            onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })} />
+          <Input
+            label="ابعاد"
+            value={formData.dimensions}
+            dir="ltr"
+            placeholder="مثال: 10x5x3"
+            onChange={(e) =>
+              setFormData({ ...formData, dimensions: e.target.value })
+            }
+          />
 
           {/* ویژگی‌های محصول */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-gray-700">ویژگی‌های محصول</label>
-              <button type="button" onClick={addAttribute}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <label className="text-sm font-medium text-gray-700">
+                ویژگی‌های محصول
+              </label>
+              <button
+                type="button"
+                onClick={addAttribute}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
                 + افزودن ویژگی
               </button>
             </div>
             {formData.attributes.length === 0 ? (
-              <div onClick={addAttribute}
-                className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center text-sm text-gray-400 cursor-pointer hover:border-blue-200 hover:text-blue-500 transition">
+              <div
+                onClick={addAttribute}
+                className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center text-sm text-gray-400 cursor-pointer hover:border-blue-200 hover:text-blue-500 transition"
+              >
                 کلیک کنید تا ویژگی اضافه کنید (مثلاً: رنگ، جنس، ضمانت)
               </div>
             ) : (
               <div className="space-y-2">
                 {formData.attributes.map((attr, i) => (
                   <div key={i} className="flex gap-2 items-center">
-                    <input placeholder="نام ویژگی (مثلاً: رنگ)" value={attr.key}
-                      onChange={(e) => updateAttribute(i, "key", e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
-                    <input placeholder="مقدار (مثلاً: مشکی)" value={attr.value}
-                      onChange={(e) => updateAttribute(i, "value", e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
-                    <button type="button" onClick={() => removeAttribute(i)}
-                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0">
+                    <input
+                      placeholder="نام ویژگی (مثلاً: رنگ)"
+                      value={attr.key}
+                      onChange={(e) =>
+                        updateAttribute(i, "key", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      placeholder="مقدار (مثلاً: مشکی)"
+                      value={attr.value}
+                      onChange={(e) =>
+                        updateAttribute(i, "value", e.target.value)
+                      }
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeAttribute(i)}
+                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0"
+                    >
                       <HiTrash className="w-4 h-4" />
                     </button>
                   </div>
@@ -546,16 +729,26 @@ export default function ProductsPage() {
           {/* تگ‌ها */}
           {tags.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">تگ‌ها</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                تگ‌ها
+              </label>
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <button key={tag.id} type="button" onClick={() => handleTagToggle(tag.id)}
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => handleTagToggle(tag.id)}
                     className={`px-3 py-1 rounded-full text-sm transition ${
                       formData.tags.includes(tag.id)
                         ? "text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
-                    style={formData.tags.includes(tag.id) ? { backgroundColor: tag.color } : {}}>
+                    style={
+                      formData.tags.includes(tag.id)
+                        ? { backgroundColor: tag.color }
+                        : {}
+                    }
+                  >
                     {tag.name}
                   </button>
                 ))}
@@ -565,41 +758,67 @@ export default function ProductsPage() {
 
           {/* تصویر شاخص */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">تصویر شاخص</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              تصویر شاخص
+            </label>
             {editingProduct?.thumbnail && !formData.thumbnail && (
               <div className="mb-2">
-                <img src={editingProduct.thumbnail} alt="تصویر فعلی"
-                  className="w-24 h-24 rounded-lg object-cover border border-gray-200" />
+                <img
+                  src={editingProduct.thumbnail}
+                  alt="تصویر فعلی"
+                  className="w-24 h-24 rounded-lg object-cover border border-gray-200"
+                />
                 <p className="text-xs text-gray-500 mt-1">تصویر فعلی</p>
               </div>
             )}
             {formData.thumbnail && (
               <div className="mb-2">
-                <img src={URL.createObjectURL(formData.thumbnail)} alt="تصویر جدید"
-                  className="w-24 h-24 rounded-lg object-cover border border-blue-200" />
+                <img
+                  src={URL.createObjectURL(formData.thumbnail)}
+                  alt="تصویر جدید"
+                  className="w-24 h-24 rounded-lg object-cover border border-blue-200"
+                />
                 <p className="text-xs text-blue-500 mt-1">تصویر جدید</p>
               </div>
             )}
-            <input type="file" accept="image/*"
-              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.files?.[0] || null })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  thumbnail: e.target.files?.[0] || null,
+                })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
           </div>
 
           {/* گالری تصاویر */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">گالری تصاویر</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              گالری تصاویر
+            </label>
 
             {/* عکس‌های فعلی سرور */}
             {formData.existingImages.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs text-gray-500 mb-1">تصاویر فعلی — برای حذف روی × کلیک کنید:</p>
+                <p className="text-xs text-gray-500 mb-1">
+                  تصاویر فعلی — برای حذف روی × کلیک کنید:
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {formData.existingImages.map((img, i) => (
                     <div key={i} className="relative">
-                      <img src={img} alt=""
-                        className="w-16 h-16 rounded-lg object-cover border border-gray-200" />
-                      <button type="button" onClick={() => removeExistingImage(i)}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition">
+                      <img
+                        src={img}
+                        alt=""
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(i)}
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition"
+                      >
                         ×
                       </button>
                     </div>
@@ -615,10 +834,16 @@ export default function ProductsPage() {
                 <div className="flex flex-wrap gap-2">
                   {formData.images.map((img, i) => (
                     <div key={i} className="relative">
-                      <img src={URL.createObjectURL(img)} alt=""
-                        className="w-16 h-16 rounded-lg object-cover border border-blue-200" />
-                      <button type="button" onClick={() => removeNewImage(i)}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition">
+                      <img
+                        src={URL.createObjectURL(img)}
+                        alt=""
+                        className="w-16 h-16 rounded-lg object-cover border border-blue-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(i)}
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition"
+                      >
                         ×
                       </button>
                     </div>
@@ -627,29 +852,50 @@ export default function ProductsPage() {
               </div>
             )}
 
-            <input type="file" accept="image/*" multiple
-              onChange={(e) => setFormData({ ...formData, images: Array.from(e.target.files || []) })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  images: Array.from(e.target.files || []),
+                })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
           </div>
 
           {/* چک‌باکس‌ها */}
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={formData.is_featured}
-                onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                className="w-4 h-4 text-blue-600 rounded" />
+              <input
+                type="checkbox"
+                checked={formData.is_featured}
+                onChange={(e) =>
+                  setFormData({ ...formData, is_featured: e.target.checked })
+                }
+                className="w-4 h-4 text-blue-600 rounded"
+              />
               <span className="text-sm text-gray-700">ویژه</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="w-4 h-4 text-blue-600 rounded" />
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) =>
+                  setFormData({ ...formData, is_active: e.target.checked })
+                }
+                className="w-4 h-4 text-blue-600 rounded"
+              />
               <span className="text-sm text-gray-700">فعال</span>
             </label>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="secondary" onClick={closeModal}>انصراف</Button>
+            <Button type="button" variant="secondary" onClick={closeModal}>
+              انصراف
+            </Button>
             <Button type="submit" loading={saving}>
               {editingProduct ? "بروزرسانی" : "ایجاد"}
             </Button>
