@@ -1,5 +1,4 @@
 "use client";
-
 // app/products/_hooks/useFilterPush.ts
 import { useTransition, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,11 +8,14 @@ export function useFilterPush() {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const push = useCallback(
     (updates: Record<string, string | string[] | null>) => {
       const p = new URLSearchParams(searchParams.toString());
       p.delete("page");
-
       Object.entries(updates).forEach(([k, v]) => {
         if (k === "categories[]") {
           p.delete("categories[]");
@@ -21,18 +23,22 @@ export function useFilterPush() {
             v.forEach((x) => p.append("categories[]", x));
           return;
         }
-        v ? p.set(k, v as string) : p.delete(k);
+        if (v) {
+          p.set(k, v as string);
+        } else {
+          p.delete(k);
+        }
       });
-
       const qs = p.toString();
-
       startTransition(() => {
         router.push(qs ? `/products?${qs}` : "/products", { scroll: false });
-        // اسکرول نرم به بالا
-        window.scrollTo({ top: 0, behavior: "smooth" });
       });
+      scrollToTop(); // 👈
+      if (typeof window !== "undefined" && (window as any).__topLoaderStart) {
+        (window as any).__topLoaderStart();
+      }
     },
-    [router, searchParams],
+    [router, searchParams]
   );
 
   const clearAll = useCallback(
@@ -45,10 +51,13 @@ export function useFilterPush() {
       const qs = p.toString();
       startTransition(() => {
         router.push(qs ? `/products?${qs}` : "/products", { scroll: false });
-        window.scrollTo({ top: 0, behavior: "smooth" });
       });
+      scrollToTop(); // 👈
+      if (typeof window !== "undefined" && (window as any).__topLoaderStart) {
+        (window as any).__topLoaderStart();
+      }
     },
-    [router, searchParams],
+    [router, searchParams]
   );
 
   return { push, clearAll, isPending };

@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -7,10 +6,15 @@ export default function TopLoader() {
   const barRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const search = useSearchParams();
+  const isStarted = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const start = () => {
     const bar = barRef.current;
     if (!bar) return;
+    // اگه قبلاً شروع شده reset کن
+    if (timerRef.current) clearTimeout(timerRef.current);
+    isStarted.current = true;
     bar.style.transition = "none";
     bar.style.width = "0%";
     bar.style.opacity = "1";
@@ -18,11 +22,17 @@ export default function TopLoader() {
       bar.style.transition = "width 8s cubic-bezier(0.1,0.05,0,1)";
       bar.style.width = "85%";
     }, 10);
+    // اگه ۱۰ ثانیه گذشت و finish نشد خودکار reset کن
+    timerRef.current = setTimeout(() => {
+      finish();
+    }, 10000);
   };
 
   const finish = () => {
     const bar = barRef.current;
     if (!bar) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    isStarted.current = false;
     bar.style.transition = "width 0.2s ease";
     bar.style.width = "100%";
     setTimeout(() => {
@@ -31,19 +41,37 @@ export default function TopLoader() {
     }, 200);
   };
 
-  // وقتی route عوض شد → finish
   useEffect(() => {
     finish();
   }, [pathname, search]);
 
-  // کلیک روی لینک‌ها → start
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const a = (e.target as Element).closest("a");
-      if (a?.href && !a.href.startsWith("#") && !a.target) start();
+      if (!a?.href) return;
+      const url = new URL(a.href, window.location.href);
+      // همون page — باز هم start کن ولی بعد finish
+      if (
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search
+      ) {
+        start();
+        setTimeout(() => finish(), 300);
+        return;
+      }
+      if (!a.href.startsWith("#") && !a.target) start();
     };
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  useEffect(() => {
+    (window as any).__topLoaderStart = start;
+    (window as any).__topLoaderFinish = finish;
+    return () => {
+      delete (window as any).__topLoaderStart;
+      delete (window as any).__topLoaderFinish;
+    };
   }, []);
 
   return (
