@@ -131,7 +131,7 @@ export default function Header() {
             {/* ── Logo ── */}
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/images/petra-logo.png" // ← فایل رو بذار توی public/logo.png
+                src="/images/petra-logo.png" 
                 alt="فانتوم پلاس"
                 width={120}
                 height={40}
