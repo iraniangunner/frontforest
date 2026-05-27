@@ -4,7 +4,7 @@ const nextConfig = {
         remotePatterns: [
           {
             protocol: 'https',
-            hostname: 'frontforest.ir',
+            hostname: 'pmk-co.com',
             pathname: '/storage/**',
           },
         ],

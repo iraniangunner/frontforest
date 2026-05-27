@@ -94,7 +94,7 @@ export default function ContactPage() {
               </div>
 
               {/* آدرس */}
-              <div className="flex gap-4">
+              {/* <div className="flex gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
                   <HiLocationMarker className="w-6 h-6" />
                 </div>
@@ -102,10 +102,10 @@ export default function ContactPage() {
                   <dt className="text-sm font-medium text-gray-500">آدرس</dt>
                   <dd className="mt-1 text-gray-900">تهران</dd>
                 </div>
-              </div>
+              </div> */}
 
               {/* ساعات کاری */}
-              <div className="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+              {/* <div className="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <p className="text-sm font-medium text-gray-700 mb-2">
                   ساعات پاسخگویی
                 </p>
@@ -115,7 +115,7 @@ export default function ContactPage() {
                 <p className="text-sm text-gray-600">
                   پنجشنبه — ۹ صبح تا ۱ بعدازظهر
                 </p>
-              </div>
+              </div> */}
             </dl>
           </div>
 
