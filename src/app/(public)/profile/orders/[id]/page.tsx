@@ -659,11 +659,20 @@ export default function OrderDetailPage() {
                         {item.product_title}
                       </Link>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {item.quantity} عدد × {formatPrice(item.paid_price)}
+                        {item.quantity} عدد ×{" "}
+                        {formatPrice(
+                          item.paid_price > 0
+                            ? item.paid_price
+                            : item.sale_price ?? item.price
+                        )}
                       </p>
                     </div>
                     <span className="text-sm font-bold text-gray-900 flex-shrink-0">
-                      {formatPrice(item.paid_price * item.quantity)}
+                      {formatPrice(
+                        (item.paid_price > 0
+                          ? item.paid_price
+                          : item.sale_price ?? item.price) * item.quantity
+                      )}
                     </span>
                   </div>
                 ))}
