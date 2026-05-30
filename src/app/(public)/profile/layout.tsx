@@ -1,23 +1,16 @@
+// app/(public)/profile/layout.tsx
 import { Metadata } from "next";
-import { AuthGuard } from "@/app/_components/guards";
+import ProfileAuthGuard from "@/app/_components/guards/ProfileAuthGuard";
 
 export const metadata: Metadata = {
   title: "پروفایل | نمایندگی انحصاری فانتوم پلاس در ایران",
   description: "پروفایل کاربری شما",
 };
 
-// export default function ProfileLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return <AuthGuard requireComplete={false}>{children}</AuthGuard>;
-// }
-
 export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <ProfileAuthGuard>{children}</ProfileAuthGuard>;
 }

@@ -331,12 +331,7 @@ export default function CartPage() {
               >
                 <HiLogin className="w-5 h-5" /> ورود به حساب
               </Link>
-              <Link
-                href="/register?redirect=/cart"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
-              >
-                ثبت‌نام
-              </Link>
+          
               <Link
                 href="/products"
                 className="block text-sm text-gray-500 hover:text-gray-700 mt-4"
