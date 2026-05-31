@@ -645,3 +645,9 @@ export const returnRequestsAPI = {
       { requiresAuth: true },
     ),
 };
+
+// Session management
+export const sessionsAPI = {
+  getAll: () => api.get("/sessions", { requiresAuth: true }),
+  revoke: (id: number) => api.delete(`/sessions/${id}`, { requiresAuth: true }),
+};
