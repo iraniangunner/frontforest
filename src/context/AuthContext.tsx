@@ -128,12 +128,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── polling هر ۳ دقیقه ──
   useEffect(() => {
-    const interval = setInterval(() => {
-      refreshUser();
-    }, 3 * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        refreshUser();
+      },
+      3 * 60 * 1000,
+    );
 
     return () => clearInterval(interval);
   }, [refreshUser]);
+
+  useEffect(() => {
+    const handleLogout = () => setUser(null);
+    window.addEventListener("auth:logout", handleLogout);
+    return () => window.removeEventListener("auth:logout", handleLogout);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, loading, refreshUser }}>

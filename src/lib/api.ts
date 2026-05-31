@@ -63,7 +63,8 @@ api.interceptors.response.use(
       originalRequest._retry ||
       originalRequest.url?.includes("/auth/refresh") ||
       originalRequest.url?.includes("/auth/verify-otp") ||
-      originalRequest.url?.includes("/auth/send-otp")
+      originalRequest.url?.includes("/auth/send-otp") ||
+      originalRequest.url?.includes("/auth/logout")
     ) {
       return Promise.reject(error);
     }
@@ -107,6 +108,8 @@ api.interceptors.response.use(
       // if (typeof window !== "undefined") {
       //   window.location.href = "/login";
       // }
+
+      window.dispatchEvent(new Event("auth:logout"));
 
       return Promise.reject(err);
     }
