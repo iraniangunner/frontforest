@@ -371,12 +371,15 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
 
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
+  const realIP =
+    headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "";
   try {
     const res = await fetch(`${API_URL}/auth/verify-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Real-User-Agent": userAgent,
+        "X-Real-IP": realIP,
       },
       body: JSON.stringify(body),
     });
@@ -461,12 +464,15 @@ export async function revokeSessionBeforeLoginAction(
 export async function loginAfterRevokeAction(sessionToken: string) {
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
+  const realIP =
+    headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "";
   try {
     const res = await fetch(`${API_URL}/auth/sessions/login-after-revoke`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Real-User-Agent": userAgent,
+        "X-Real-IP": realIP,
       },
       body: JSON.stringify({ session_token: sessionToken }),
     });
