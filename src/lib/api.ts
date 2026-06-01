@@ -654,3 +654,12 @@ export const sessionsAPI = {
   getAll: () => api.get("/sessions", { requiresAuth: true }),
   revoke: (id: number) => api.delete(`/sessions/${id}`, { requiresAuth: true }),
 };
+
+
+// Admin session management
+export const adminSessionsAPI = {
+  getAll: (params?: any) =>
+    api.get("/admin/sessions", { params, requiresAuth: true }),
+  revoke: (id: number) =>
+    api.delete(`/admin/sessions/${id}`, { requiresAuth: true }),
+};

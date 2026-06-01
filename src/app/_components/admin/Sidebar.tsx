@@ -21,6 +21,7 @@ import {
   HiChevronRight,
   HiTag,
   HiOutlineRefresh,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
 
 const menuItems = [
@@ -55,6 +56,12 @@ const menuItems = [
     path: "/admin/users",
     icon: HiOutlineUsers,
     label: "کاربران",
+    group: "کاربران",
+  },
+  {
+    path: "/admin/sessions",
+    icon: HiOutlineShieldCheck,
+    label: "نشست‌ها",
     group: "کاربران",
   },
   {
