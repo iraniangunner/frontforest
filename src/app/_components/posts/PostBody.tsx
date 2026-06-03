@@ -1,4 +1,4 @@
-// app/(public)/posts/[slug]/PostBody.tsx
+import { marked } from "marked";
 
 interface Props {
   excerpt: string | null;
@@ -6,6 +6,8 @@ interface Props {
 }
 
 export default function PostBody({ excerpt, body }: Props) {
+  const html = marked(body) as string;
+
   return (
     <>
       {excerpt && (
@@ -25,8 +27,11 @@ export default function PostBody({ excerpt, body }: Props) {
           [&_strong]:font-bold [&_strong]:text-gray-900
           [&_em]:italic [&_u]:underline [&_s]:line-through
           [&_blockquote]:border-r-4 [&_blockquote]:border-teal-400 [&_blockquote]:pr-5 [&_blockquote]:py-1 [&_blockquote]:text-gray-600 [&_blockquote]:my-6 [&_blockquote]:italic [&_blockquote]:bg-teal-50 [&_blockquote]:rounded-l-xl
-          [&_hr]:border-gray-200 [&_hr]:my-8"
-        dangerouslySetInnerHTML={{ __html: body }}
+          [&_hr]:border-gray-200 [&_hr]:my-8
+          [&_table]:w-full [&_table]:border-collapse [&_table]:mb-6
+          [&_th]:bg-gray-100 [&_th]:text-right [&_th]:p-3 [&_th]:border [&_th]:border-gray-200 [&_th]:font-bold
+          [&_td]:p-3 [&_td]:border [&_td]:border-gray-200"
+        dangerouslySetInnerHTML={{ __html: html }}
       />
     </>
   );
