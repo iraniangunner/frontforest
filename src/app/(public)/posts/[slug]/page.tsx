@@ -118,7 +118,7 @@ export default async function PostPage({ params }: Props) {
         <PostHero title={post.title} thumbnail={post.thumbnail} />
         <div className="max-w-3xl mx-auto px-4 py-8">
           <PostMeta
-            author={post.author}
+            author={post.author.name}
             publishedAt={post.published_at}
             views={post.views}
             commentsCount={comments.length}
