@@ -3,9 +3,7 @@ import localFont from "next/font/local";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
-import Header from "./_components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
-import Footer from "./_components/layout/Footer";
 import { UserStatusProvider } from "@/context/UserStatusContext";
 
 const yekanbakh = localFont({
@@ -47,6 +45,7 @@ const yekanbakh = localFont({
 export const metadata: Metadata = {
   title: "نمایندگی انحصاری فانتوم پلاس در ایران",
   description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+  alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL },
 };
 
 export default function RootLayout({

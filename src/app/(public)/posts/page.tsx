@@ -19,8 +19,31 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fa_IR",
   },
-  alternates: { canonical: "/posts" },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/posts` },
 };
+
+// Schema.org JSON-LD
+function PostsJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "اخبار و مقالات فانتوم پلاس",
+    description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فانتوم پلاس",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/posts`,
+    publisher: {
+      "@type": "Organization",
+      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      url: process.env.NEXT_PUBLIC_SITE_URL,
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
 
 interface PageProps {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -83,74 +106,77 @@ export default async function PostsPage({ searchParams }: PageProps) {
   const rest = posts.slice(1);
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Filter — client component */}
-      <Suspense
-        fallback={
-          <div className="h-32 bg-white border-b border-gray-100 animate-pulse" />
-        }
-      >
-        <PostsFilter
-          currentCategory={category}
-          currentSearch={search}
-          total={meta.total}
-        />
-      </Suspense>
+    <>
+      <PostsJsonLd />
+      <div className="min-h-screen bg-gray-50" dir="rtl">
+        {/* Filter — client component */}
+        <Suspense
+          fallback={
+            <div className="h-32 bg-white border-b border-gray-100 animate-pulse" />
+          }
+        >
+          <PostsFilter
+            currentCategory={category}
+            currentSearch={search}
+            total={meta.total}
+          />
+        </Suspense>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        {posts.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="space-y-6">
-            {/* Hero */}
-            {page === 1 && hero && (
-              <Suspense fallback={<HeroSkeleton />}>
-                <PostsHeroCard post={hero} />
-              </Suspense>
-            )}
+        <div className="max-w-5xl mx-auto px-4 py-10">
+          {posts.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="space-y-6">
+              {/* Hero */}
+              {page === 1 && hero && (
+                <Suspense fallback={<HeroSkeleton />}>
+                  <PostsHeroCard post={hero} />
+                </Suspense>
+              )}
 
-            {page === 1 && rest.length > 0 && (
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400 font-medium">
-                  سایر مطالب
-                </span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-            )}
+              {page === 1 && rest.length > 0 && (
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-gray-400 font-medium">
+                    سایر مطالب
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+              )}
 
-            {/* گرید */}
-            {(page === 1 ? rest : posts).length > 0 && (
-              <Suspense
-                fallback={
+              {/* گرید */}
+              {(page === 1 ? rest : posts).length > 0 && (
+                <Suspense
+                  fallback={
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[...Array(6)].map((_, i) => (
+                        <CardSkeleton key={i} />
+                      ))}
+                    </div>
+                  }
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => (
-                      <CardSkeleton key={i} />
+                    {(page === 1 ? rest : posts).map((p) => (
+                      <PostsCard key={p.id} post={p} />
                     ))}
                   </div>
-                }
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {(page === 1 ? rest : posts).map((p) => (
-                    <PostsCard key={p.id} post={p} />
-                  ))}
-                </div>
-              </Suspense>
-            )}
+                </Suspense>
+              )}
 
-            {/* Pagination */}
-            {meta.last_page > 1 && (
-              <Suspense>
-                <Pagination
-                  currentPage={meta.current_page}
-                  lastPage={meta.last_page}
-                  basePath="/posts"
-                />
-              </Suspense>
-            )}
-          </div>
-        )}
+              {/* Pagination */}
+              {meta.last_page > 1 && (
+                <Suspense>
+                  <Pagination
+                    currentPage={meta.current_page}
+                    lastPage={meta.last_page}
+                    basePath="/posts"
+                  />
+                </Suspense>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

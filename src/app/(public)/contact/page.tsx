@@ -1,10 +1,11 @@
 // app/contact/page.tsx
-import { HiMail, HiPhone, HiLocationMarker } from "react-icons/hi";
+import { HiMail, HiPhone} from "react-icons/hi";
 import ContactForm from "@/app/_components/ui/ContactForm";
 
 export const metadata = {
   title: "تماس با ما | نمایندگی انحصاری فانتوم پلاس در ایران",
   description: "با ما در ارتباط باشید - نمایندگی انحصاری فانتوم پلاس در ایران",
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/contact` },
 };
 
 export default function ContactPage() {

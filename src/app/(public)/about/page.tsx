@@ -5,6 +5,7 @@ export const metadata = {
   title: "درباره ما | نمایندگی انحصاری فانتوم پلاس در ایران",
   description:
     "نمایندگی انحصاری فانتوم پلاس در ایران - ارائه محصولات اصل با گارانتی معتبر",
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about` },
 };
 
 const values = [

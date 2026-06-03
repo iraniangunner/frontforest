@@ -5,12 +5,44 @@ import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
 import ProductsToolbar from "@/app/_components/ui/ProductsToolbar";
 import { publicCategoriesAPI, publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
+import { Metadata } from "next";
 import { Suspense } from "react";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "محصولات | نمایندگی انحصاری فانتوم پلاس در ایران",
-  description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+  description:
+    "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+  openGraph: {
+    title: "محصولات | فانتوم پلاس",
+    description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر",
+    type: "website",
+    locale: "fa_IR",
+  },
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/products` },
 };
+
+// Schema.org JSON-LD
+function ProductsJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "محصولات فانتوم پلاس",
+    description: "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر",
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/products`,
+    publisher: {
+      "@type": "Organization",
+      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      url: process.env.NEXT_PUBLIC_SITE_URL,
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -18,7 +50,7 @@ interface PageProps {
 
 // ── URL searchParams → FilterParams ─────────────────────────────────────────
 function parseParams(
-  sp: Record<string, string | string[] | undefined>,
+  sp: Record<string, string | string[] | undefined>
 ): FilterParams {
   const p: FilterParams = {};
 
@@ -165,78 +197,84 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
-        {/* ── عنوان صفحه ── */}
-        <div className="mb-5">
-          <h1 className="text-xl font-bold text-gray-900">محصولات</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {(meta.total || 0).toLocaleString("fa-IR")} محصول در دسترس
-          </p>
-        </div>
+    <>
+      <ProductsJsonLd />
+      <div className="min-h-screen bg-gray-50" dir="rtl">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
+          {/* ── عنوان صفحه ── */}
+          <div className="mb-5">
+            <h1 className="text-xl font-bold text-gray-900">محصولات</h1>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {(meta.total || 0).toLocaleString("fa-IR")} محصول در دسترس
+            </p>
+          </div>
 
-        <div className="flex gap-5 items-start">
-          {/* ── Sidebar — desktop ── */}
-          <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-6">
-            <Suspense
-              fallback={
-                <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-10 bg-gray-100 rounded-xl animate-pulse"
-                    />
-                  ))}
-                </div>
-              }
-            >
-              <ProductsFilter categories={categories} priceRange={priceRange} />
-            </Suspense>
-          </aside>
-
-          {/* ── محتوا ── */}
-          <main className="flex-1 min-w-0 space-y-4">
-            {/* Toolbar */}
-            <Suspense
-              fallback={
-                <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
-              }
-            >
-              <ProductsToolbar
-                total={meta.total || 0}
-                categories={categories}
-                priceRange={priceRange}
-              />
-            </Suspense>
-
-            {/* گرید/لیست محصولات */}
-            <Suspense
-              key={JSON.stringify(filters)}
-              fallback={<ProductsSkeleton view={view} />}
-            >
-              {products.length === 0 ? (
-                <EmptyState />
-              ) : (
-                <ProductsGridWrapper
-                  products={products}
-                  view={view}
-                  isPending={false}
-                />
-              )}
-            </Suspense>
-
-            {/* Pagination */}
-            {(meta.last_page || 1) > 1 && (
-              <Suspense>
-                <Pagination
-                  currentPage={meta.current_page || 1}
-                  lastPage={meta.last_page || 1}
+          <div className="flex gap-5 items-start">
+            {/* ── Sidebar — desktop ── */}
+            <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-6">
+              <Suspense
+                fallback={
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="h-10 bg-gray-100 rounded-xl animate-pulse"
+                      />
+                    ))}
+                  </div>
+                }
+              >
+                <ProductsFilter
+                  categories={categories}
+                  priceRange={priceRange}
                 />
               </Suspense>
-            )}
-          </main>
+            </aside>
+
+            {/* ── محتوا ── */}
+            <main className="flex-1 min-w-0 space-y-4">
+              {/* Toolbar */}
+              <Suspense
+                fallback={
+                  <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
+                }
+              >
+                <ProductsToolbar
+                  total={meta.total || 0}
+                  categories={categories}
+                  priceRange={priceRange}
+                />
+              </Suspense>
+
+              {/* گرید/لیست محصولات */}
+              <Suspense
+                key={JSON.stringify(filters)}
+                fallback={<ProductsSkeleton view={view} />}
+              >
+                {products.length === 0 ? (
+                  <EmptyState />
+                ) : (
+                  <ProductsGridWrapper
+                    products={products}
+                    view={view}
+                    isPending={false}
+                  />
+                )}
+              </Suspense>
+
+              {/* Pagination */}
+              {(meta.last_page || 1) > 1 && (
+                <Suspense>
+                  <Pagination
+                    currentPage={meta.current_page || 1}
+                    lastPage={meta.last_page || 1}
+                  />
+                </Suspense>
+              )}
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
