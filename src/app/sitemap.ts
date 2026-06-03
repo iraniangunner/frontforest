@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://pmk-co.com";
+const BASE_URL = "https://petra.pmk-co.com";
 
 // صفحات ثابت سایت
 const staticPages: MetadataRoute.Sitemap = [

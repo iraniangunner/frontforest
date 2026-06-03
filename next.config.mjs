@@ -4,7 +4,7 @@ const nextConfig = {
         remotePatterns: [
           {
             protocol: 'https',
-            hostname: 'pmk-co.com',
+            hostname: 'petra.pmk-co.com',
             pathname: '/storage/**',
           },
         ],

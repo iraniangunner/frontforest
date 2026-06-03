@@ -147,7 +147,7 @@ export default function Footer() {
                 <div>
                   <p className="text-xs text-gray-500 mb-0.5">ایمیل</p>
                   <p className="text-sm text-gray-300" dir="ltr">
-                    info@pmk-co.com
+                    info@petra.pmk-co.com
                   </p>
                 </div>
               </div>

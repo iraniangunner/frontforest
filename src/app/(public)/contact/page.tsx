@@ -69,7 +69,7 @@ export default function ContactPage() {
                       className="text-gray-900 hover:text-teal-600 transition-colors"
                       dir="ltr"
                     >
-                      info@pmk-co.com
+                      info@petra.pmk-co.com
                     </a>
                   </dd>
                 </div>
