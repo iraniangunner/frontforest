@@ -84,7 +84,7 @@ function PostJsonLd({ post, slug }: { post: any; slug: string }) {
     ...(post.author && {
       author: {
         "@type": "Person",
-        name: post.author,
+        name: post.author.name,
       },
     }),
     publisher: {
