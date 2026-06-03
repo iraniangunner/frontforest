@@ -43,29 +43,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "مقاله | فانتوم پلاس" };
-
-  const title = `${post.title} | اخبار و مقالات`;
-  const description = post.excerpt || post.title;
-  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/posts/${slug}`;
-
   return {
-    title,
-    description,
-    alternates: { canonical: url },
+    title: `${post.title} | اخبار و مقالات`,
+    description: post.excerpt || post.title,
     openGraph: {
       title: post.title,
-      description,
-      url,
-      siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      description: post.excerpt || post.title,
       type: "article",
       locale: "fa_IR",
-      images: post.thumbnail ? [{ url: post.thumbnail, alt: post.title }] : [],
+      images: post.thumbnail ? [{ url: post.thumbnail }] : [],
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: post.thumbnail ? [post.thumbnail] : [],
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/posts/${slug}`,
     },
   };
 }
@@ -118,7 +107,7 @@ export default async function PostPage({ params }: Props) {
         <PostHero title={post.title} thumbnail={post.thumbnail} />
         <div className="max-w-3xl mx-auto px-4 py-8">
           <PostMeta
-            author={post.author.name}
+            author={post.author}
             publishedAt={post.published_at}
             views={post.views}
             commentsCount={comments.length}
