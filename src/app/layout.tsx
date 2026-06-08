@@ -48,6 +48,9 @@ const yekanbakh = localFont({
 
 export const metadata: Metadata = {
   title: "نمایندگی انحصاری فانتوم پلاس در ایران",
+  icons: {
+    icon: "/favicon.ico",
+  },
   description:
     "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
   alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL },
