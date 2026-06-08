@@ -1,13 +1,16 @@
 "use client";
 
 // app/(public)/_components/HeroCarousel.tsx
-import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Product } from "@/types";
 
-// رنگ‌های پس‌زمینه — به ترتیب روی اسلایدها اعمال میشن
+
+
+// رنگ‌های پس‌زمینه
 const BG_COLORS = [
   { bg: "#f0faf5", accent: "#1D9E75" },
   { bg: "#f0f5ff", accent: "#3b5bdb" },
@@ -22,46 +25,8 @@ interface Props {
   products: Product[];
 }
 
-const INTERVAL = 5000;
-
 export default function HeroCarousel({ products }: Props) {
-  const [cur, setCur] = useState(0);
-  const [prev, setPrev] = useState<number | null>(null);
-  const [dir, setDir] = useState<"next" | "prev">("next");
-  const [animating, setAnimating] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
-
-  const total = products.length;
-
-  const go = useCallback(
-    (n: number, direction: "next" | "prev" = "next") => {
-      if (animating || total === 0) return;
-      const next = (n + total) % total;
-      setDir(direction);
-      setPrev(cur);
-      setCur(next);
-      setAnimating(true);
-      clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        setPrev(null);
-        setAnimating(false);
-      }, 580);
-    },
-    [animating, cur, total],
-  );
-
-  useEffect(() => {
-    if (total <= 1) return;
-    const t = setInterval(() => go(cur + 1, "next"), INTERVAL);
-    return () => clearInterval(t);
-  }, [cur, go, total]);
-
-  if (!total) return null;
-
-  const product = products[cur];
-  const prevProduct = prev !== null ? products[prev] : null;
-  const colors = BG_COLORS[cur % BG_COLORS.length];
-  const prevColors = prev !== null ? BG_COLORS[prev % BG_COLORS.length] : null;
+  if (!products.length) return null;
 
   return (
     <div
@@ -69,72 +34,104 @@ export default function HeroCarousel({ products }: Props) {
       style={{ height: "260px" }}
       dir="rtl"
     >
+      {/* استایل‌های لازم برای Swiper Pagination */}
       <style>{`
-        @keyframes slideInNext  { from { transform: translateX(-6%) scale(.98); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
-        @keyframes slideOutNext { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(6%) scale(.98); opacity: 0; } }
-        @keyframes slideInPrev  { from { transform: translateX(6%) scale(.98); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
-        @keyframes slideOutPrev { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(-6%) scale(.98); opacity: 0; } }
-        .in-next  { animation: slideInNext  .55s cubic-bezier(.4,0,.2,1) forwards; }
-        .out-next { animation: slideOutNext .55s cubic-bezier(.4,0,.2,1) forwards; }
-        .in-prev  { animation: slideInPrev  .55s cubic-bezier(.4,0,.2,1) forwards; }
-        .out-prev { animation: slideOutPrev .55s cubic-bezier(.4,0,.2,1) forwards; }
+        .hero-swiper .swiper-pagination {
+          bottom: 16px !important;
+        }
+        .hero-swiper .swiper-pagination-bullet {
+          width: 7px;
+          height: 7px;
+          background: rgba(0,0,0,.18);
+          opacity: 1;
+          transition: all .3s;
+          border-radius: 9999px;
+        }
+        .hero-swiper .swiper-pagination-bullet-active {
+          width: 22px !important;
+          border-radius: 9999px;
+        }
+        /* دکمه‌های ناوبری سفارشی */
+        .hero-prev-btn,
+        .hero-next-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          width: 36px;
+          height: 36px;
+          border-radius: 9999px;
+          background: rgba(255,255,255,.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 1px 4px rgba(0,0,0,.1);
+          cursor: pointer;
+          border: none;
+          transition: background .2s, transform .2s;
+        }
+        .hero-prev-btn:hover,
+        .hero-next-btn:hover {
+          background: white;
+          transform: translateY(-50%) scale(1.05);
+        }
+        .hero-prev-btn { right: 16px; }
+        .hero-next-btn { left: 16px; }
+        .swiper-button-disabled.hero-prev-btn,
+        .swiper-button-disabled.hero-next-btn {
+          opacity: 0.3;
+          pointer-events: none;
+        }
       `}</style>
 
-      {/* اسلاید قبلی */}
-      {prevProduct && prevColors && (
-        <div
-          className={`absolute inset-0 ${dir === "next" ? "out-next" : "out-prev"}`}
-          style={{ backgroundColor: prevColors.bg }}
-        >
-          <SlideContent product={prevProduct} accent={prevColors.accent} />
-        </div>
-      )}
-
-      {/* اسلاید فعلی */}
-      <div
-        className={`absolute inset-0 ${animating ? (dir === "next" ? "in-next" : "in-prev") : ""}`}
-        style={{ backgroundColor: colors.bg }}
+      <Swiper
+        dir="rtl"
+        key="rtl"
+        className="hero-swiper h-full"
+        modules={[Autoplay, Navigation, Pagination]}
+        slidesPerView={1}
+        spaceBetween={0}
+        loop={products.length > 1}
+        autoplay={{
+          delay: 5000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        navigation={{
+          prevEl: ".hero-prev-btn",
+          nextEl: ".hero-next-btn",
+        }}
+        pagination={{
+          clickable: true,
+          // رنگ پویا برای bullet فعال — از طریق CSS variable
+          renderBullet: (index, className) =>
+            `<span class="${className}" style="--bullet-index:${index}"></span>`,
+        }}
+        speed={550}
       >
-        <SlideContent product={product} accent={colors.accent} />
-      </div>
+        {products.map((product, i) => {
+          const colors = BG_COLORS[i % BG_COLORS.length];
+          return (
+            <SwiperSlide
+              key={product.id}
+              style={{ backgroundColor: colors.bg }}
+            >
+              <SlideContent product={product} accent={colors.accent} />
+            </SwiperSlide>
+          );
+        })}
+      </Swiper>
 
-      {/* arrows */}
-      {total > 1 && (
+      {/* دکمه‌های ناوبری — خارج از Swiper تا استایل مستقل داشته باشن */}
+      {products.length > 1 && (
         <>
-          <button
-            onClick={() => go(cur - 1, "prev")}
-            aria-label="قبلی"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105"
-          >
+          <button className="hero-prev-btn" aria-label="قبلی">
             <HiChevronRight className="w-5 h-5 text-gray-600" />
           </button>
-          <button
-            onClick={() => go(cur + 1, "next")}
-            aria-label="بعدی"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm transition-all hover:scale-105"
-          >
+          <button className="hero-next-btn" aria-label="بعدی">
             <HiChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
         </>
-      )}
-
-      {/* dots */}
-      {total > 1 && (
-        <div className="absolute bottom-4 right-1/2 translate-x-1/2 flex gap-2 z-10">
-          {products.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => go(i, i > cur ? "next" : "prev")}
-              aria-label={`اسلاید ${i + 1}`}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: i === cur ? "22px" : "7px",
-                height: "7px",
-                background: i === cur ? colors.accent : "rgba(0,0,0,.18)",
-              }}
-            />
-          ))}
-        </div>
       )}
     </div>
   );
