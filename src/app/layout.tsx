@@ -54,6 +54,9 @@ export const metadata: Metadata = {
   },
   description:
     "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+  verification: {
+    google: "1nXv1VVb_D9HbajkcQTp507Iru1JAYv2lqfraw3gNVA",
+  },
   alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL },
 };
 
