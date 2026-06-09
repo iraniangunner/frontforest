@@ -15,18 +15,9 @@ export default async function HomePage() {
   const categories = catsRes.data.data || [];
   const products = latestRes.data.data || [];
 
-  // تصویر اول برای preload
-  const firstProductImage = products[0]?.thumbnail;
-
   return (
     <>
-      {firstProductImage && (
-        <link
-          rel="preload"
-          as="image"
-          href={`/_next/image?url=${encodeURIComponent(firstProductImage)}&w=640&q=75`}
-        />
-      )}
+     
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-8">
         <HeroCarousel products={slides} />
         <CategoriesSection categories={categories} />
