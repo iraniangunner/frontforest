@@ -37,13 +37,13 @@ function CommentItem({ comment }: { comment: Comment }) {
     <div className="space-y-3">
       <div className="flex gap-3">
         <div className="w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-sm font-bold flex-shrink-0 mt-1">
-          {comment.user.name.charAt(0)}
+          {comment.user?.name?.charAt(0) || "ک"}
         </div>
         <div className="flex-1">
           <div className="bg-gray-50 rounded-2xl rounded-tr-sm p-4">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-semibold text-gray-900">
-                {comment.user.name}
+                {comment.user?.name}
               </p>
               <p className="text-xs text-gray-400">
                 {fmtDateTime(comment.created_at)}
@@ -59,13 +59,13 @@ function CommentItem({ comment }: { comment: Comment }) {
       {comment.replies.map((reply) => (
         <div key={reply.id} className="flex gap-3 mr-12">
           <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-1">
-            {reply.user.name.charAt(0)}
+            {reply.user?.name?.charAt(0) || "ا"}
           </div>
           <div className="flex-1">
             <div className="bg-teal-50 rounded-2xl rounded-tr-sm p-3.5 border border-teal-100">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <p className="text-xs font-semibold text-teal-800">
-                  {reply.user.name}
+                  {reply.user?.name || "ادمین"}
                 </p>
                 <span className="text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-medium">
                   پاسخ تیم پشتیبانی
@@ -156,9 +156,9 @@ export default function PostComments({ slug, comments: init }: Props) {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-sm font-bold">
-                {user.name?.charAt(0)}
+                {user?.name?.charAt(0) || "ک"}
               </div>
-              <p className="text-sm font-medium text-gray-700">{user.name}</p>
+              <p className="text-sm font-medium text-gray-700">{user?.name || "کاربر"}</p>
             </div>
             <textarea
               value={body}

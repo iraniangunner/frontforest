@@ -29,9 +29,9 @@ export default function PostMeta({
     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 py-4 mb-6 border-b border-gray-200">
       <span className="flex items-center gap-1.5">
         <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-xs font-bold">
-          {author.name.charAt(0)}
+          {author?.name?.charAt(0) || "ا"}
         </div>
-        {author.name}
+        {author?.name || "ادمین"}
       </span>
       <span className="flex items-center gap-1.5">
         <HiCalendar className="w-4 h-4 text-gray-400" />

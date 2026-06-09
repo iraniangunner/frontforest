@@ -42,7 +42,7 @@ export default function PostsCard({ post }: { post: Post }) {
           </p>
         )}
         <div className="flex items-center gap-2 text-xs text-gray-400 pt-3 border-t border-gray-50 mt-auto">
-          <span>{post.author.name}</span>
+          <span>{post.author?.name || "ادمین"}</span>
           <span>·</span>
           <span>{fmtDate(post.published_at)}</span>
           <span className="mr-auto flex items-center gap-1">
