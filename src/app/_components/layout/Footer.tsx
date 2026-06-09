@@ -80,7 +80,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="text-white font-bold text-lg">اطلاعات تماس</h3>
             <div className="flex flex-col gap-4">
-              <a href="tel:02122252875" className="flex items-start gap-3 group">
+              <a href="tel:02122252875" className="flex items-start gap-3 group p-3">
                 <div className="w-9 h-9 rounded-lg bg-gray-800/50 border border-gray-700/50 group-hover:border-teal-500/50 flex items-center justify-center flex-shrink-0 transition-colors">
                   <HiPhone className="w-4 h-4 text-teal-400" />
                 </div>
@@ -91,7 +91,7 @@ export default function Footer() {
                   </p>
                 </div>
               </a>
-              <a href="mailto:info@petra.pmk-co.com" className="flex items-start gap-3 group">
+              <a href="mailto:info@petra.pmk-co.com" className="flex items-start gap-3 group p-3">
                 <div className="w-9 h-9 rounded-lg bg-gray-800/50 border border-gray-700/50 group-hover:border-teal-500/50 flex items-center justify-center flex-shrink-0 transition-colors">
                   <HiMail className="w-4 h-4 text-teal-400" />
                 </div>
