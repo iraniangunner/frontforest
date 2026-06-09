@@ -13,21 +13,39 @@ import { UserStatusProvider } from "@/context/UserStatusContext";
 const yekanbakh = localFont({
   src: [
     {
+      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Thin.woff2",
+      weight: "100",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
       path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Regular.woff2",
       weight: "400",
+      style: "normal",
     },
     {
       path: "../../public/fonts/yekanbakh/YekanBakhFaNum-SemiBold.woff2",
       weight: "600",
+      style: "normal",
     },
     {
       path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Bold.woff2",
       weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Black.woff2",
+      weight: "900",
+      style: "normal",
     },
   ],
   variable: "--font-yekanbakh",
-  display: 'swap',
-})
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "نمایندگی انحصاری فانتوم پلاس در ایران",
@@ -46,22 +64,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl">
-      <head>
-        <link 
-          rel="preload" 
-          href="/fonts/yekanbakh/YekanBakhFaNum-Regular.woff2" 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
-        <link 
-          rel="preload" 
-          href="/fonts/yekanbakh/YekanBakhFaNum-Bold.woff2" 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous" 
-        />
-      </head>
       <body className={`${yekanbakh.variable} antialiased`}>
         <AuthProvider>
           <CartProvider>
