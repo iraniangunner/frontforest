@@ -43,7 +43,7 @@ export default function PostsHeroCard({ post }: { post: Post }) {
             </p>
           )}
           <div className="flex items-center gap-3 text-xs text-gray-400 pt-2 border-t border-gray-100">
-            <span>{post.author.name}</span>
+            <span>{post.author?.name|| "ادمین"}</span>
             <span>·</span>
             <span>{fmtDate(post.published_at)}</span>
             <span className="mr-auto flex items-center gap-1">
