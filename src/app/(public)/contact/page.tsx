@@ -65,7 +65,7 @@ export default function ContactPage() {
                   <dt className="text-sm font-medium text-gray-500">ایمیل</dt>
                   <dd className="mt-1">
                     <a
-                      href="mailto:info@pmk-co.com"
+                      href="mailto:info@petra.pmk-co.com"
                       className="text-gray-900 hover:text-teal-600 transition-colors"
                       dir="ltr"
                     >

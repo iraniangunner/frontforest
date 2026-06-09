@@ -142,7 +142,7 @@ export default function Header() {
                 alt="فانتوم پلاس"
                 width={120}
                 height={40}
-                className="w-auto object-contain"
+                className="object-contain"
                 priority
               />
             </Link>
