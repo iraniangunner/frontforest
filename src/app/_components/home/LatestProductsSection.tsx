@@ -92,9 +92,9 @@ export default function LatestProductsSection({ products }: Props) {
               }}
               className="pb-2"
             >
-              {products.map((p) => (
+              {products.map((p,i) => (
                 <SwiperSlide key={p.id}>
-                  <ProductCard product={p} view="grid" />
+                  <ProductCard product={p} view="grid" priority={i===0} />
                 </SwiperSlide>
               ))}
             </Swiper>

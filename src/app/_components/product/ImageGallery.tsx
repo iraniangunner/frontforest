@@ -78,6 +78,7 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
             onClick={() => openLightbox(activeIndex)}
             className="absolute top-3 left-3 w-9 h-9 bg-white/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:shadow-md z-10"
             title="بزرگنمایی"
+            aria-label="بزرگنمایی"
           >
             <HiZoomIn className="w-4 h-4 text-gray-700" />
           </button>

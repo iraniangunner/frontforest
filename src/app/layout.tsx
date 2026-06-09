@@ -44,6 +44,7 @@ const yekanbakh = localFont({
     },
   ],
   variable: "--font-yekanbakh",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -73,7 +74,7 @@ export default function RootLayout({
                 position="top-center"
                 toastOptions={{
                   duration: 3000,
-                  style: { fontFamily: "Vazirmatn, sans-serif" },
+                  style: { fontFamily: "var(--font-yekanbakh), sans-serif" },
                 }}
               />
             </UserStatusProvider>

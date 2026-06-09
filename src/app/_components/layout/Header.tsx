@@ -280,6 +280,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                  aria-label="ورود / ثبت نام"
                 >
                   <HiUser className="w-4 h-4 flex-shrink-0" />
                   <span className="hidden sm:inline">ورود / ثبت‌نام</span>
@@ -303,10 +304,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* ── Mobile Menu — زیر lg ──
-            FIX: به جای max-h انیمیشن، از translate استفاده میکنیم
-            تا محتوای داخلی clip نشه و اسکرول درست کار کنه
-        */}
+       
         <div
           className={`lg:hidden border-t border-gray-100 transition-all duration-300 ease-in-out ${
             mobileMenuOpen
@@ -363,6 +361,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl font-medium text-sm"
+                  aria-label="ورود / ثبت نام"
                 >
                   <HiUser className="w-4 h-4" />
                   ورود / ثبت‌نام

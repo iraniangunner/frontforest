@@ -116,7 +116,7 @@ export default function HeroCarousel({ products }: Props) {
               key={product.id}
               style={{ backgroundColor: colors.bg }}
             >
-              <SlideContent product={product} accent={colors.accent} />
+              <SlideContent product={product} accent={colors.accent} priority={i === 0}/>
             </SwiperSlide>
           );
         })}
@@ -141,9 +141,11 @@ export default function HeroCarousel({ products }: Props) {
 function SlideContent({
   product,
   accent,
+  priority = false, 
 }: {
   product: Product;
   accent: string;
+  priority?: boolean;
 }) {
   const hasDiscount = !!product.sale_price;
 
@@ -213,7 +215,7 @@ function SlideContent({
             fill
             className="object-contain drop-shadow-sm"
             sizes="(max-width:640px) 160px, 208px"
-            priority
+            priority={priority}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-7xl">

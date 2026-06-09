@@ -30,9 +30,10 @@ const safeRating = (r: any): number => {
 interface Props {
   product: Product;
   view?: "grid" | "list";
+  priority?: boolean;
 }
 
-export default function ProductCard({ product, view = "grid" }: Props) {
+export default function ProductCard({ product, view = "grid" , priority=false }: Props) {
 
   const { refreshCart } = useCart();
   const { toggleFavorite, isInCart, isFavorite , addToCart} = useUserStatus();
@@ -118,6 +119,7 @@ export default function ProductCard({ product, view = "grid" }: Props) {
               alt={product.title}
               fill
               className="object-cover"
+             priority={priority}
             />
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-2xl">
@@ -241,6 +243,7 @@ export default function ProductCard({ product, view = "grid" }: Props) {
             alt={product.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
+            priority={priority}
           />
         ) : (
           <span className="absolute inset-0 flex items-center justify-center text-4xl">

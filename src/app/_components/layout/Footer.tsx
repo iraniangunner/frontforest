@@ -174,7 +174,7 @@ export default function Footer() {
             <div className="flex items-center gap-4">
               <div
                 dangerouslySetInnerHTML={{
-                  __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx' alt='' style='cursor:pointer' code='synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'></a>`,
+                  __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx' alt='' style='cursor:pointer' code='synYdfAw4LxI5IBm9pLxabTEg0pyNIyx' aria-label='نماد اعتماد الکترونیکی'></a>`,
                 }}
               />
 

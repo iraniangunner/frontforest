@@ -1,4 +1,3 @@
-
 // context/AuthContext.tsx
 "use client";
 import {
@@ -47,7 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(response.data);
       }
     } catch (error: any) {
-      console.error("Auth check error:", error);
+      if (error?.response?.status !== 401) {
+        console.error("Auth check error:", error);
+      }
       setUser(null);
     } finally {
       setLoading(false);
@@ -60,12 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── polling هر ۳ دقیقه ──
   useEffect(() => {
-    const interval = setInterval(
-      () => {
-        refreshUser();
-      },
-      3 * 60 * 1000,
-    );
+    const interval = setInterval(() => {
+      refreshUser();
+    }, 3 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [refreshUser]);
