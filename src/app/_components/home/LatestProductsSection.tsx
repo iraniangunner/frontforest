@@ -67,13 +67,12 @@ export default function LatestProductsSection({ products }: Props) {
             <HiChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
 
-          <div className="overflow-hidden">
+          <div className="overflow-hidden" style={{ minHeight: "380px" }}>
             <Swiper
               dir="rtl"
               key="rtl"
               onSwiper={(swiper) => {
                 swiperRef.current = swiper;
-                // کمی صبر میکنیم تا breakpoint اعمال بشه
                 setTimeout(() => checkArrows(swiper), 0);
               }}
               onSlideChange={(swiper) => {
@@ -91,10 +90,14 @@ export default function LatestProductsSection({ products }: Props) {
                 1280: { slidesPerView: 4 },
               }}
               className="pb-2"
+              style={{ visibility: "hidden" }} // ← اضافه کن
+              onInit={(swiper) => {
+                swiper.el.style.visibility = "visible"; // ← اضافه کن
+              }}
             >
-              {products.map((p,i) => (
-                <SwiperSlide key={p.id}>
-                  <ProductCard product={p} view="grid" priority={i===0} />
+              {products.map((p, i) => (
+                <SwiperSlide key={p.id} style={{ height: "auto" }}>
+                  <ProductCard product={p} view="grid" priority={i === 0} />
                 </SwiperSlide>
               ))}
             </Swiper>

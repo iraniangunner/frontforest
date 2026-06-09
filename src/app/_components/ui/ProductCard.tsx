@@ -33,10 +33,13 @@ interface Props {
   priority?: boolean;
 }
 
-export default function ProductCard({ product, view = "grid" , priority=false }: Props) {
-
+export default function ProductCard({
+  product,
+  view = "grid",
+  priority = false,
+}: Props) {
   const { refreshCart } = useCart();
-  const { toggleFavorite, isInCart, isFavorite , addToCart} = useUserStatus();
+  const { toggleFavorite, isInCart, isFavorite, addToCart } = useUserStatus();
   const { user } = useAuth();
 
   const [adding, setAdding] = useState(false);
@@ -46,31 +49,32 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
 
   // ── افزودن به سبد ──────────────────────────────────────────────────
   const handleAddToCart = async (e: React.MouseEvent) => {
-  e.preventDefault(); e.stopPropagation();
-  if (!product.is_in_stock) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product.is_in_stock) return;
 
-  if (!user) {
-    toast.error("ابتدا وارد حساب خود شوید");
-    return;
-  }
+    if (!user) {
+      toast.error("ابتدا وارد حساب خود شوید");
+      return;
+    }
 
-  if (isInCart(product.id)) {
-    toast("این محصول قبلاً به سبد اضافه شده", { icon: "🛒" });
-    return;
-  }
+    if (isInCart(product.id)) {
+      toast("این محصول قبلاً به سبد اضافه شده", { icon: "🛒" });
+      return;
+    }
 
-  setAdding(true);
-  try {
-    await cartAPI.add(product.id, 1);
-    addToCart(product.id); 
-    refreshCart();      // ← optimistic update — UI فوری عوض میشه
-    toast.success("به سبد خرید اضافه شد");
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "خطا در افزودن");
-  } finally {
-    setAdding(false);
-  }
-};
+    setAdding(true);
+    try {
+      await cartAPI.add(product.id, 1);
+      addToCart(product.id);
+      refreshCart(); // ← optimistic update — UI فوری عوض میشه
+      toast.success("به سبد خرید اضافه شد");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "خطا در افزودن");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   // ── علاقه‌مندی ─────────────────────────────────────────────────────
   const toggleFav = async (e: React.MouseEvent) => {
@@ -118,8 +122,9 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
               src={product.thumbnail}
               alt={product.title}
               fill
+              sizes="80px"
               className="object-cover"
-             priority={priority}
+              priority={priority}
             />
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-2xl">
@@ -138,8 +143,8 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
           {product.category && (
             <p className="text-xs text-gray-400 mb-0.5">
               {/* نمایش مسیر: والد > فرزند */}
-    
-             {product.category.name}
+
+              {product.category.name}
             </p>
           )}
           <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-teal-600 transition-colors">
@@ -191,6 +196,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
             <button
               onClick={toggleFav}
               disabled={togglingFav}
+              aria-label={isFavorite(product.id)? "در علاقه مندی ها" : "افزودن به علاقه مندی ها"}
               className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${
                 isFavorite(product.id)
                   ? "border-red-200 bg-red-50 text-red-500"
@@ -204,6 +210,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
             <button
               onClick={handleAddToCart}
               disabled={adding || !product.is_in_stock}
+              aria-label={isInCart(product.id)? "در سبد خرید" : "افزودن به سبد خرید"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 isInCart(product.id)
                   ? "bg-teal-50 text-teal-700 border border-teal-200"
@@ -242,6 +249,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
             src={product.thumbnail}
             alt={product.title}
             fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             priority={priority}
           />
@@ -278,6 +286,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
         <button
           onClick={toggleFav}
           disabled={togglingFav}
+          aria-label={isFavorite(product.id)? "در علاقه مندی ها" : "افزودن به علاقه مندی ها"}
           className={`absolute top-2 left-2 w-8 h-8 rounded-full shadow flex items-center justify-center transition-all
             opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 ${
               isFavorite(product.id)
@@ -294,7 +303,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
         {/* نمایش مسیر دسته‌بندی: والد > فرزند */}
         {product.category && (
           <p className="text-xs text-gray-400 mb-0.5">
-           {product.category.name}
+            {product.category.name}
           </p>
         )}
 
@@ -307,7 +316,9 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
           {Array.from({ length: 5 }).map((_, i) => (
             <HiStar
               key={i}
-              className={`w-3 h-3 ${i < Math.round(rating) ? "text-amber-400" : "text-gray-200"}`}
+              className={`w-3 h-3 ${
+                i < Math.round(rating) ? "text-amber-400" : "text-gray-200"
+              }`}
             />
           ))}
           <span className="text-xs text-gray-400 mr-0.5">
@@ -344,6 +355,7 @@ export default function ProductCard({ product, view = "grid" , priority=false }:
           <button
             onClick={handleAddToCart}
             disabled={adding || !product.is_in_stock}
+            aria-label={isInCart(product.id)? "در سبد خرید" : "افزودن به سبد خرید"}
             title={isInCart(product.id) ? "در سبد خرید" : "افزودن به سبد"}
             className={`w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-all ${
               isInCart(product.id)
