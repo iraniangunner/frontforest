@@ -1,4 +1,3 @@
-
 "use server";
 
 import { cookies } from "next/headers";
@@ -151,7 +150,7 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
 // ========================
 export async function revokeSessionBeforeLoginAction(
   sessionToken: string,
-  sessionId: number
+  sessionId: number,
 ) {
   try {
     const res = await fetch(`${API_URL}/auth/sessions/revoke-before-login`, {
@@ -328,7 +327,7 @@ export async function sendVerifyOtpAction(prevState: any, formData: FormData) {
 // تایید OTP
 export async function confirmVerifyOtpAction(
   prevState: any,
-  formData: FormData
+  formData: FormData,
 ) {
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string;

@@ -4,3 +4,5 @@ export { ErrorMessage } from "./ErrorMessage";
 export { AuthCard } from "./AuthCard";
 export { MobileForm } from "./MobileForm";
 export { OtpForm } from "./OtpForm";
+export {LoginFormClient} from "./LoginFormClient";
+export { IdentifierForm } from "./IdentifierForm";

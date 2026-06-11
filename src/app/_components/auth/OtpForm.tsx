@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { ArrowLeft, RefreshCw, Timer } from "lucide-react";
@@ -33,8 +31,7 @@ export function OtpForm({
   const formatTime = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const backLabel =
-    channel === "email" ? "تغییر ایمیل" : "تغییر شماره موبایل";
+  const backLabel = channel === "email" ? "تغییر ایمیل" : "تغییر شماره موبایل";
 
   return (
     <form action={action} className="space-y-6">
