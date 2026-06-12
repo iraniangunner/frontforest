@@ -1,0 +1,15 @@
+// app/(public)/profile/addresses/layout.tsx
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "آدرس‌های من | نمایندگی انحصاری فانتوم پلاس در ایران",
+  description: "مدیریت آدرس‌های تحویل شما",
+};
+
+export default function ProfileAddressesLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}

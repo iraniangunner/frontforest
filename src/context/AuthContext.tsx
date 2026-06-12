@@ -1,5 +1,5 @@
+// context/AuthContext.tsx
 "use client";
-
 import {
   createContext,
   useContext,
@@ -37,14 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const tokenRes = await fetch("/api/token");
-      const tokenData = await tokenRes.json();
-      if (!tokenData.token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
       const response = await authAPI.me();
       if (response.data.data) {
         setUser(response.data.data);
@@ -67,16 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser();
   }, []);
 
+  // ── polling هر ۳ دقیقه ──
   useEffect(() => {
-    if (!user) return;
-    const interval = setInterval(
-      () => {
-        refreshUser();
-      },
-      3 * 60 * 1000,
-    );
+    const interval = setInterval(() => {
+      refreshUser();
+    }, 3 * 60 * 1000);
+
     return () => clearInterval(interval);
-  }, [refreshUser, user]);
+  }, [refreshUser]);
 
   useEffect(() => {
     const handleLogout = () => setUser(null);

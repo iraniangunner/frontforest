@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { HiLogin, HiExclamationCircle } from "react-icons/hi";
 import Link from "next/link";
@@ -7,14 +7,25 @@ import { usePathname } from "next/navigation";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  requireComplete?: boolean; // پیش‌فرض true
+  requireComplete?: boolean;
 }
 
 export default function AuthGuard({ children, requireComplete = true }: AuthGuardProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
   const pathname = usePathname();
+  const [retried, setRetried] = useState(false);
 
-  if (loading) {
+  // اگه user نبود، یه بار دیگه retry کن قبل از نشون دادن پیام لاگین
+  // (برای مواقعی که بعد از login تازه به این صفحه اومدیم و
+  // اولین درخواست هنوز کوکی جدید رو نگرفته بود)
+  useEffect(() => {
+    if (!loading && !user && !retried) {
+      setRetried(true);
+      refreshUser();
+    }
+  }, [loading, user, retried, refreshUser]);
+
+  if (loading || (!user && !retried)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
@@ -61,7 +72,6 @@ export default function AuthGuard({ children, requireComplete = true }: AuthGuar
   // پروفایل ناقص (فقط اگه requireComplete = true باشه)
   if (requireComplete && (!user.email || !user.mobile)) {
     const missingField = !user.email ? "ایمیل" : "شماره موبایل";
-
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
         <div className="max-w-md mx-auto px-4">

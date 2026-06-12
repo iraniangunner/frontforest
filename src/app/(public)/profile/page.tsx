@@ -20,6 +20,7 @@ interface Stats {
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  
   const [stats, setStats] = useState<Stats>({
     orders: 0,
     favorites: 0,

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { cartAPI } from "@/lib/api";
 
 interface CartContextType {
@@ -16,9 +16,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartCount, setCartCount] = useState(0);
 
-  useEffect(() => {
-    refreshCart();
-  }, []);
+  // توجه: دیگه روی mount خودکار صدا زده نمیشه.
+  // Header.tsx خودش با چک `if (user) refreshCart()` این رو موقع لاگین صدا میزنه.
 
   const refreshCart = async () => {
     try {
