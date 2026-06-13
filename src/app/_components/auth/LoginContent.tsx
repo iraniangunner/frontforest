@@ -8,6 +8,7 @@ import { sendOtpAction, verifyOtpAction } from "@/app/_actions/auth";
 import { AuthCard, OtpForm } from "@/app/_components/auth";
 import SessionModal from "@/app/_components/auth/SessionModal";
 import { useAuth } from "@/context/AuthContext";
+import { SubmitButton } from "@/app/_components/auth/SubmitButton";
 
 // ─── helpers ──────────────────────────────────────────────────
 const isMobile = (v: string) => /^09[0-9]{9}$/.test(v);
@@ -41,17 +42,17 @@ function IdentifierForm({
     state === "mobile"
       ? "✓ شماره موبایل - کد SMS ارسال می‌شود"
       : state === "email"
-        ? "✓ ایمیل - کد به ایمیل شما ارسال می‌شود"
-        : state === "invalid"
-          ? "یک شماره موبایل (09...) یا ایمیل معتبر وارد کنید"
-          : "شماره موبایل یا ایمیل خود را وارد کنید";
+      ? "✓ ایمیل - کد به ایمیل شما ارسال می‌شود"
+      : state === "invalid"
+      ? "یک شماره موبایل (09...) یا ایمیل معتبر وارد کنید"
+      : "شماره موبایل یا ایمیل خود را وارد کنید";
 
   const hintColor =
     state === "mobile" || state === "email"
       ? "text-emerald-600"
       : state === "invalid"
-        ? "text-red-500"
-        : "text-slate-400";
+      ? "text-red-500"
+      : "text-slate-400";
 
   return (
     <form action={action} className="space-y-4">
@@ -68,7 +69,9 @@ function IdentifierForm({
           dir="ltr"
           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-left placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-sm"
         />
-        <p className={`text-xs text-right transition-colors ${hintColor}`}>{hint}</p>
+        <p className={`text-xs text-right transition-colors ${hintColor}`}>
+          {hint}
+        </p>
       </div>
 
       {error && (
@@ -77,13 +80,12 @@ function IdentifierForm({
         </p>
       )}
 
-      <button
-        type="submit"
+      <SubmitButton
+        labelPending="در حال ارسال..."
+        labelIdle="ارسال کد تایید"
         disabled={state !== "mobile" && state !== "email"}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-medium text-sm shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        ارسال کد تایید
-      </button>
+        icon={null}
+      />
     </form>
   );
 }
@@ -99,6 +101,7 @@ export function LoginContent() {
   const [code, setCode] = useState("");
   const [countdown, setCountdown] = useState(0);
   const [channel, setChannel] = useState<"sms" | "email">("sms");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const [sessionData, setSessionData] = useState<{
     sessions: any[];
@@ -136,6 +139,7 @@ export function LoginContent() {
 
   useEffect(() => {
     if (verifyState.isSuccess) {
+      setIsRedirecting(true);
       refreshUser().then(() => router.push(redirectUrl));
       return;
     }
@@ -158,11 +162,12 @@ export function LoginContent() {
 
   const handleSessionSuccess = () => {
     setSessionData(null);
+    setIsRedirecting(true);
     refreshUser().then(() => router.push(redirectUrl));
   };
 
-  // تا وقتی auth status معلوم نشده یا اگه لاگین بود (در حال redirect)، چیزی نشون نده
-  if (loading || user) {
+  // تا وقتی auth status معلوم نشده، یا کاربر لاگین بود، یا در حال ریدایرکت هستیم، اسپینر کلی نشون بده
+  if (loading || user || isRedirecting) {
     return (
       <div className="flex justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
