@@ -58,8 +58,41 @@ export const metadata: Metadata = {
     google: "1nXv1VVb_D9HbajkcQTp507Iru1JAYv2lqfraw3gNVA",
   },
   alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL },
+  openGraph: {
+    title: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    description:
+      "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+    url: process.env.NEXT_PUBLIC_SITE_URL,
+    siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    locale: "fa_IR",
+    type: "website",
+  },
 };
 
+// Schema.org JSON-LD
+function OrganizationJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    url: process.env.NEXT_PUBLIC_SITE_URL,
+    logo: `${process.env.NEXT_PUBLIC_SITE_URL}/images/petra-logo.png`,
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+98-21-22252875",
+      contactType: "customer service",
+      areaServed: "IR",
+      availableLanguage: "Persian",
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -68,6 +101,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body className={`${yekanbakh.variable} antialiased`}>
+      <OrganizationJsonLd />
         <AuthProvider>
           <CartProvider>
             <UserStatusProvider>
