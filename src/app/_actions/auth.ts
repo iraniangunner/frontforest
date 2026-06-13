@@ -91,8 +91,11 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
 
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
-  const realIP =
-    headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "";
+  const xff = headersList.get("x-forwarded-for");
+  const realIP = xff
+    ? xff.split(",")[0].trim()
+    : headersList.get("x-real-ip") || headersList.get("ar-real-ip") || "";
+
   try {
     const res = await fetch(`${API_URL}/auth/verify-otp`, {
       method: "POST",
@@ -150,7 +153,7 @@ export async function verifyOtpAction(prevState: any, formData: FormData) {
 // ========================
 export async function revokeSessionBeforeLoginAction(
   sessionToken: string,
-  sessionId: number,
+  sessionId: number
 ) {
   try {
     const res = await fetch(`${API_URL}/auth/sessions/revoke-before-login`, {
@@ -184,8 +187,10 @@ export async function revokeSessionBeforeLoginAction(
 export async function loginAfterRevokeAction(sessionToken: string) {
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "";
-  const realIP =
-    headersList.get("x-forwarded-for") || headersList.get("x-real-ip") || "";
+  const xff = headersList.get("x-forwarded-for");
+  const realIP = xff
+    ? xff.split(",")[0].trim()
+    : headersList.get("x-real-ip") || headersList.get("ar-real-ip") || "";
   try {
     const res = await fetch(`${API_URL}/auth/sessions/login-after-revoke`, {
       method: "POST",
@@ -327,7 +332,7 @@ export async function sendVerifyOtpAction(prevState: any, formData: FormData) {
 // تایید OTP
 export async function confirmVerifyOtpAction(
   prevState: any,
-  formData: FormData,
+  formData: FormData
 ) {
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string;
