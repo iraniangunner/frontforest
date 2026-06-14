@@ -7,6 +7,7 @@ const authRoutes = ["/login"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("access_token")?.value;
+  
 
   // Protected routes - redirect to login if no token
   if (protectedRoutes.some((route) => pathname.startsWith(route))) {

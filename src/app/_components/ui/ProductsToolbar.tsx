@@ -151,3 +151,4 @@ export default function ProductsToolbar({ total, categories, priceRange }: Props
     </>
   );
 }
+

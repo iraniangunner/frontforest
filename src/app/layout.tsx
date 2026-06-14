@@ -9,6 +9,7 @@ import "swiper/css/pagination";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserStatusProvider } from "@/context/UserStatusContext";
+import Script from "next/script";
 
 const yekanbakh = localFont({
   src: [
@@ -100,8 +101,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl">
+      <head>
+        <Script id="yandex-metrica" strategy="afterInteractive">
+          {`
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+            ym(109829000, "init", {
+                ssr:true,
+                webvisor:true,
+                clickmap:true,
+                ecommerce:"dataLayer",
+                accurateTrackBounce:true,
+                trackLinks:true
+            });
+          `}
+        </Script>
+      </head>
       <body className={`${yekanbakh.variable} antialiased`}>
-      <OrganizationJsonLd />
+        <noscript>
+          <div>
+            <img
+              src="https://mc.yandex.ru/watch/109829000"
+              style={{ position: "absolute", left: "-9999px" }}
+              alt=""
+            />
+          </div>
+        </noscript>
+        <OrganizationJsonLd />
         <AuthProvider>
           <CartProvider>
             <UserStatusProvider>

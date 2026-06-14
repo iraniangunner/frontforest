@@ -98,3 +98,4 @@ export default function CategoriesSection({ categories }: Props) {
     </section>
   );
 }
+
