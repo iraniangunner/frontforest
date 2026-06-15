@@ -3,6 +3,7 @@ import Header from "@/app/_components/layout/Header";
 import Footer from "@/app/_components/layout/Footer";
 import { Suspense } from "react";
 import TopLoader from "../_components/ui/TopLoader";
+import HeaderWrapper from "../_components/layout/HeaderWrapper";
 
 export default function PublicLayout({
   children,
@@ -14,7 +15,7 @@ export default function PublicLayout({
       <Suspense>
         <TopLoader />
       </Suspense>
-      <Header />
+      <HeaderWrapper />
       {children}
       <Footer />
     </>
