@@ -152,7 +152,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import ProductDetail from "@/app/_components/product/ProductDetail";
-
 import { publicCategoriesAPI, publicProductsAPI } from "@/lib/api";
 import CategoryProductsPage, { CategoryBreadcrumbJsonLd, CategoryData } from "@/app/_components/ui/CategoryProductsPage";
 

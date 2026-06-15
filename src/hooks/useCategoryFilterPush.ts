@@ -1,23 +1,34 @@
 "use client";
 // app/products/_hooks/useCategoryFilterPush.ts
 import { useTransition, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 
 /**
- * useCategoryFilterPush
- *
- * در صفحات دسته‌بندی (/products/[parent] یا /products/[parent]/[child])،
- * sidebar فیلتر همیشه فقط children یک parent ثابت را نشان می‌دهد
- * (flat، بدون hierarchy). یعنی انتخاب‌های دسته‌بندی همیشه زیرمجموعه‌ای
- * از children همین parent هستند.
- *
- * @param parentSlug - slug دسته‌ی والد ثابت همین صفحه (مثلاً "home").
- *                      همه‌ی مسیرهای تولیدشده زیر همین parent خواهند بود.
- */
+  useCategoryFilterPush
+ 
+  در صفحات دسته‌بندی (/products/[parent] یا /products/[parent]/[child])،
+  sidebar فیلتر همیشه فقط children یک parent ثابت را نشان می‌دهد
+  (flat، بدون hierarchy). یعنی انتخاب‌های دسته‌بندی همیشه زیرمجموعه‌ای
+  از children همین parent هستند.
+ 
+  نکته‌ی مهم: وقتی کاربر در /products/[parent]/[child] است، "child" فعلی
+  از route می‌آید نه از query — پس باید همیشه در نظر گرفته شود، حتی وقتی
+  فقط فیلترهای دیگر (قیمت/رتبه/...) تغییر می‌کنند. در غیر این صورت با
+  تغییر یک فیلتر دیگر، انتخاب دسته‌بندی فعلی (که از route می‌آید) از دست
+  می‌رود.
+ 
+  @param parentSlug - slug دسته‌ی والد ثابت همین صفحه (مثلاً "home").
+                       همه‌ی مسیرهای تولیدشده زیر همین parent خواهند بود.
+ **/
 export function useCategoryFilterPush(parentSlug: string) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
   const [isPending, startTransition] = useTransition();
+
+  // child فعلی از route (اگه در /products/[parent]/[child] باشیم)
+  const routeChild =
+    typeof params?.child === "string" ? params.child : undefined;
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -34,18 +45,27 @@ export function useCategoryFilterPush(parentSlug: string) {
   };
 
   /**
-   * push بروزرسانی فیلترها رو اعمال می‌کند.
-   * منطق دسته‌بندی (categories[]) — همه چیز زیر همین parentSlug است:
-   *  - 0 زیردسته انتخاب شده   -> /products/[parentSlug]
-   *  - 1 زیردسته انتخاب شده   -> /products/[parentSlug]/[child]
-   *  - 2+ زیردسته انتخاب شده  -> /products/[parentSlug]?categories[]=a&categories[]=b (query, noindex)
-   *
-   * سایر فیلترها (قیمت، رتبه، تخفیف، موجودی، سورت، صفحه‌بندی) همیشه query هستند.
-   */
+    push بروزرسانی فیلترها رو اعمال می‌کند.
+    منطق دسته‌بندی (categories[]) — همه چیز زیر همین parentSlug است:
+     - 0 زیردسته انتخاب شده   -> /products/[parentSlug]
+     - 1 زیردسته انتخاب شده   -> /products/[parentSlug]/[child]
+     - 2+ زیردسته انتخاب شده  -> /products/[parentSlug]?categories[]=a&categories[]=b (query, noindex)
+   
+    سایر فیلترها (قیمت، رتبه، تخفیف، موجودی، سورت، صفحه‌بندی) همیشه query هستند.
+   
+    اگه updates شامل "categories[]" نباشه (یعنی فقط فیلترهای دیگری
+    تغییر کرده‌اند)، child فعلی از route به‌عنوان انتخاب دسته‌بندی
+    در نظر گرفته می‌شود تا از دست نرود.
+   **/
   const push = useCallback(
     (updates: Record<string, string | string[] | null>) => {
       const p = new URLSearchParams(searchParams.toString());
       p.delete("page");
+
+      const categoriesProvided = Object.prototype.hasOwnProperty.call(
+        updates,
+        "categories[]",
+      );
 
       Object.entries(updates).forEach(([k, v]) => {
         if (k === "categories[]") {
@@ -62,9 +82,15 @@ export function useCategoryFilterPush(parentSlug: string) {
         }
       });
 
-      const cats = p.getAll("categories[]");
+      let cats = p.getAll("categories[]");
       p.delete("categories[]");
       const qs = p.toString();
+
+      // اگه categories[] در این آپدیت دست نخورده و الان روی یک child
+      // هستیم (از route)، اون child رو حفظ کن.
+      if (!categoriesProvided && routeChild && cats.length === 0) {
+        cats = [routeChild];
+      }
 
       if (cats.length === 0) {
         navigate(`/products/${parentSlug}`, qs);
@@ -81,7 +107,7 @@ export function useCategoryFilterPush(parentSlug: string) {
       cats.forEach((c) => withCats.append("categories[]", c));
       navigate(`/products/${parentSlug}`, withCats.toString());
     },
-    [router, searchParams, parentSlug]
+    [router, searchParams, parentSlug, routeChild],
   );
 
   const clearAll = useCallback(
@@ -93,7 +119,7 @@ export function useCategoryFilterPush(parentSlug: string) {
       });
       navigate(`/products/${parentSlug}`, p.toString());
     },
-    [router, searchParams, parentSlug]
+    [router, searchParams, parentSlug],
   );
 
   return { push, clearAll, isPending };
