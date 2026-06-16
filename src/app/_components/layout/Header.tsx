@@ -53,7 +53,6 @@ interface Props {
 }
 
 export default function Header({ categories = [] }: Props) {
-
   const router = useRouter();
   const pathname = usePathname();
 
@@ -62,6 +61,7 @@ export default function Header({ categories = [] }: Props) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
+  const [activeMobileParent, setActiveMobileParent] = useState<MegaMenuCategory | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -97,6 +97,8 @@ export default function Header({ categories = [] }: Props) {
     setMobileMenuOpen(false);
     setSearchOpen(false);
     setUserMenuOpen(false);
+    setMobileCategoriesOpen(false);
+    setActiveMobileParent(null);
   }, [pathname]);
 
   // FIX: بستن موبایل منو هنگام resize به دسکتاپ
@@ -387,104 +389,83 @@ export default function Header({ categories = [] }: Props) {
               : "opacity-0 -translate-y-2 pointer-events-none absolute w-full"
           }`}
         >
-          <div className="px-4 py-4 bg-gray-50 space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto">
+          <div className="px-4 py-4 bg-white space-y-1 max-h-[calc(100vh-64px)] overflow-y-auto" dir="rtl">
+
+            {/* ── Search bar موبایل ── */}
+            <form onSubmit={handleSearch} className="mb-3">
+              <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2.5">
+                <HiSearch className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="جستجوی محصولات..."
+                  className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
+                />
+              </div>
+            </form>
+
+            <div className="border-b border-gray-100 mb-2" />
+
+            {/* ── لینک خانه ── */}
             <Link
               href="/"
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                isActive("/")
-                  ? "bg-teal-50 text-teal-600"
-                  : "text-gray-700 hover:bg-white"
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
+                isActive("/") ? "bg-teal-50 text-teal-600" : "text-gray-700 hover:bg-gray-50"
               }`}
             >
               <HiHome className="w-5 h-5 flex-shrink-0" />
-              <span className="font-medium">خانه</span>
+              <span className="font-medium text-sm">خانه</span>
             </Link>
 
-            {/* دسته‌بندی محصولات — موبایل (آکاردئون) */}
-            <div>
-              <button
-                onClick={() => setMobileCategoriesOpen((o) => !o)}
-                className={`flex items-center justify-between gap-3 w-full px-4 py-3 rounded-xl transition-colors ${
-                  pathname.startsWith("/products")
-                    ? "bg-teal-50 text-teal-600"
-                    : "text-gray-700 hover:bg-white"
+            {/* ── محصولات — باز کردن drawer دسته‌بندی ── */}
+            <button
+              onClick={() => setMobileCategoriesOpen(true)}
+              className={`flex items-center justify-between w-full px-3 py-3 rounded-xl transition-colors ${
+                pathname.startsWith("/products")
+                  ? "bg-teal-50 text-teal-600"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <HiShoppingBag className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium text-sm">محصولات</span>
+              </span>
+              <HiChevronDown className="w-4 h-4 rotate-90" />
+            </button>
+
+            {/* ── بقیه‌ی لینک‌ها ── */}
+            {navLinks.filter((l) => l.href !== "/").map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
+                  isActive(link.href) ? "bg-teal-50 text-teal-600" : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                <span className="flex items-center gap-3">
-                  <HiShoppingBag className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium">محصولات</span>
-                </span>
-                <HiChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${mobileCategoriesOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {mobileCategoriesOpen && (
-                <div className="mt-1 mr-4 border-r-2 border-gray-200 pr-3 space-y-1">
-                  {categories.map((cat) => (
-                    <div key={cat.id} className="py-1">
-                      <Link
-                        href={`/products/${cat.slug}`}
-                        className="block px-3 py-2 text-sm font-semibold text-gray-800 hover:text-teal-600 transition-colors"
-                      >
-                        {cat.name}
-                      </Link>
-                      {cat.children?.map((child) => (
-                        <Link
-                          key={child.id}
-                          href={`/products/${cat.slug}/${child.slug}`}
-                          className="block px-3 py-1.5 text-sm text-gray-500 hover:text-teal-600 transition-colors"
-                        >
-                          {child.name}
-                        </Link>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {navLinks
-              .filter((l) => l.href !== "/")
-              .map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                    isActive(link.href)
-                      ? "bg-teal-50 text-teal-600"
-                      : "text-gray-700 hover:bg-white"
-                  }`}
-                >
-                  <link.icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium">{link.label}</span>
-                </Link>
-              ))}
+                <link.icon className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium text-sm">{link.label}</span>
+              </Link>
+            ))}
 
             {user && (
               <>
-                <div className="border-t border-gray-200 my-2" />
-                <Link
-                  href="/profile/addresses"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white transition-colors"
-                >
+                <div className="border-t border-gray-100 my-2" />
+                <Link href="/profile/addresses" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
                   <HiLocationMarker className="w-5 h-5 text-teal-500 flex-shrink-0" />
-                  <span className="font-medium">آدرس‌های من</span>
+                  <span className="font-medium text-sm">آدرس‌های من</span>
                 </Link>
-                <Link
-                  href="/profile/orders"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white transition-colors"
-                >
+                <Link href="/profile/orders" className="flex items-center gap-3 px-3 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
                   <HiShoppingBag className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                  <span className="font-medium">سفارشات</span>
+                  <span className="font-medium text-sm">سفارشات</span>
                 </Link>
-                <div className="border-t border-gray-200 my-2" />
+                <div className="border-t border-gray-100 my-2" />
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-red-600 hover:bg-red-50 transition-colors"
+                  className="flex items-center gap-3 px-3 py-3 w-full rounded-xl text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <HiLogout className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium">خروج از حساب</span>
+                  <span className="font-medium text-sm">خروج از حساب</span>
                 </button>
               </>
             )}
@@ -494,7 +475,6 @@ export default function Header({ categories = [] }: Props) {
                 <Link
                   href="/login"
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl font-medium text-sm"
-                  aria-label="ورود / ثبت نام"
                 >
                   <HiUser className="w-4 h-4" />
                   ورود / ثبت‌نام
@@ -505,7 +485,120 @@ export default function Header({ categories = [] }: Props) {
         </div>
       </header>
 
-      {/* ── Search Modal ── */}
+      {/* ── Drawer دسته‌بندی موبایل — مثل فرادرس ── */}
+      {mobileCategoriesOpen && (
+        <div className="fixed inset-0 z-[70] lg:hidden" dir="rtl">
+          {/* backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => {
+              setMobileCategoriesOpen(false);
+              setActiveMobileParent(null);
+            }}
+          />
+
+          {/* پنل اصلی — از راست */}
+          <div className="absolute top-0 right-0 h-full w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col">
+            {/* هدر drawer */}
+            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+              {activeMobileParent ? (
+                <button
+                  onClick={() => setActiveMobileParent(null)}
+                  className="flex items-center gap-2 text-gray-700"
+                >
+                  <HiChevronDown className="w-5 h-5 -rotate-90" />
+                  <span className="font-semibold text-sm">{activeMobileParent.name}</span>
+                </button>
+              ) : (
+                <span className="font-semibold text-gray-900 text-sm">دسته‌بندی‌ها</span>
+              )}
+              <button
+                onClick={() => {
+                  setMobileCategoriesOpen(false);
+                  setActiveMobileParent(null);
+                }}
+                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+              >
+                <HiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* محتوا */}
+            <div className="flex-1 overflow-y-auto">
+              {!activeMobileParent ? (
+                /* لیست parentها */
+                <ul className="py-2">
+                  {/* همه‌ی آموزش‌ها / همه‌ی محصولات */}
+                  <li>
+                    <Link
+                      href="/products"
+                      onClick={() => setMobileCategoriesOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3.5 text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors border-b border-gray-100"
+                    >
+                      <HiShoppingBag className="w-4 h-4 flex-shrink-0" />
+                      همه‌ی محصولات
+                    </Link>
+                  </li>
+                  {categories.map((cat) => (
+                    <li key={cat.id}>
+                      {cat.children && cat.children.length > 0 ? (
+                        <button
+                          onClick={() => setActiveMobileParent(cat)}
+                          className="flex items-center justify-between w-full px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50"
+                        >
+                          <span className="font-medium">{cat.name}</span>
+                          <HiChevronDown className="w-4 h-4 text-gray-400 -rotate-90 flex-shrink-0" />
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/products/${cat.slug}`}
+                          onClick={() => setMobileCategoriesOpen(false)}
+                          className="flex items-center justify-between px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50"
+                        >
+                          <span className="font-medium">{cat.name}</span>
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                /* لیست childهای parent انتخاب‌شده */
+                <ul className="py-2">
+                  <li>
+                    <Link
+                      href={`/products/${activeMobileParent.slug}`}
+                      onClick={() => {
+                        setMobileCategoriesOpen(false);
+                        setActiveMobileParent(null);
+                      }}
+                      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors border-b border-gray-100"
+                    >
+                      همه‌ی {activeMobileParent.name}
+                      <span className="text-xs text-gray-400 mr-1">←</span>
+                    </Link>
+                  </li>
+                  {activeMobileParent.children?.map((child) => (
+                    <li key={child.id}>
+                      <Link
+                        href={`/products/${activeMobileParent.slug}/${child.slug}`}
+                        onClick={() => {
+                          setMobileCategoriesOpen(false);
+                          setActiveMobileParent(null);
+                        }}
+                        className="block px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors border-b border-gray-50"
+                      >
+                        {child.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Search Modal — دسکتاپ ── */}
       {searchOpen && (
         <div className="fixed inset-0 z-[60]" dir="rtl">
           <div
