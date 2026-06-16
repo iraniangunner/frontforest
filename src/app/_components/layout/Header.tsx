@@ -234,9 +234,9 @@ export default function Header({ categories = [] }: Props) {
 
               {/* Auth */}
               {loading ? (
-                <div className="w-9 h-9 bg-gray-100 rounded-xl animate-pulse" />
+                <div className="hidden lg:block w-9 h-9 bg-gray-100 rounded-xl animate-pulse" />
               ) : user ? (
-                <div className="relative" ref={userMenuRef}>
+                <div className="relative hidden lg:block" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className={`flex items-center gap-1.5 p-1.5 rounded-xl transition-all duration-200 ${
@@ -258,7 +258,7 @@ export default function Header({ categories = [] }: Props) {
                   </button>
 
                   {/* Dropdown */}
-                  {/* {userMenuOpen && (
+                  {userMenuOpen && (
                     <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 py-2 z-50">
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="flex items-center gap-3">
@@ -352,7 +352,7 @@ export default function Header({ categories = [] }: Props) {
                         </button>
                       </div>
                     </div>
-                  )} */}
+                  )}
                 </div>
               ) : (
                 // FIX: روی موبایل فقط آیکون نشون داده بشه، روی sm+ متن
