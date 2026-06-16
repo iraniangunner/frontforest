@@ -1,11 +1,12 @@
 // app/products/[slug]/CategoryProductsPage.tsx
 import Pagination from "@/app/_components/ui/Pagination";
-import CategoryFilter from "./CategoryFilter";
-import CategoryToolbar from "./CategoryToolbar";
 import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
 import { publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import { Suspense } from "react";
+import CategoryFilter from "./CategoryFilter";
+import CategoryToolbar from "./CategoryToolbar";
+import FilterDrawerWrapper from "./FilterDrawerWrapper";
 
 export interface CategoryData {
   id: number;
@@ -246,16 +247,13 @@ export default async function CategoryProductsPage({
         </div>
 
         <div className="flex gap-5 items-start">
-          {/* ── Sidebar — desktop ── */}
+          {/* ── Sidebar — desktop only ── */}
           <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-6">
             <Suspense
               fallback={
                 <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
                   {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="h-10 bg-gray-100 rounded-xl animate-pulse"
-                    />
+                    <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />
                   ))}
                 </div>
               }
@@ -268,48 +266,56 @@ export default async function CategoryProductsPage({
             </Suspense>
           </aside>
 
-          {/* ── محتوا ── */}
-          <main className="flex-1 min-w-0 space-y-4">
-            {/* Toolbar */}
-            <Suspense
-              fallback={
-                <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
-              }
+          {/* ── محتوا + drawer موبایل (در wrapper) ── */}
+          <main className="flex-1 min-w-0">
+            <FilterDrawerWrapper
+              siblings={siblings}
+              parentSlug={parentCategory.slug}
+              priceRange={priceRange}
             >
-              <CategoryToolbar
-                total={meta.total || 0}
-                siblings={siblings}
-                parentSlug={parentCategory.slug}
-                priceRange={priceRange}
-              />
-            </Suspense>
+              <div className="space-y-4">
+                {/* Toolbar */}
+                <Suspense
+                  fallback={
+                    <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
+                  }
+                >
+                  <CategoryToolbar
+                    total={meta.total || 0}
+                    siblings={siblings}
+                    parentSlug={parentCategory.slug}
+                    priceRange={priceRange}
+                  />
+                </Suspense>
 
-            {/* گرید/لیست محصولات */}
-            <Suspense
-              key={JSON.stringify(filters)}
-              fallback={<ProductsSkeleton view={view} />}
-            >
-              {products.length === 0 ? (
-                <EmptyState />
-              ) : (
-                <ProductsGridWrapper
-                  products={products}
-                  view={view}
-                  isPending={false}
-                />
-              )}
-            </Suspense>
+                {/* گرید/لیست محصولات */}
+                <Suspense
+                  key={JSON.stringify(filters)}
+                  fallback={<ProductsSkeleton view={view} />}
+                >
+                  {products.length === 0 ? (
+                    <EmptyState />
+                  ) : (
+                    <ProductsGridWrapper
+                      products={products}
+                      view={view}
+                      isPending={false}
+                    />
+                  )}
+                </Suspense>
 
-            {/* Pagination */}
-            {(meta.last_page || 1) > 1 && (
-              <Suspense>
-                <Pagination
-                  currentPage={meta.current_page || 1}
-                  lastPage={meta.last_page || 1}
-                  basePath={basePath}
-                />
-              </Suspense>
-            )}
+                {/* Pagination */}
+                {(meta.last_page || 1) > 1 && (
+                  <Suspense>
+                    <Pagination
+                      currentPage={meta.current_page || 1}
+                      lastPage={meta.last_page || 1}
+                      basePath={basePath}
+                    />
+                  </Suspense>
+                )}
+              </div>
+            </FilterDrawerWrapper>
           </main>
         </div>
       </div>

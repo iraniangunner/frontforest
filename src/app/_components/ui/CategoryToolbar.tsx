@@ -2,9 +2,13 @@
 
 // app/products/_components/CategoryToolbar.tsx
 import { useState } from "react";
-import { useSearchParams, useParams } from "next/navigation";
+import {
+  useSearchParams,
+  useParams,
+  useRouter,
+  usePathname,
+} from "next/navigation";
 import { HiViewGrid, HiViewList, HiAdjustments, HiX } from "react-icons/hi";
-import CategoryFilter from "./CategoryFilter";
 import { useCategoryFilterPush } from "@/hooks/useCategoryFilterPush";
 
 interface SiblingCategory {
@@ -39,8 +43,15 @@ export default function CategoryToolbar({
 }: Props) {
   const sp = useSearchParams();
   const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const { push, clearAll, isPending } = useCategoryFilterPush(parentSlug);
-  const [drawer, setDrawer] = useState(false);
+
+  const openDrawer = () => {
+    const p = new URLSearchParams(sp.toString());
+    p.set("filter", "1");
+    router.push(`${pathname}?${p.toString()}`, { scroll: false });
+  };
 
   const view = sp.get("view") || "grid";
   const sort = sp.get("sort") || "";
@@ -53,7 +64,7 @@ export default function CategoryToolbar({
     typeof params?.child === "string" ? params.child : undefined;
   const querySlugs = sp.getAll("categories[]");
   const selected = Array.from(
-    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs)
+    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs),
   );
 
   const getSiblingName = (slug: string) =>
@@ -73,7 +84,7 @@ export default function CategoryToolbar({
       ? {
           key: "price",
           label: `${Number(sp.get("min_price") || priceRange.min).toLocaleString("fa-IR")} — ${Number(
-            sp.get("max_price") || priceRange.max
+            sp.get("max_price") || priceRange.max,
           ).toLocaleString("fa-IR")} ت`,
         }
       : null,
@@ -151,7 +162,7 @@ export default function CategoryToolbar({
             </div>
 
             <button
-              onClick={() => setDrawer(true)}
+              onClick={openDrawer}
               className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-300"
             >
               <HiAdjustments className="w-4 h-4" />
@@ -187,24 +198,7 @@ export default function CategoryToolbar({
         )}
       </div>
 
-      {/* Mobile drawer */}
-      {drawer && (
-        <div className="fixed inset-0 z-50 flex lg:hidden" dir="rtl">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setDrawer(false)}
-          />
-          <div className="relative mr-auto w-72 max-w-[85vw] h-full bg-white shadow-2xl flex flex-col">
-            <CategoryFilter
-              siblings={siblings}
-              parentSlug={parentSlug}
-              priceRange={priceRange}
-              isMobile
-              onClose={() => setDrawer(false)}
-            />
-          </div>
-        </div>
-      )}
+      {/* Mobile drawer — مدیریت توسط FilterDrawerWrapper در CategoryProductsPage */}
     </>
   );
 }
