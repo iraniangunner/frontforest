@@ -61,7 +61,8 @@ export default function Header({ categories = [] }: Props) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
-  const [activeMobileParent, setActiveMobileParent] = useState<MegaMenuCategory | null>(null);
+  const [activeMobileParent, setActiveMobileParent] =
+    useState<MegaMenuCategory | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -364,16 +365,10 @@ export default function Header({ categories = [] }: Props) {
                   <span className="hidden sm:inline">ورود / ثبت‌نام</span>
                 </Link>
               )}
-
-           
-           
             </div>
           </div>
         </div>
-
-     
       </header>
-
 
       {/* ── Search Modal — دسکتاپ ── */}
       {searchOpen && (
@@ -412,4 +407,3 @@ export default function Header({ categories = [] }: Props) {
     </>
   );
 }
-

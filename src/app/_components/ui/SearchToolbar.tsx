@@ -43,9 +43,9 @@ export default function SearchToolbar({ total, priceRange }: Props) {
       ? {
           key: "price",
           label: `${Number(
-            sp.get("min_price") || priceRange.min
+            sp.get("min_price") || priceRange.min,
           ).toLocaleString("fa-IR")} — ${Number(
-            sp.get("max_price") || priceRange.max
+            sp.get("max_price") || priceRange.max,
           ).toLocaleString("fa-IR")} ت`,
         }
       : null,
@@ -73,8 +73,8 @@ export default function SearchToolbar({ total, priceRange }: Props) {
           <p className="text-sm text-gray-600 flex items-center gap-2">
             {q ? (
               <>
-                نتایج برای{" "}
-                <span className="font-semibold text-gray-900">"{q}"</span> —{" "}
+                نتایج برای
+                <span className="font-semibold text-gray-900">{q}</span> —
               </>
             ) : null}
             <span className="font-semibold text-gray-900">
