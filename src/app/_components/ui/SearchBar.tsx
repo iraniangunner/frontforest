@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -15,7 +13,7 @@ export default function SearchBar({
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const initialValue = searchParams.get("q") || "";
   const [localValue, setLocalValue] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
@@ -30,16 +28,16 @@ export default function SearchBar({
 
   const updateUrl = (newValue: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    
+
     if (newValue) {
       params.set("q", newValue);
     } else {
       params.delete("q");
     }
-    
+
     // Reset to page 1 when searching
     params.delete("page");
-    
+
     const queryString = params.toString();
     router.push(queryString ? `/components?${queryString}` : "/components", {
       scroll: false,

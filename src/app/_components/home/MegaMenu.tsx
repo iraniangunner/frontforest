@@ -55,14 +55,14 @@ export default function MegaMenu({ categories }: Props) {
       >
         محصولات
         <HiChevronDown
-          className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
         />
       </button>
 
       {/* فاصله‌ی شفاف بین دکمه و پنل، تا hover قطع نشود */}
-      {open && (
-        <div className="absolute top-full right-0 h-2 w-full" />
-      )}
+      {open && <div className="absolute top-full right-0 h-2 w-full" />}
 
       {open && (
         <div
@@ -70,6 +70,7 @@ export default function MegaMenu({ categories }: Props) {
           dir="rtl"
           style={{ minWidth: "560px" }}
         >
+          {/* ── ستون راست: لیست parentها ── */}
           <div className="w-52 border-l border-gray-100 py-2 bg-gray-50/50">
             {categories.map((cat) => (
               <button
@@ -95,6 +96,7 @@ export default function MegaMenu({ categories }: Props) {
             ))}
           </div>
 
+          {/* ── پنل کنار: children دسته‌ی فعال ── */}
           <div className="flex-1 p-4">
             {activeParent && (
               <>
@@ -107,24 +109,21 @@ export default function MegaMenu({ categories }: Props) {
                 </Link>
 
                 {activeParent.children && activeParent.children.length > 0 ? (
-                  <ul className="grid grid-cols-2 gap-1.5">
+                  <ul className="space-y-0.5">
                     {activeParent.children.map((child) => (
                       <li key={child.id}>
                         <Link
                           href={`/products/${activeParent.slug}/${child.slug}`}
                           onClick={() => setOpen(false)}
-                          className="block px-2 py-1.5 text-sm text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          className="block px-2 py-2 text-sm text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-lg transition-colors"
                         >
                           {child.name}
-
-</Link>
+                        </Link>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-400">
-                    زیردسته‌ای موجود نیست
-                  </p>
+                  <p className="text-sm text-gray-400">زیردسته‌ای موجود نیست</p>
                 )}
               </>
             )}

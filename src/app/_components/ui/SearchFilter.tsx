@@ -67,7 +67,9 @@ export default function SearchFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString(
+            "fa-IR"
+          )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -99,7 +101,9 @@ export default function SearchFilter({
         {extra}
       </div>
       <HiChevronDown
-        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen(id) ? "rotate-180" : ""}`}
+        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+          isOpen(id) ? "rotate-180" : ""
+        }`}
       />
     </button>
   );
@@ -180,7 +184,9 @@ export default function SearchFilter({
                   }`}
                 >
                   <HiTag
-                    className={`w-4 h-4 ${on_sale ? "text-red-500" : "text-gray-400"}`}
+                    className={`w-4 h-4 ${
+                      on_sale ? "text-red-500" : "text-gray-400"
+                    }`}
                   />
                   تخفیف‌دار
                 </button>
@@ -194,7 +200,9 @@ export default function SearchFilter({
                   }`}
                 >
                   <HiShoppingBag
-                    className={`w-4 h-4 ${in_stock ? "text-teal-500" : "text-gray-400"}`}
+                    className={`w-4 h-4 ${
+                      in_stock ? "text-teal-500" : "text-gray-400"
+                    }`}
                   />
                   موجود
                 </button>
@@ -271,12 +279,18 @@ export default function SearchFilter({
                     {Array.from({ length: 5 }).map((_, i) => (
                       <HiStar
                         key={i}
-                        className={`w-3.5 h-3.5 ${i < r.value ? "text-amber-400" : "text-gray-200"}`}
+                        className={`w-3.5 h-3.5 ${
+                          i < r.value ? "text-amber-400" : "text-gray-200"
+                        }`}
                       />
                     ))}
                   </div>
                   <span
-                    className={`text-xs mr-auto ${min_rating === String(r.value) ? "text-amber-700 font-medium" : "text-gray-500"}`}
+                    className={`text-xs mr-auto ${
+                      min_rating === String(r.value)
+                        ? "text-amber-700 font-medium"
+                        : "text-gray-500"
+                    }`}
                   >
                     {r.label}
                   </span>

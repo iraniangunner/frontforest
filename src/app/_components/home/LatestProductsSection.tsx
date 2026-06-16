@@ -38,12 +38,12 @@ export default function LatestProductsSection({ products }: Props) {
               جدیدترین محصولات
             </h2>
           </div>
-          <Link
+          {/* <Link
             href="/products?sort=newest"
             className="text-sm text-teal-600 hover:text-teal-800 font-medium"
           >
             مشاهده همه ←
-          </Link>
+          </Link> */}
         </div>
         <div className="relative">
           <button

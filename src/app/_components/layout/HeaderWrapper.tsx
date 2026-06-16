@@ -1,11 +1,14 @@
 // app/_components/HeaderWrapper.tsx  ←  SERVER COMPONENT
 import Header from "./Header";
-import { publicCategoriesAPI } from "@/lib/api";
 
 async function getMenu() {
   try {
-    const res = await publicCategoriesAPI.getAll();
-    return res.data?.data || [];
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/categories/menu`,
+      { next: { revalidate: 60 } }
+    );
+    const json = await res.json();
+    return json?.data || [];
   } catch {
     return [];
   }

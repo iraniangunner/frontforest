@@ -1,9 +1,10 @@
 // app/products/[slug]/[child]/page.tsx  ←  SERVER COMPONENT
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { publicCategoriesAPI } from "@/lib/api";
-import CategoryProductsPage, { CategoryBreadcrumbJsonLd, CategoryData } from "@/app/_components/ui/CategoryProductsPage";
-
+import CategoryProductsPage, {
+  CategoryBreadcrumbJsonLd,
+  CategoryData,
+} from "@/app/_components/ui/CategoryProductsPage";
 
 interface Props {
   params: Promise<{ slug: string; child: string }>;
@@ -40,14 +41,15 @@ interface MenuCategory {
   }[];
 }
 
-let menuCache: MenuCategory[] | null = null;
-
+// getMenu با Next.js cache — هر 60 ثانیه revalidate می‌شود
 async function getMenu(): Promise<MenuCategory[]> {
-  if (menuCache) return menuCache;
   try {
-    const res = await publicCategoriesAPI.getMenu();
-    menuCache = res.data?.data || [];
-    return menuCache!;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/categories/menu`,
+      { next: { revalidate: 60 } }
+    );
+    const json = await res.json();
+    return json?.data || [];
   } catch {
     return [];
   }
@@ -75,9 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const menu = await getMenu();
   const parentCategory = menu.find((c) => c.slug === slug);
-  const childCategory = parentCategory?.children?.find(
-    (c) => c.slug === child
-  );
+  const childCategory = parentCategory?.children?.find((c) => c.slug === child);
 
   if (!childCategory) return { title: "یافت نشد" };
 
@@ -110,9 +110,7 @@ export default async function ChildCategoryPage({
   const parentCategory = menu.find((c) => c.slug === slug);
   if (!parentCategory) notFound();
 
-  const childCategory = parentCategory.children?.find(
-    (c) => c.slug === child
-  );
+  const childCategory = parentCategory.children?.find((c) => c.slug === child);
   if (!childCategory) notFound();
 
   const parentData = toCategoryData(parentCategory);

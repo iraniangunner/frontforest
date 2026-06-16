@@ -122,12 +122,12 @@ export default function CategoriesSection({ categories }: Props) {
               دسته بندی ها
             </h2>
           </div>
-          <Link
+          {/* <Link
             href="/products"
             className="text-sm text-teal-600 hover:text-teal-800 font-medium transition-colors"
           >
             همه محصولات ←
-          </Link>
+          </Link> */}
         </div>
 
         {/* گرید */}
