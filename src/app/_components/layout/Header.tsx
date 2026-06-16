@@ -208,7 +208,7 @@ export default function Header({ categories = [] }: Props) {
               {/* جستجو */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2.5 hidden lg:block text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
                 aria-label="جستجو"
               >
                 <HiSearch className="w-5 h-5" />
