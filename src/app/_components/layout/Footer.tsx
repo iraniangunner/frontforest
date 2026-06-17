@@ -1,12 +1,12 @@
 // components/home/Footer.tsx
 import Link from "next/link";
-import { Home, ShoppingBag, Info, Phone } from "lucide-react";
+import { Home, Info, Phone, NewspaperIcon } from "lucide-react";
 import { HiMail, HiPhone } from "react-icons/hi";
 import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "خانه", icon: Home },
-  { href: "/products", label: "محصولات", icon: ShoppingBag },
+  { href: "/posts", label: "اخبار و مقالات", icon: NewspaperIcon },
   { href: "/about", label: "درباره ما", icon: Info },
   { href: "/contact", label: "تماس با ما", icon: Phone },
 ];
