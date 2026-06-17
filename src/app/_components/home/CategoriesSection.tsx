@@ -1,4 +1,4 @@
-// app/(public)/_components/CategoriesSection.tsx
+// app/(public)/_components/home/CategoriesSection.tsx
 import Link from "next/link";
 import Image from "next/image";
 import { Category } from "@/types";
@@ -11,87 +11,65 @@ export default function CategoriesSection({ categories }: Props) {
   if (!categories.length) return null;
 
   return (
-    <section className="py-10" dir="rtl">
+    <section dir="rtl" className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* هدر */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-5 bg-teal-600 rounded-full" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              دسته بندی ها
-            </h2>
-          </div>
-          {/* <Link
-            href="/products"
-            className="text-sm text-teal-600 hover:text-teal-800 font-medium transition-colors"
-          >
-            همه محصولات ←
-          </Link> */}
+        {/* Header */}
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="w-1 h-6 rounded-full bg-gradient-to-b from-teal-500 to-cyan-400 flex-shrink-0" />
+          <h2 className="text-[17px] font-bold text-gray-900">دسته‌بندی‌ها</h2>
         </div>
 
-        {/* گرید */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-          {categories.map((cat) => {
-            // route-based: هر دسته (با یا بدون children) به مسیر مستقل
-            // خودش لینک می‌شود -> /products/[slug]
-            // صفحه‌ی /products/[slug] خودش همه‌ی محصولات این دسته
-            // (شامل children) را نشان می‌دهد.
-            const href = `/products/${cat.slug}`;
-
-            return (
-              <Link
-                key={cat.id}
-                href={href}
-                className="group flex flex-col items-center gap-2.5 p-3 bg-white rounded-2xl border border-gray-100 hover:border-teal-200 hover:shadow-md transition-all"
+        {/* Grid */}
+        <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-9 gap-2.5 sm:gap-3">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/products/${cat.slug}`}
+              className="group flex flex-col items-center gap-2 p-2.5 sm:p-3 bg-white rounded-2xl border-[1.5px] border-slate-100 hover:border-teal-200 hover:shadow-md hover:-translate-y-0.5 transition-all"
+            >
+              {/* Icon */}
+              <div
+                className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-[11px] overflow-hidden flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform"
+                style={{
+                  backgroundColor: cat.color ? `${cat.color}20` : "#f1f5f9",
+                }}
               >
-                {/* آیکون */}
-                <div
-                  className="relative w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0"
-                  style={{
-                    backgroundColor: cat.color ? `${cat.color}15` : "#f3f4f6",
-                  }}
-                >
-                  {cat.icon_image ? (
-                    // تصویر آپلود شده
-                    <Image
-                      src={cat.icon_image}
-                      alt={cat.name}
-                      fill
-                      className="object-contain p-2"
-                      sizes="56px"
-                    />
-                  ) : cat.image ? (
-                    // تصویر اصلی دسته‌بندی
-                    <Image
-                      src={cat.image}
-                      alt={cat.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
-                  ) : cat.icon ? (
-                    // emoji یا متن
-                    <span className="text-2xl">{cat.icon}</span>
-                  ) : (
-                    // placeholder
-                    <span className="text-2xl">📦</span>
-                  )}
-                </div>
-
-                {/* نام */}
-                <span className="text-xs font-medium text-gray-700 text-center leading-tight group-hover:text-teal-600 transition-colors line-clamp-2">
-                  {cat.name}
-                </span>
-
-                {/* تعداد محصول */}
-                {cat.products_count > 0 && (
-                  <span className="text-[10px] text-gray-400">
-                    {cat.products_count.toLocaleString("fa-IR")} محصول
-                  </span>
+                {cat.icon_image ? (
+                  <Image
+                    src={cat.icon_image}
+                    alt={cat.name}
+                    fill
+                    className="object-contain p-1.5"
+                    sizes="52px"
+                  />
+                ) : cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                    sizes="52px"
+                  />
+                ) : cat.icon ? (
+                  <span className="text-xl sm:text-2xl">{cat.icon}</span>
+                ) : (
+                  <span className="text-xl sm:text-2xl">📦</span>
                 )}
-              </Link>
-            );
-          })}
+              </div>
+
+              {/* Name */}
+              <span className="text-[10.5px] sm:text-xs font-semibold text-gray-700 text-center leading-tight group-hover:text-teal-600 transition-colors line-clamp-2">
+                {cat.name}
+              </span>
+
+              {/* Count */}
+              {cat.products_count > 0 && (
+                <span className="text-[10px] text-gray-400">
+                  {cat.products_count.toLocaleString("fa-IR")} محصول
+                </span>
+              )}
+            </Link>
+          ))}
         </div>
       </div>
     </section>

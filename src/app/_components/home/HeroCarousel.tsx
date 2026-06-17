@@ -1,6 +1,6 @@
 "use client";
 
-// app/(public)/_components/HeroCarousel.tsx
+// app/(public)/_components/home/HeroCarousel.tsx
 import Link from "next/link";
 import Image from "next/image";
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
@@ -8,16 +8,48 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Product } from "@/types";
 
-
-
-// رنگ‌های پس‌زمینه
-const BG_COLORS = [
-  { bg: "#f0faf5", accent: "#1D9E75" },
-  { bg: "#f0f5ff", accent: "#3b5bdb" },
-  { bg: "#fff9f0", accent: "#e67700" },
-  { bg: "#fff0f6", accent: "#c2255c" },
-  { bg: "#f3f0ff", accent: "#7048e8" },
-];
+const THEMES = [
+  {
+    bg: "from-emerald-50 to-green-100",
+    accent: "#16a34a",
+    badgeBg: "bg-green-200",
+    badgeText: "text-green-800",
+    btnBg: "bg-green-600",
+    glow: "bg-green-400",
+  },
+  {
+    bg: "from-blue-50 to-blue-100",
+    accent: "#2563eb",
+    badgeBg: "bg-blue-200",
+    badgeText: "text-blue-800",
+    btnBg: "bg-blue-600",
+    glow: "bg-blue-400",
+  },
+  {
+    bg: "from-amber-50 to-yellow-100",
+    accent: "#d97706",
+    badgeBg: "bg-amber-200",
+    badgeText: "text-amber-800",
+    btnBg: "bg-amber-600",
+    glow: "bg-amber-400",
+  },
+  {
+    bg: "from-pink-50 to-rose-100",
+    accent: "#db2777",
+    badgeBg: "bg-pink-200",
+    badgeText: "text-pink-800",
+    btnBg: "bg-pink-600",
+    glow: "bg-pink-400",
+  },
+  {
+    bg: "from-violet-50 to-purple-100",
+    accent: "#7c3aed",
+    badgeBg: "bg-violet-200",
+    badgeText: "text-violet-800",
+    btnBg: "bg-violet-600",
+    glow: "bg-violet-400",
+  },
+] as const;
 
 const fmt = (n: number) => Number(n).toLocaleString("fa-IR");
 
@@ -30,58 +62,16 @@ export default function HeroCarousel({ products }: Props) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl select-none"
-      style={{ height: "260px" }}
+      className="relative overflow-hidden rounded-2xl select-none shadow-sm"
+      style={{ height: 280 }}
       dir="rtl"
     >
-      {/* استایل‌های لازم برای Swiper Pagination */}
+      {/* Swiper pagination & nav minimal overrides — only layout, no design */}
       <style>{`
-        .hero-swiper .swiper-pagination {
-          bottom: 16px !important;
-        }
-        .hero-swiper .swiper-pagination-bullet {
-          width: 7px;
-          height: 7px;
-          background: rgba(0,0,0,.18);
-          opacity: 1;
-          transition: all .3s;
-          border-radius: 9999px;
-        }
-        .hero-swiper .swiper-pagination-bullet-active {
-          width: 22px !important;
-          border-radius: 9999px;
-        }
-        /* دکمه‌های ناوبری سفارشی */
-        .hero-prev-btn,
-        .hero-next-btn {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          z-index: 10;
-          width: 36px;
-          height: 36px;
-          border-radius: 9999px;
-          background: rgba(255,255,255,.8);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 1px 4px rgba(0,0,0,.1);
-          cursor: pointer;
-          border: none;
-          transition: background .2s, transform .2s;
-        }
-        .hero-prev-btn:hover,
-        .hero-next-btn:hover {
-          background: white;
-          transform: translateY(-50%) scale(1.05);
-        }
-        .hero-prev-btn { right: 16px; }
-        .hero-next-btn { left: 16px; }
-        .swiper-button-disabled.hero-prev-btn,
-        .swiper-button-disabled.hero-next-btn {
-          opacity: 0.3;
-          pointer-events: none;
-        }
+        .hero-swiper .swiper-pagination { bottom: 14px !important; display:flex; align-items:center; justify-content:center; gap:5px; pointer-events:none; }
+        .hero-swiper .swiper-pagination-bullet { width:6px; height:6px; background:rgba(0,0,0,.18); opacity:1; border-radius:9999px; transition:width .3s; margin:0 !important; pointer-events:auto; flex-shrink:0; }
+        .hero-swiper .swiper-pagination-bullet-active { width:20px !important; background:rgba(0,0,0,.45) !important; }
+        @media(max-width:640px){ .hero-carousel-root { height:220px !important; } }
       `}</style>
 
       <Swiper
@@ -97,132 +87,107 @@ export default function HeroCarousel({ products }: Props) {
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
-        navigation={{
-          prevEl: ".hero-prev-btn",
-          nextEl: ".hero-next-btn",
-        }}
-        pagination={{
-          clickable: true,
-          // رنگ پویا برای bullet فعال — از طریق CSS variable
-          renderBullet: (index, className) =>
-            `<span class="${className}" style="--bullet-index:${index}"></span>`,
-        }}
-        speed={550}
+        navigation={{ prevEl: ".hero-prev", nextEl: ".hero-next" }}
+        pagination={{ clickable: true }}
+        speed={500}
       >
         {products.map((product, i) => {
-          const colors = BG_COLORS[i % BG_COLORS.length];
+          const t = THEMES[i % THEMES.length];
           return (
-            <SwiperSlide
-              key={product.id}
-              style={{ backgroundColor: colors.bg }}
-            >
-              <SlideContent product={product} accent={colors.accent} priority={i === 0}/>
+            <SwiperSlide key={product.id}>
+              <div
+                className={`flex items-center h-full bg-gradient-to-br ${t.bg} px-6 sm:px-14 gap-6`}
+              >
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <span
+                    className={`inline-block text-[11px] font-semibold px-3 py-1 rounded-full mb-3 ${t.badgeBg} ${t.badgeText}`}
+                  >
+                    {product.is_new
+                      ? "تازه رسیده"
+                      : product.is_on_sale
+                      ? "تخفیف ویژه"
+                      : "پیشنهاد ما"}
+                  </span>
+
+                  <h2 className="text-lg sm:text-2xl font-bold text-gray-900 leading-snug mb-1.5 line-clamp-2">
+                    {product.title}
+                  </h2>
+
+                  {product.short_description && (
+                    <p className="hidden sm:block text-sm text-gray-500 mb-3 line-clamp-1">
+                      {product.short_description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-5">
+                    {product.sale_price ? (
+                      <>
+                        <span className="text-xs text-gray-400 line-through">
+                          {fmt(product.price)} تومان
+                        </span>
+                        <span
+                          className="text-sm sm:text-base font-bold"
+                          style={{ color: t.accent }}
+                        >
+                          {fmt(product.sale_price)} تومان
+                        </span>
+                      </>
+                    ) : (
+                      <span
+                        className="text-sm sm:text-base font-bold"
+                        style={{ color: t.accent }}
+                      >
+                        {fmt(product.price)} تومان
+                      </span>
+                    )}
+                  </div>
+
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white ${t.btnBg} hover:opacity-90 hover:-translate-y-0.5 transition-all`}
+                  >
+                    مشاهده محصول <HiChevronLeft className="w-4 h-4" />
+                  </Link>
+                </div>
+
+                {/* Image */}
+                <div className="relative w-28 h-28 sm:w-44 sm:h-44 flex-shrink-0">
+                  <div
+                    className={`absolute inset-[15%] rounded-full ${t.glow} blur-2xl opacity-30`}
+                  />
+                  {product.thumbnail ? (
+                    <Image
+                      src={product.thumbnail}
+                      alt={product.title}
+                      fill
+                      className="object-contain relative z-10 drop-shadow-md"
+                      sizes="(max-width:640px) 112px, 176px"
+                      priority={i === 0}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl">
+                      📦
+                    </div>
+                  )}
+                </div>
+              </div>
             </SwiperSlide>
           );
         })}
       </Swiper>
 
-      {/* دکمه‌های ناوبری — خارج از Swiper تا استایل مستقل داشته باشن */}
+      {/* Nav buttons */}
       {products.length > 1 && (
         <>
-          <button className="hero-prev-btn" aria-label="قبلی">
-            <HiChevronRight className="w-5 h-5 text-gray-600" />
+          <button className="hero-prev absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
+            <HiChevronRight className="w-4 h-4 text-gray-600" />
           </button>
-          <button className="hero-next-btn" aria-label="بعدی">
-            <HiChevronLeft className="w-5 h-5 text-gray-600" />
+          <button className="hero-next absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
+            <HiChevronLeft className="w-4 h-4 text-gray-600" />
           </button>
         </>
       )}
-    </div>
-  );
-}
-
-// ── محتوای هر اسلاید ──
-function SlideContent({
-  product,
-  accent,
-  priority = false, 
-}: {
-  product: Product;
-  accent: string;
-  priority?: boolean;
-}) {
-  const hasDiscount = !!product.sale_price;
-
-  return (
-    <div className="flex items-center h-full px-8 sm:px-12 gap-6">
-      {/* متن */}
-      <div className="flex-1 min-w-0">
-        {/* badge */}
-        <span
-          className="inline-block text-xs font-medium px-3 py-1 rounded-full mb-3"
-          style={{ background: `${accent}18`, color: accent }}
-        >
-          {product.is_new
-            ? "جدید رسید"
-            : product.is_on_sale
-              ? "تخفیف ویژه"
-              : "پیشنهاد ما"}
-        </span>
-
-        {/* عنوان */}
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-snug mb-1.5 line-clamp-2">
-          {product.title}
-        </h2>
-
-        {/* توضیح کوتاه */}
-        {product.short_description && (
-          <p className="text-sm text-gray-500 mb-3 line-clamp-1">
-            {product.short_description}
-          </p>
-        )}
-
-        {/* قیمت */}
-        <div className="mb-5">
-          {hasDiscount ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 line-through">
-                {fmt(product.price)} تومان
-              </span>
-              <span className="text-base font-bold" style={{ color: accent }}>
-                {fmt(product.sale_price!)} تومان
-              </span>
-            </div>
-          ) : (
-            <span className="text-base font-bold" style={{ color: accent }}>
-              {fmt(product.price)} تومان
-            </span>
-          )}
-        </div>
-
-        {/* دکمه */}
-        <Link
-          href={`/products/${product.slug}`}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: accent }}
-        >
-          مشاهده محصول
-          <HiChevronLeft className="w-4 h-4" />
-        </Link>
-      </div>
-
-      {/* تصویر */}
-      <div className="relative w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0">
-        {product.thumbnail ? (
-          <Image
-            src={product.thumbnail}
-            alt={product.title}
-            fill
-            className="object-contain drop-shadow-sm"
-            sizes="(max-width:640px) 160px, 208px"
-            priority={priority}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-7xl">
-            📦
-          </div>
-        )}
-      </div>
     </div>
   );
 }
