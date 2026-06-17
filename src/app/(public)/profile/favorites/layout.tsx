@@ -2,7 +2,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "علاقه‌مندی‌ها | نمایندگی انحصاری فانتوم پلاس در ایران",
+  title: "علاقه‌مندی‌ها | فروشگاه پترا",
   description: "محصولات مورد علاقه شما",
 };
 

@@ -26,15 +26,20 @@ export default function ProductDetail({
             خانه
           </Link>
           <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
-          <Link href="/products" className="hover:text-teal-600 transition">
-            محصولات
-          </Link>
+          {product.category?.parent && (
+            <Link
+              href={`/products/${product.category.parent.slug}`}
+              className="hover:text-teal-600 transition"
+            >
+              {product.category.parent.name}
+            </Link>
+          )}
 
-          {product.category && (
+          {product.category?.parent && (
             <>
               <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
               <Link
-                href={`/products?categories[]=${product.category.slug}`}
+                href={`/products/${product.category.parent.slug}/${product.category.slug}`}
                 className="hover:text-teal-600 transition"
               >
                 {product.category.name}

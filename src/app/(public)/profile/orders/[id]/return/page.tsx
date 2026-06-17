@@ -46,7 +46,7 @@ const REASONS = [
   { key: "damaged", label: "محصول آسیب دیده" },
   { key: "wrong_item", label: "محصول اشتباه ارسال شده" },
   { key: "not_as_described", label: "مطابق توضیحات نیست" },
-  { key: "changed_mind", label: "پشیمان شدم" },
+  // { key: "changed_mind", label: "پشیمان شدم" },
   { key: "other", label: "سایر" },
 ];
 
@@ -149,7 +149,13 @@ function TrackingForm({
             آدرس انبار:
           </p>
           <p className="text-sm text-indigo-700">
-            تهران — [آدرس انبار را وارد کنید]
+            تهران — میرداماد میدان مادر خیابان سنجابی کوچه شریفی پلاک ۶ واحد ۲
+          </p>
+          <p className="text-sm text-indigo-800 font-medium mb-1">
+           کد پستی:
+          </p>
+          <p className="text-sm text-indigo-700">
+           ۱۹۱۱۹۱۴۹۴۶
           </p>
           <p className="text-xs text-indigo-500 mt-2">
             پس از ارسال کالا، کد رهگیری را در زیر وارد کنید

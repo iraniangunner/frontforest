@@ -1,17 +1,17 @@
 // app/contact/page.tsx
-import { HiMail, HiPhone } from "react-icons/hi";
+import { HiLocationMarker, HiMail, HiPhone } from "react-icons/hi";
 import ContactForm from "@/app/_components/ui/ContactForm";
 
 export const metadata = {
-  title: "تماس با ما | نمایندگی انحصاری فانتوم پلاس در ایران",
-  description: "با ما در ارتباط باشید - نمایندگی انحصاری فانتوم پلاس در ایران",
+  title: "تماس با ما | فروشگاه پترا",
+  description: "با ما در ارتباط باشید - فروشگاه پترا",
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/contact` },
   openGraph: {
-    title: "تماس با ما | نمایندگی انحصاری فانتوم پلاس در ایران",
+    title: "تماس با ما | فروشگاه پترا",
     description:
-      "با ما در ارتباط باشید - نمایندگی انحصاری فانتوم پلاس در ایران",
+      "با ما در ارتباط باشید - فروشگاه پترا",
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/contact`,
-    siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    siteName: "فروشگاه پترا",
     locale: "fa_IR",
     type: "website",
   },
@@ -26,7 +26,7 @@ function ContactJsonLd() {
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/contact`,
     mainEntity: {
       "@type": "Organization",
-      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      name: "ن",
       telephone: "+98-21-22252875",
       email: "info@petra.pmk-co.com",
       url: process.env.NEXT_PUBLIC_SITE_URL,
@@ -130,15 +130,19 @@ export default function ContactPage() {
                 </div>
 
                 {/* آدرس */}
-                {/* <div className="flex gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
-                  <HiLocationMarker className="w-6 h-6" />
+                <div className="flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                    <HiLocationMarker className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">آدرس</dt>
+                    <dd className="mt-1 text-gray-900">
+                      {" "}
+                      تهران — میرداماد میدان مادر خیابان سنجابی کوچه شریفی پلاک
+                      ۶ واحد ۲
+                    </dd>
+                  </div>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">آدرس</dt>
-                  <dd className="mt-1 text-gray-900">تهران</dd>
-                </div>
-              </div> */}
 
                 {/* ساعات کاری */}
                 {/* <div className="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">

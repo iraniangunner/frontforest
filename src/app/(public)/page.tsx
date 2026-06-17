@@ -21,7 +21,7 @@ export default async function HomePage() {
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-12">
       <h1 className="sr-only">
-        نمایندگی انحصاری فانتوم پلاس در ایران — خرید محصولات اصل با گارانتی
+        فروشگاه پترا — خرید محصولات اصل با گارانتی
       </h1>
       <HeroCarousel products={slides} />
       <CategoriesSection categories={categories} />

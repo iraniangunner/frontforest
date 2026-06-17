@@ -651,7 +651,6 @@ export default function ProductsPage() {
             />
             <Input
               label="وزن (گرم)"
-              type="number"
               min={0}
               dir="ltr"
               value={formData.weight}

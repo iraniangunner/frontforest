@@ -218,11 +218,11 @@ function DetailModal({
           {/* کاربر */}
           <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700 font-bold flex-shrink-0">
-              {request.user.name.charAt(0)}
+              {request.user.name?.charAt(0) || "ک"}
             </div>
             <div>
               <p className="font-medium text-sm text-gray-900">
-                {request.user.name}
+                {request.user?.name || "کاربر"}
               </p>
               <p className="text-xs text-gray-500 font-mono" dir="ltr">
                 {request.user.mobile}
@@ -487,7 +487,7 @@ export default function AdminReturnRequestsPage() {
       header: "کاربر",
       render: (row: ReturnRequest) => (
         <div>
-          <p className="font-medium text-sm">{row.user.name}</p>
+          <p className="font-medium text-sm">{row.user?.name || ""}</p>
           <p className="text-xs text-gray-400 font-mono" dir="ltr">
             {row.user.mobile}
           </p>

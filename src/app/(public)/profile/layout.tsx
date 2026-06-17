@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { ProfileAuthGuard } from "@/app/_components/guards";
 
 export const metadata: Metadata = {
-  title: "پروفایل | نمایندگی انحصاری فانتوم پلاس در ایران",
+  title:"پروفایل | فروشگاه پترا",
   description: "پروفایل کاربری شما",
 };
 

@@ -49,22 +49,22 @@ const yekanbakh = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "نمایندگی انحصاری فانتوم پلاس در ایران",
+  title: "فروشگاه پترا",
   icons: {
     icon: "/favicon.ico",
   },
   description:
-    "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+    "خرید آنلاین محصولات فروشگاه پترا با گارانتی معتبر — ارسال به سراسر ایران",
   verification: {
     google: "1nXv1VVb_D9HbajkcQTp507Iru1JAYv2lqfraw3gNVA",
   },
   alternates: { canonical: process.env.NEXT_PUBLIC_SITE_URL },
   openGraph: {
-    title: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    title: "فروشگاه پترا",
     description:
-      "خرید آنلاین محصولات اصل فانتوم پلاس با گارانتی معتبر — ارسال به سراسر ایران",
+      "خرید آنلاین محصولات فروشگاه پترا با گارانتی معتبر — ارسال به سراسر ایران",
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    siteName: "فروشگاه پترا",
     locale: "fa_IR",
     type: "website",
   },
@@ -75,7 +75,7 @@ function OrganizationJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    name: "فروشگاه پترا",
     url: process.env.NEXT_PUBLIC_SITE_URL,
     logo: `${process.env.NEXT_PUBLIC_SITE_URL}/images/petra-logo.png`,
     contactPoint: {

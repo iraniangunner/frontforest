@@ -42,7 +42,7 @@ async function getComments(slug: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return { title: "مقاله | فانتوم پلاس" };
+  if (!post) return { title: "مقاله | فروشگاه پترا" };
   return {
     title: `${post.title} | اخبار و مقالات`,
     description: post.excerpt || post.title,
@@ -78,7 +78,7 @@ function PostJsonLd({ post, slug }: { post: any; slug: string }) {
     }),
     publisher: {
       "@type": "Organization",
-      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      name: "فروشگاه پترا",
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
   };

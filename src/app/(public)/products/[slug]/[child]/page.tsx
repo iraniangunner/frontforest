@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!childCategory) return { title: "یافت نشد" };
 
-  const title = `${childCategory.name} | فروشگاه`;
+  const title = `${childCategory.name} | فروشگاه پترا`;
   const description =
     childCategory.description ||
     `خرید آنلاین محصولات ${childCategory.name} با گارانتی معتبر`;

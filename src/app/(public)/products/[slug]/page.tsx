@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const parentCategory = menu.find((c) => c.slug === slug);
 
   if (parentCategory) {
-    const title = `${parentCategory.name} | فروشگاه`;
+    const title = `${parentCategory.name} | فروشگاه پترا`;
     const description =
       parentCategory.description ||
       `خرید آنلاین محصولات ${parentCategory.name} با گارانتی معتبر`;
@@ -121,7 +121,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(slug);
   if (!product) return { title: "یافت نشد" };
 
-  const title = `${product.title} | فروشگاه`;
+  const title = `${product.title} | فروشگاه پترا`;
   const description =
     product.short_description ||
     `خرید ${product.title}${product.brand ? " برند " + product.brand : ""}`;
@@ -136,7 +136,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url,
-      siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      siteName: "فروشگاه پترا",
       locale: "fa_IR",
       type: "website",
       images: images.map((img: string) => ({ url: img, alt: product.title })),
@@ -175,7 +175,7 @@ function ProductJsonLd({ product }: { product: any }) {
         : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
-        name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+        name: "فروشگاه پترا",
         url: process.env.NEXT_PUBLIC_SITE_URL,
       },
     },

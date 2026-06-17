@@ -90,7 +90,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       await favoritesAPI.toggle(product.id);
 
       toast.success(
-        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
+        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد",
       );
     } catch (error) {
       toggleFavoriteContext(product.id); // revert
@@ -106,12 +106,15 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             {product.brand}
           </span>
         )}
-        <Link
-          href={`/products?category=${product.category?.slug}`}
-          className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full hover:bg-gray-200 transition"
-        >
-          {product.category?.name}
-        </Link>
+        {product.category?.parent && (
+          <Link
+            href={`/products/${product.category.parent.slug}/${product.category.slug}`}
+            className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full hover:bg-gray-200 transition"
+          >
+            {product.category?.name}
+          </Link>
+        )}
+
         {product.is_featured && (
           <span className="px-3 py-1 bg-yellow-50 text-yellow-700 text-sm rounded-full">
             ویژه
@@ -135,10 +138,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         <span className="text-gray-600 text-sm">
           {product.rating} از ۵ ({product.reviews_count} نظر)
         </span>
-        <span className="text-gray-300">|</span>
+        {/* <span className="text-gray-300">|</span>
         <span className="text-gray-500 text-sm">
           {product.sales_count} فروش
-        </span>
+        </span> */}
       </div>
 
       {/* توضیح کوتاه */}

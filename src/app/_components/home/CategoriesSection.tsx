@@ -20,7 +20,7 @@ export default function CategoriesSection({ categories }: Props) {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-9 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6  gap-2.5 sm:gap-3">
           {categories.map((cat) => (
             <Link
               key={cat.id}

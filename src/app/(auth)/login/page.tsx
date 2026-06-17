@@ -5,7 +5,7 @@ import Image from "next/image";
 import { LoginContent } from "@/app/_components/auth";
 
 export const metadata = {
-  title: "ورود | نمایندگی انحصاری فانتوم پلاس در ایران",
+  title: "ورود | فروشگاه پترا",
 };
 
 export default function LoginPage() {

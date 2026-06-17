@@ -2,16 +2,14 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "درباره ما | نمایندگی انحصاری فانتوم پلاس در ایران",
-  description:
-    "نمایندگی انحصاری فانتوم پلاس در ایران - ارائه محصولات اصل با گارانتی معتبر",
+  title: "درباره ما | فروشگاه پترا",
+  description: "فروشگاه پترا - ارائه محصولات با گارانتی معتبر",
   alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/about` },
   openGraph: {
-    title: "درباره ما | نمایندگی انحصاری فانتوم پلاس در ایران",
-    description:
-      "نمایندگی انحصاری فانتوم پلاس در ایران - ارائه محصولات اصل با گارانتی معتبر",
+    title: "درباره ما | فروشگاه پترا",
+    description: "فروشگاه پترا - ارائه محصولات با گارانتی معتبر",
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/about`,
-    siteName: "نمایندگی انحصاری فانتوم پلاس در ایران",
+    siteName: "فروشگاه پترا",
     locale: "fa_IR",
     type: "website",
   },
@@ -24,11 +22,10 @@ function AboutJsonLd() {
     "@type": "AboutPage",
     name: "درباره ما",
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/about`,
-    description:
-      "نمایندگی انحصاری فانتوم پلاس در ایران - ارائه محصولات اصل با گارانتی معتبر",
+    description: "فروشگاه پترا - ارائه محصولات اصل با گارانتی معتبر",
     mainEntity: {
       "@type": "Organization",
-      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      name: "فروشگاه پترا",
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
   };
@@ -135,12 +132,11 @@ export default function AboutPage() {
                 درباره ما
               </span>
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                نمایندگی انحصاری فانتوم پلاس در ایران
+                فروشگاه پترا
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                ما با افتخار به عنوان نمایندگی انحصاری برند فانتوم پلاس در
-                ایران، بهترین محصولات را با گارانتی اصالت و خدمات پس از فروش
-                معتبر ارائه می‌دهیم.
+                ما با افتخار بهترین محصولات را با گارانتی اصالت و خدمات پس از
+                فروش معتبر ارائه می‌دهیم.
               </p>
             </div>
           </div>
@@ -170,16 +166,15 @@ export default function AboutPage() {
               ماموریت ما
             </h2>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              به عنوان نمایندگی انحصاری فانتوم پلاس در ایران، ماموریت ما ارائه
-              محصولات اصل با بالاترین کیفیت، قیمت مناسب و خدمات پس از فروش قابل
-              اطمینان است.
+              ماموریت ما ارائه محصولات اصل با بالاترین کیفیت، قیمت مناسب و خدمات
+              پس از فروش قابل اطمینان است.
             </p>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               ما متعهدیم که تجربه خرید آسان، امن و رضایت‌بخشی را برای مشتریان
               سراسر ایران فراهم کنیم و با ارسال سریع و گارانتی معتبر، اعتماد شما
               را جلب کنیم.
             </p>
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <Link
                 href="/products"
                 className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-500 transition-colors"
@@ -199,7 +194,7 @@ export default function AboutPage() {
                   />
                 </svg>
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
 

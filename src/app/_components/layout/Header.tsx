@@ -163,7 +163,7 @@ export default function Header({ categories = [] }: Props) {
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
               <Image
                 src="/images/petra-logo.png"
-                alt="فانتوم پلاس"
+                alt="فروشگاه پترا"
                 width={120}
                 height={40}
                 className="object-contain"

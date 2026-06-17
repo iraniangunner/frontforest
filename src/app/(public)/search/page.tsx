@@ -9,8 +9,8 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "نتایج جستجو | فروشگاه",
-  description: "جستجو در محصولات فروشگاه",
+  title: "نتایج جستجو | فروشگاه پترا",
+  description: "جستجو در محصولات فروشگاه پترا",
   robots: { index: false, follow: true },
 };
 

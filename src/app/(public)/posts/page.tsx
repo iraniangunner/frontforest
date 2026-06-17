@@ -9,13 +9,13 @@ import PostsHeroCard from "@/app/_components/posts/PostsHeroCard";
 import PostsCard from "@/app/_components/posts/PostsCard";
 
 export const metadata: Metadata = {
-  title: "اخبار و مقالات | نمایندگی انحصاری فانتوم پلاس در ایران",
+  title: "اخبار و مقالات | فروشگاه پترا",
   description:
-    "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فانتوم پلاس — نمایندگی انحصاری در ایران",
-  keywords: "اخبار فانتوم پلاس، مقالات، آموزش، معرفی محصول",
+    "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فروشگاه پترا",
+  keywords: "اخبار فروشگاه پترا، مقالات، آموزش، معرفی محصول",
   openGraph: {
-    title: "اخبار و مقالات | فانتوم پلاس",
-    description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فانتوم پلاس",
+    title: "اخبار و مقالات | فروشگاه پترا",
+    description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فروشگاه پترا",
     type: "website",
     locale: "fa_IR",
   },
@@ -27,12 +27,12 @@ function PostsJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: "اخبار و مقالات فانتوم پلاس",
-    description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فانتوم پلاس",
+    name: "اخبار و مقالات فروشگاه پترا",
+    description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فروشگاه پترا",
     url: `${process.env.NEXT_PUBLIC_SITE_URL}/posts`,
     publisher: {
       "@type": "Organization",
-      name: "نمایندگی انحصاری فانتوم پلاس در ایران",
+      name: "فروشگاه پترا",
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
   };
