@@ -10,6 +10,8 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { UserStatusProvider } from "@/context/UserStatusContext";
 import Script from "next/script";
+import { Suspense } from "react";
+import YandexMetrica from "./_components/analytics/YandexMetrica";
 
 const yekanbakh = localFont({
   src: [
@@ -131,6 +133,9 @@ export default function RootLayout({
             />
           </div>
         </noscript>
+        <Suspense fallback={null}>
+          <YandexMetrica />
+        </Suspense>
         <OrganizationJsonLd />
         <AuthProvider>
           <CartProvider>
