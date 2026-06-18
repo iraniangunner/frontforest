@@ -123,12 +123,6 @@ export default function FavoritesPage() {
             <p className="text-gray-500 text-sm mb-6">
               محصولات مورد علاقه خود را اینجا ذخیره کنید
             </p>
-            <Link
-              href="/products"
-              className="inline-block px-6 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors"
-            >
-              مشاهده محصولات
-            </Link>
           </div>
         ) : (
           <>

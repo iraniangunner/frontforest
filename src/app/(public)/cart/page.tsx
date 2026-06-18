@@ -369,12 +369,6 @@ export default function CartPage() {
             <p className="text-gray-500 mb-6">
               محصولات مورد نظر خود را به سبد اضافه کنید
             </p>
-            <Link
-              href="/products"
-              className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              مشاهده محصولات
-            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

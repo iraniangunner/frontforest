@@ -136,8 +136,7 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800/50">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-500">
-              © ۱۴۰۵ نمایندگی انحصاری فانتوم پلاس در ایران. تمامی حقوق محفوظ
-              است.
+              © ۱۴۰۵ فروشگاه پترا. تمامی حقوق محفوظ است.
             </p>
             <div
               dangerouslySetInnerHTML={{

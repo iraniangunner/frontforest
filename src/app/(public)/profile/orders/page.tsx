@@ -279,14 +279,6 @@ export default function OrdersPage() {
               <p className="text-gray-500 font-medium">
                 {filter || search ? "سفارشی یافت نشد" : "هنوز سفارشی ثبت نشده"}
               </p>
-              {!filter && !search && (
-                <Link
-                  href="/products"
-                  className="inline-block mt-5 px-5 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-medium hover:bg-teal-700 transition-colors"
-                >
-                  مشاهده محصولات
-                </Link>
-              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
