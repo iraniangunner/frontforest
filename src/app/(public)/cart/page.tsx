@@ -331,13 +331,6 @@ export default function CartPage() {
               >
                 <HiLogin className="w-5 h-5" /> ورود به حساب
               </Link>
-          
-              <Link
-                href="/products"
-                className="block text-sm text-gray-500 hover:text-gray-700 mt-4"
-              >
-                مشاهده محصولات
-              </Link>
             </div>
           </div>
         </div>
