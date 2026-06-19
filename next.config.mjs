@@ -10,8 +10,20 @@ const nextConfig = {
     ],
   },
 
-  experimental: {
-    // browsersListForSwc: true,
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.petra.pmk-co.com",
+          },
+        ],
+        destination: "https://petra.pmk-co.com/:path*",
+        permanent: true,
+      },
+    ];
   },
 };
 
