@@ -1,13 +1,23 @@
 // app/(public)/_components/home/CategoriesSection.tsx
 import Link from "next/link";
 import Image from "next/image";
-import { Category } from "@/types";
 
-interface Props {
-  categories: Category[];
+const API = process.env.NEXT_PUBLIC_API_URL;
+
+async function getCategories() {
+  const res = await fetch(`${API}/categories/menu`, {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) throw new Error("Categories failed");
+
+  return res.json();
 }
 
-export default function CategoriesSection({ categories }: Props) {
+export default async function CategoriesSection() {
+  const data = await getCategories();
+  const categories = data?.data ?? [];
+
   if (!categories.length) return null;
 
   return (
@@ -21,7 +31,7 @@ export default function CategoriesSection({ categories }: Props) {
 
         {/* Grid */}
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6  gap-2.5 sm:gap-3">
-          {categories.map((cat) => (
+          {categories.map((cat: any) => (
             <Link
               key={cat.id}
               href={`/products/${cat.slug}`}

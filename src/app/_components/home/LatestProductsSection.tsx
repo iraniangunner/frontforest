@@ -19,8 +19,6 @@ export default function LatestProductsSection({ products }: Props) {
   const [isEnd, setIsEnd] = useState(false);
   const [swiperReady, setSwiperReady] = useState(false); // ← اضافه کن
 
-  if (!products.length) return null;
-
   const checkArrows = (swiper: SwiperType) => {
     const w = window.innerWidth;
     const perView = w >= 1280 ? 4 : w >= 1024 ? 3 : w >= 640 ? 2 : 1;

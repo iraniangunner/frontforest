@@ -58,7 +58,6 @@ interface Props {
 }
 
 export default function HeroCarousel({ products }: Props) {
-  if (!products.length) return null;
 
   return (
     <div
