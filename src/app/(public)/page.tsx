@@ -6,6 +6,8 @@ import HeroCarousel from "../_components/home/HeroCarousel";
 import { FeaturesSection } from "../_components/home";
 import BlogSection from "../_components/home/BlogSection";
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   const [slidesRes, catsRes, latestRes, postsRes] = await Promise.all([
     publicProductsAPI.getAll({ per_page: 5, sort: "newest" }),
