@@ -12,7 +12,16 @@ export default function HomePage() {
       <h1 className="sr-only">فروشگاه پترا — خرید محصولات اصل با گارانتی</h1>
 
       {/* HERO (critical path) */}
-      <HeroCarousel />
+      <Suspense
+        fallback={
+          <div
+            style={{ height: 280 }}
+            className="bg-gray-100 animate-pulse rounded-2xl"
+          />
+        }
+      >
+        <HeroCarousel />
+      </Suspense>
 
       {/* STREAMED SECTIONS */}
       <Suspense
