@@ -237,3 +237,16 @@ export interface Comment {
   user: { id: number; name: string };
   replies: Reply[];
 }
+
+
+export type StatRow = {
+  date: string;
+  visits: number;
+  pageviews: number;
+  users: number;
+};
+
+export type PageRow = {
+  page: string;
+  pageviews: number;
+};

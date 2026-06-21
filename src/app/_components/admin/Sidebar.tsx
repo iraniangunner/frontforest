@@ -22,10 +22,17 @@ import {
   HiTag,
   HiOutlineRefresh,
   HiOutlineShieldCheck,
+  HiOutlineChartBar,
 } from "react-icons/hi";
 
 const menuItems = [
   { path: "/admin", icon: HiOutlineHome, label: "داشبورد", group: null },
+  {
+    path: "/admin/analytics",
+    icon: HiOutlineChartBar,
+    label: "آمار سایت",
+    group: null,
+  },
   {
     path: "/admin/products",
     icon: HiOutlineCube,
