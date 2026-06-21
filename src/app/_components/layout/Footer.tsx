@@ -43,9 +43,7 @@ export default function Footer() {
                 priority
               />
             </Link>
-            <span className="text-lg font-bold text-white">
-             فروشگاه پترا
-            </span>
+            <span className="text-lg font-bold text-white">فروشگاه پترا</span>
             <p className="text-gray-400 leading-relaxed text-sm">
               ارائه بهترین محصولات با کیفیت بالا و قیمت مناسب. رضایت شما اولویت
               ماست.
@@ -120,9 +118,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">آدرس</p>
-                  <p
-                    className="text-sm text-gray-300 group-hover:text-teal-400 transition-colors"
-                  >
+                  <p className="text-sm text-gray-300 group-hover:text-teal-400 transition-colors">
                     تهران — میرداماد میدان مادر خیابان سنجابی کوچه شریفی پلاک ۶
                     واحد ۲
                   </p>
@@ -140,7 +136,7 @@ export default function Footer() {
             </p>
             <div
               dangerouslySetInnerHTML={{
-                __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'></a>`,
+                __html: `<a referrerpolicy='origin' target='_blank' rel='noopener noreferrer' href='https://trustseal.enamad.ir/?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=6032091&Code=synYdfAw4LxI5IBm9pLxabTEg0pyNIyx' alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='synYdfAw4LxI5IBm9pLxabTEg0pyNIyx'></a>`,
               }}
             />
           </div>
