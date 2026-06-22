@@ -25,6 +25,76 @@ const nextConfig = {
       },
     ];
   },
+
+  async headers() {
+    return [
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      {
+        source: "/products/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      {
+        source: "/posts/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      {
+        source: "/about",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      {
+        source: "/contact",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+
+      {
+        source: "/search",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=60, s-maxage=60, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
