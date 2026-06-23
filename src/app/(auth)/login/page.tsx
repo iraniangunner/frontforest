@@ -10,41 +10,51 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      {/* Background blobs — static، روی سرور رندر میشه */}
-      <div
-        className="fixed inset-0 pointer-events-none overflow-hidden"
-        aria-hidden="true"
-      >
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-teal-200/40 via-transparent to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-200/40 via-transparent to-transparent rounded-full blur-3xl" />
+    <div className="min-h-screen bg-white grid lg:grid-cols-2">
+      {/* ───── سمت راست (RTL): فرم لخت و بدون حاشیه ───── */}
+      <div className="flex flex-col items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md">
+          {/* لوگو */}
+          <div className="flex justify-center lg:justify-start mb-10">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/images/petra-logo.png"
+                alt="فروشگاه پترا"
+                width={120}
+                height={40}
+                className="w-auto object-contain"
+                priority
+              />
+            </Link>
+          </div>
+
+          {/* فقط همین بخش client است — همه‌ی منطق اصلی بدون تغییر */}
+          <Suspense
+            fallback={
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A72F3B]" />
+              </div>
+            }
+          >
+            <LoginContent />
+          </Suspense>
+        </div>
       </div>
 
-      <div className="relative w-full max-w-md">
-        {/* Logo — static */}
-        <div className="flex justify-center items-center mb-8">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/images/petra-logo.png"
-              alt="فانتوم پلاس"
-              width={120}
-              height={40}
-              className="w-auto object-contain"
-              priority
-            />
-          </Link>
-        </div>
-
-        {/* فقط همین بخش client است — همه‌ی منطق اصلی بدون تغییر */}
-        <Suspense
-          fallback={
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
-            </div>
-          }
-        >
-          <LoginContent />
-        </Suspense>
+      {/* ───── سمت چپ (RTL): تصویر — روی موبایل مخفی ───── */}
+      <div className="hidden lg:flex items-center justify-center bg-[#FCF7F7] p-12">
+        {/*
+          تصویر دقیق فیگما را از فایل خودت اکسپورت کن (PNG یا SVG) و اینجا بذار:
+          public/images/login-illustration.png
+        */}
+        <Image
+          src="/images/login-illustration.png"
+          alt="فروشگاه پترا"
+          width={560}
+          height={560}
+          className="w-full max-w-lg h-auto object-contain"
+          priority
+        />
       </div>
     </div>
   );

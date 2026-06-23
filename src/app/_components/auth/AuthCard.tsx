@@ -1,5 +1,3 @@
-import { Smartphone, KeyRound, Mail } from "lucide-react";
-
 interface AuthCardProps {
   step: "identifier" | "otp";
   identifier?: string;
@@ -13,35 +11,24 @@ export function AuthCard({
   channel,
   children,
 }: AuthCardProps) {
-  const icon =
-    step === "identifier" ? (
-      <Smartphone className="w-8 h-8 text-white" />
-    ) : channel === "email" ? (
-      <Mail className="w-8 h-8 text-white" />
-    ) : (
-      <KeyRound className="w-8 h-8 text-white" />
-    );
+  const title = step === "identifier" ? "ورود / ثبت‌نام" : "کد تایید";
 
   const subtitle =
     step === "identifier"
       ? "شماره موبایل یا ایمیل خود را وارد کنید"
-      : channel === "email"
-        ? `کد ارسال شده به ${identifier} را وارد کنید`
-        : `کد ارسال شده به ${identifier} را وارد کنید`;
+      : `کد ارسال‌شده به ${identifier} را وارد کنید`;
 
+  // بدون کادر و حاشیه — فقط عنوان + فرم، لخت روی پس‌زمینه
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-8 text-center">
-        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
-          {icon}
-        </div>
-        <h1 className="text-xl font-bold text-white">
-          {step === "identifier" ? "ورود / ثبت نام" : "کد تایید"}
+    <div>
+      <div className="text-right mb-8">
+        <h1 className="text-[28px] leading-[1.4] font-bold text-[#242424]">
+          {title}
         </h1>
-        <p className="text-teal-100 text-sm mt-2">{subtitle}</p>
+        <p className="text-[#898989] text-sm leading-[1.8] mt-2">{subtitle}</p>
       </div>
 
-      <div className="p-6 sm:p-8">{children}</div>
+      {children}
     </div>
   );
 }

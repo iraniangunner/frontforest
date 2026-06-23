@@ -44,7 +44,7 @@ export function OtpForm({
       {/* Countdown */}
       <div className="text-center">
         {countdown > 0 ? (
-          <span className="inline-flex items-center gap-2 text-gray-500 text-sm">
+          <span className="inline-flex items-center gap-2 text-[#898989] text-sm">
             <Timer className="w-4 h-4" />
             ارسال مجدد تا {formatTime(countdown)}
           </span>
@@ -52,7 +52,7 @@ export function OtpForm({
           <button
             type="button"
             onClick={onResend}
-            className="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-600 font-medium text-sm"
+            className="inline-flex items-center gap-2 text-[#A72F3B] hover:text-[#86262F] font-medium text-sm"
           >
             <RefreshCw className="w-4 h-4" />
             ارسال مجدد کد
@@ -71,7 +71,7 @@ export function OtpForm({
       <button
         type="button"
         onClick={onBack}
-        className="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-teal-600 text-sm"
+        className="w-full flex items-center justify-center gap-2 text-[#898989] hover:text-[#A72F3B] text-sm transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         {backLabel}

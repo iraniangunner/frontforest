@@ -1,4 +1,3 @@
-// app/login/_components/LoginContent.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,7 +23,7 @@ function getInputState(value: string): InputState {
   return "idle";
 }
 
-// ─── IdentifierForm ───────────────────────────────────────────
+// ─── IdentifierForm (فقط ظاهر تغییر کرده، منطق همان است) ───────
 function IdentifierForm({
   identifier,
   setIdentifier,
@@ -40,25 +39,25 @@ function IdentifierForm({
 
   const hint =
     state === "mobile"
-      ? "✓ شماره موبایل - کد SMS ارسال می‌شود"
+      ? "✓ شماره موبایل - کد به‌صورت پیامک ارسال می‌شود"
       : state === "email"
       ? "✓ ایمیل - کد به ایمیل شما ارسال می‌شود"
       : state === "invalid"
-      ? "یک شماره موبایل (09...) یا ایمیل معتبر وارد کنید"
+      ? "یک شماره موبایل (۰۹...) یا ایمیل معتبر وارد کنید"
       : "شماره موبایل یا ایمیل خود را وارد کنید";
 
   const hintColor =
     state === "mobile" || state === "email"
-      ? "text-emerald-600"
+      ? "text-[#00966D]"
       : state === "invalid"
-      ? "text-red-500"
-      : "text-slate-400";
+      ? "text-[#C30000]"
+      : "text-[#898989]";
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="identifier" value={identifier} />
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-700 text-right">
+        <label className="block text-[14px] font-medium text-[#242424] text-right">
           ورود / ثبت‌نام
         </label>
         <input
@@ -67,7 +66,10 @@ function IdentifierForm({
           onChange={(e) => setIdentifier(e.target.value)}
           placeholder="09123456789 یا email@example.com"
           dir="ltr"
-          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-left placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent transition text-sm"
+          className="w-full px-4 py-3 rounded-xl border border-[#EDEDED] bg-white text-left
+                     placeholder:text-[#CBCBCB] text-[#242424]
+                     focus:outline-none focus:border-[#A72F3B] focus:ring-4 focus:ring-[#A72F3B]/10
+                     transition text-sm"
         />
         <p className={`text-xs text-right transition-colors ${hintColor}`}>
           {hint}
@@ -75,7 +77,7 @@ function IdentifierForm({
       </div>
 
       {error && (
-        <p className="text-sm text-red-500 text-right bg-red-50 px-3 py-2 rounded-lg">
+        <p className="text-sm text-[#C30000] text-right bg-[#FBEAEA] px-3 py-2 rounded-lg">
           {error}
         </p>
       )}
@@ -90,7 +92,7 @@ function IdentifierForm({
   );
 }
 
-// ─── LoginContent ─────────────────────────────────────────────
+// ─── LoginContent (منطق کاملاً دست‌نخورده) ────────────────────
 export function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -170,7 +172,7 @@ export function LoginContent() {
   if (loading || user || isRedirecting) {
     return (
       <div className="flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A72F3B]" />
       </div>
     );
   }
