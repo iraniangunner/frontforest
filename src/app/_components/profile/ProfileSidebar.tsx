@@ -4,7 +4,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   HiViewGrid,
   HiShoppingBag,
@@ -15,8 +16,10 @@ import {
   HiPlusCircle,
   HiCamera,
 } from "react-icons/hi";
-import { ordersAPI, favoritesAPI } from "@/lib/api";
+import { ordersAPI, favoritesAPI, cartAPI } from "@/lib/api";
+import { logoutAction } from "@/app/_actions/auth";
 import { useAuth } from "@/context/AuthContext";
+import { guestCart } from "@/lib/guestCart";
 
 const NAV = [
   { href: "/profile", label: "داشبورد", icon: HiViewGrid, exact: true },
@@ -30,8 +33,9 @@ const fmt = (n: number) => Number(n).toLocaleString("fa-IR");
 
 export function ProfileSidebar() {
   const pathname = usePathname();
-  // اگر نام تابع خروج در AuthContext شما متفاوت است، همین‌جا تغییرش بده
-  const { user, logout } = useAuth() as any;
+  const router = useRouter();
+  // setUser را از AuthContext خودت بگیر؛ اگر نامش فرق دارد همین‌جا تنظیم کن
+  const { user, setUser } = useAuth() as any;
 
   const [stats, setStats] = useState({
     orders: 0,
@@ -57,12 +61,54 @@ export function ProfileSidebar() {
     })();
   }, []);
 
+  // ── خروج (منطق سینک سبد سرور به guest cart) ──
+  const handleLogout = async () => {
+    try {
+      const res = await cartAPI.get();
+      const serverItems = res.data.data || [];
+      if (serverItems.length > 0) {
+        const guestItems = serverItems.map((item: any) => ({
+          id: item.id,
+          quantity: Number(item.quantity) || 1,
+          slug: item.slug,
+          title: item.title,
+          thumbnail: item.thumbnail ?? null,
+          price: Number(item.price) || 0,
+          sale_price: item.sale_price !== null ? Number(item.sale_price) : null,
+          current_price: Number(item.current_price) || 0,
+          stock: Number(item.stock) || 0,
+        }));
+        localStorage.setItem("guest_cart", JSON.stringify(guestItems));
+        // تگ بزن که این سبد مال کدوم کاربره — تا کاربر دیگه‌ای merge نشه
+        if (user?.id) {
+          localStorage.setItem("guest_cart_owner", String(user.id));
+        }
+      } else {
+        guestCart.clear();
+        localStorage.removeItem("guest_cart_owner");
+      }
+    } catch {
+      // اگه نشد، guest cart رو دست نزن
+    }
+
+    try {
+      await logoutAction();
+    } catch {}
+    setUser(null);
+    // flag sync رو پاک کن تا دفعه بعد merge درست کار کنه
+    sessionStorage.removeItem("guest_cart_synced");
+    window.dispatchEvent(new Event("guestCartUpdated"));
+    toast.success("با موفقیت خارج شدید");
+    router.push("/");
+    router.refresh();
+  };
+
   const isActive = (item: (typeof NAV)[number]) =>
     item.exact ? pathname === item.href : pathname.startsWith(item.href);
 
   return (
     <>
-      {/* ═══════════ موبایل: کارت جمع‌وجور با منوی شبکه‌ای (بدون اسکرول افقی) ═══════════ */}
+      {/* ═══════════ موبایل: کارت جمع‌وجور با منوی شبکه‌ای ═══════════ */}
       <div className="lg:hidden bg-white rounded-2xl border border-[#F0F0F0] p-4 mb-2">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-[#F6EAEB] flex items-center justify-center flex-shrink-0">
@@ -92,7 +138,6 @@ export function ProfileSidebar() {
           </div>
         </div>
 
-        {/* منوی شبکه‌ای دو ستونه — wrap می‌شود، هرگز از عرض صفحه بیرون نمی‌زند */}
         <nav className="grid grid-cols-2 gap-2">
           {NAV.map((item) => {
             const active = isActive(item);
@@ -112,7 +157,7 @@ export function ProfileSidebar() {
             );
           })}
           <button
-            onClick={() => logout?.()}
+            onClick={handleLogout}
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium border border-[#F0F0F0] bg-white text-[#656565]"
           >
             <HiLogout className="w-4 h-4 flex-shrink-0" />
@@ -197,7 +242,7 @@ export function ProfileSidebar() {
           })}
 
           <button
-            onClick={() => logout?.()}
+            onClick={handleLogout}
             className="flex items-center gap-3 py-3.5 text-sm text-[#656565] hover:text-[#A72F3B] transition-colors"
           >
             <HiLogout className="w-5 h-5" />

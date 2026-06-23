@@ -152,7 +152,7 @@ export default function Header({ categories = [] }: Props) {
                 product_id: i.id,
                 quantity: i.quantity,
               })),
-              "replace"
+              "replace",
             );
           } catch {
             // اگه merge خطا داد، guest cart رو نگه میداریم

@@ -3,46 +3,122 @@
 // app/(public)/profile/page.tsx
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { HiUser, HiShoppingBag, HiHeart, HiCog } from "react-icons/hi2";
 import {
-  HiExclamationCircle,
+  HiShoppingBag,
+  HiEye,
   HiCheckCircle,
-  HiLocationMarker,
+  HiXCircle,
+  HiClock,
+  HiBan,
+  HiCreditCard,
+  HiCube,
+  HiTruck,
+  HiRefresh,
 } from "react-icons/hi";
-import { ordersAPI, favoritesAPI } from "@/lib/api";
+import { HiExclamationCircle } from "react-icons/hi";
+import { ordersAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
-interface Stats {
-  orders: number;
-  favorites: number;
-  totalSpent: number;
+interface Order {
+  id: number;
+  order_number: string;
+  total: number;
+  status: string;
+  status_label: string;
+  items_count: number;
+  payment_method: string;
+  created_at: string;
 }
+
+function getDisplay(order: Order) {
+  if (order.payment_method === "receipt" && order.status === "pending") {
+    return {
+      label: "فیش در انتظار بررسی",
+      cls: "bg-[#FBEFD7] text-[#A9791C]",
+      Icon: HiClock,
+    };
+  }
+  const map: Record<
+    string,
+    { label: string; cls: string; Icon: React.ElementType }
+  > = {
+    pending: {
+      label: "در انتظار پرداخت",
+      cls: "bg-[#FBEFD7] text-[#A9791C]",
+      Icon: HiClock,
+    },
+    paid: {
+      label: "پرداخت شده",
+      cls: "bg-[#F6EAEB] text-[#A72F3B]",
+      Icon: HiCreditCard,
+    },
+    processing: {
+      label: "در حال پردازش",
+      cls: "bg-[#FBEFD7] text-[#A9791C]",
+      Icon: HiCube,
+    },
+    shipped: {
+      label: "ارسال شده",
+      cls: "bg-[#F6EAEB] text-[#A72F3B]",
+      Icon: HiTruck,
+    },
+    delivered: {
+      label: "تحویل داده شده",
+      cls: "bg-[#E6F4EF] text-[#00966D]",
+      Icon: HiCheckCircle,
+    },
+    canceled: {
+      label: "لغو شده",
+      cls: "bg-[#FBEAEA] text-[#C30000]",
+      Icon: HiBan,
+    },
+    returned: {
+      label: "مرجوعی",
+      cls: "bg-[#FBEFD7] text-[#A9791C]",
+      Icon: HiRefresh,
+    },
+    failed: {
+      label: "ناموفق",
+      cls: "bg-[#FBEAEA] text-[#C30000]",
+      Icon: HiXCircle,
+    },
+  };
+  return (
+    map[order.status] ?? {
+      label: order.status_label,
+      cls: "bg-[#F5F5F5] text-[#656565]",
+      Icon: HiClock,
+    }
+  );
+}
+
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString("fa-IR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+const fmtPrice = (n: number) => Number(n).toLocaleString("fa-IR") + " تومان";
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  
-  const [stats, setStats] = useState<Stats>({
-    orders: 0,
-    favorites: 0,
-    totalSpent: 0,
-  });
+
+  const profileComplete = !!user?.mobile;
+  const missingField = !user?.mobile ? "شماره موبایل" : null;
+
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats();
+    loadRecent();
   }, []);
 
-  const loadStats = async () => {
+  // خلاصه‌ی سفارش‌های اخیر — ۵ تای آخر
+  const loadRecent = async () => {
+    setLoading(true);
     try {
-      const [ordersRes, favoritesRes] = await Promise.all([
-        ordersAPI.getAll({ per_page: 1 }),
-        favoritesAPI.getAll({ per_page: 1 }),
-      ]);
-      setStats({
-        orders: ordersRes.data.meta?.total ?? 0,
-        favorites: favoritesRes.data.meta?.total ?? 0,
-        totalSpent: ordersRes.data.meta?.stats?.total_spent ?? 0,
-      });
+      const res = await ordersAPI.getAll({ per_page: 5 });
+      setOrders(res.data.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -50,206 +126,99 @@ export default function ProfilePage() {
     }
   };
 
-  // const profileComplete = !!(user?.email && user?.mobile);
-  // const missingField = !user?.email
-  //   ? "ایمیل"
-  //   : !user?.mobile
-  //     ? "شماره موبایل"
-  //     : null;
-
-const profileComplete = !!user?.mobile;
-const missingField = !user?.mobile ? "شماره موبایل" : null;
-
-  const statCards = [
-    {
-      label: "سفارشات",
-      value: stats.orders,
-      icon: HiShoppingBag,
-      color: "bg-teal-500",
-      bg: "bg-teal-50",
-    },
-    {
-      label: "علاقه‌مندی‌ها",
-      value: stats.favorites,
-      icon: HiHeart,
-      color: "bg-rose-500",
-      bg: "bg-rose-50",
-    },
-    {
-      label: "مجموع خرید",
-      value: `${Number(stats.totalSpent).toLocaleString("fa-IR")} ت`,
-      icon: HiUser,
-      color: "bg-amber-500",
-      bg: "bg-amber-50",
-      isText: true,
-    },
-  ];
-
-  const menuItems = [
-    {
-      href: "/profile/orders",
-      icon: HiShoppingBag,
-      label: "سفارشات من",
-      description: "پیگیری و مشاهده وضعیت سفارشات",
-      color: "bg-teal-500",
-    },
-    {
-      href: "/profile/favorites",
-      icon: HiHeart,
-      label: "علاقه‌مندی‌ها",
-      description: "محصولات مورد علاقه شما",
-      color: "bg-rose-500",
-    },
-    {
-      href: "/profile/addresses",
-      icon: HiLocationMarker,
-      label: "آدرس‌های من",
-      description: "مدیریت آدرس‌های تحویل",
-      color: "bg-blue-500",
-    },
-    {
-      href: "/profile/settings",
-      icon: HiCog,
-      label: "تنظیمات حساب",
-      description: "ویرایش اطلاعات و تنظیمات",
-      color: "bg-gray-600",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-        {/* ── هدر پروفایل ── */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center gap-5">
-            {/* آواتار */}
-            <div className="w-20 h-20 rounded-2xl bg-teal-500 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="text-3xl font-bold text-white">
-                {user?.name?.charAt(0) || user?.mobile?.charAt(0) || "؟"}
-              </span>
-            </div>
+    <div className="space-y-5">
+      {/* خوش‌آمد */}
+      <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
+        <h2 className="text-lg font-bold text-[#242424]">
+          سلام {user?.name || "کاربر"} 👋
+        </h2>
+        <p className="text-sm text-[#898989] mt-1 leading-[1.8]">
+          به داشبورد حساب کاربری خوش آمدید. خلاصه‌ی آخرین سفارش‌هایتان را اینجا
+          می‌بینید.
+        </p>
+      </div>
 
-            {/* اطلاعات */}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-gray-900 mb-1">
-                {user?.name || "کاربر"}
-              </h1>
-              {user?.mobile && (
-                <p className="text-sm text-gray-500" dir="ltr">
-                  📱 {user.mobile}
-                </p>
-              )}
-              {/* {user?.email && (
-                <p className="text-sm text-gray-500" dir="ltr">
-                  ✉️ {user.email}
-                </p>
-              )} */}
-            </div>
-
-            {/* badge پروفایل */}
-            <div className="flex-shrink-0">
-              {profileComplete ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-xl text-xs font-medium text-green-700">
-                  <HiCheckCircle className="w-4 h-4" /> پروفایل کامل
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-700">
-                  <HiExclamationCircle className="w-4 h-4" /> پروفایل ناقص
-                </span>
-              )}
-            </div>
+      {/* بنر تکمیل پروفایل */}
+      {!profileComplete && (
+        <div className="flex items-center gap-4 bg-[#FBEFD7] border border-[#F4B740]/40 rounded-2xl p-4">
+          <HiExclamationCircle className="w-6 h-6 text-[#A9791C] flex-shrink-0" />
+          <div className="flex-1">
+            <p className="font-semibold text-[#8A6310] text-sm">پروفایل ناقص</p>
+            <p className="text-xs text-[#A9791C] mt-0.5">
+              {missingField} خود را اضافه کنید
+            </p>
           </div>
+          <Link
+            href="/profile/settings"
+            className="px-4 py-2 bg-[#A9791C] hover:bg-[#8A6310] text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap flex-shrink-0"
+          >
+            تکمیل پروفایل
+          </Link>
+        </div>
+      )}
+
+      {/* سفارش‌های اخیر */}
+      <div className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0]">
+          <h2 className="text-base font-bold text-[#242424]">سفارش‌های اخیر</h2>
+          <Link
+            href="/profile/orders"
+            className="text-sm text-[#A72F3B] hover:text-[#86262F] font-medium transition-colors"
+          >
+            مشاهده همه
+          </Link>
         </div>
 
-        {/* ── بنر تکمیل پروفایل ── */}
-        {!profileComplete && (
-          <div className="flex items-center gap-4 bg-amber-50 border border-amber-200 rounded-2xl p-4">
-            <HiExclamationCircle className="w-6 h-6 text-amber-500 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold text-amber-800 text-sm">
-                پروفایل ناقص
-              </p>
-              <p className="text-xs text-amber-600 mt-0.5">
-                {missingField} خود را اضافه کنید
-              </p>
-            </div>
-            <Link
-              href="/profile/settings"
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              تکمیل پروفایل
-            </Link>
+        {loading ? (
+          <div className="divide-y divide-[#F5F5F5]">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-4 px-6 py-4 animate-pulse">
+                <div className="h-4 bg-[#F5F5F5] rounded flex-1" />
+                <div className="h-4 bg-[#F5F5F5] rounded w-24" />
+                <div className="h-4 bg-[#F5F5F5] rounded w-24" />
+              </div>
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="p-12 text-center">
+            <HiShoppingBag className="w-14 h-14 text-[#EDD5D8] mx-auto mb-3" />
+            <p className="text-[#898989] font-medium">هنوز سفارشی ثبت نشده</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#F5F5F5]">
+            {orders.map((order) => {
+              const { label, cls, Icon } = getDisplay(order);
+              return (
+                <Link
+                  key={order.id}
+                  href={`/profile/orders/${order.id}`}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-[#FAFAFA] transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-mono font-semibold text-[#242424] text-sm">
+                      {order.order_number}
+                    </p>
+                    <p className="text-xs text-[#898989] mt-0.5">
+                      {fmtDate(order.created_at)} ·{" "}
+                      {order.items_count.toLocaleString("fa-IR")} محصول
+                    </p>
+                  </div>
+                  <span className="font-semibold text-[#242424] text-sm whitespace-nowrap">
+                    {fmtPrice(order.total)}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${cls}`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </span>
+                  <HiEye className="w-4 h-4 text-[#CBCBCB] flex-shrink-0" />
+                </Link>
+              );
+            })}
           </div>
         )}
-
-        {/* ── آمار ── */}
-        <div className="grid grid-cols-3 gap-4">
-          {statCards.map((s, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
-            >
-              <div
-                className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center mb-3`}
-              >
-                <s.icon className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-              {loading ? (
-                <div className="h-6 bg-gray-100 rounded animate-pulse w-12" />
-              ) : (
-                <p
-                  className={`font-bold text-gray-900 ${s.isText ? "text-sm" : "text-xl"}`}
-                >
-                  {typeof s.value === "number"
-                    ? s.value.toLocaleString("fa-IR")
-                    : s.value}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* ── منو ── */}
-        <div className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-900 px-1">
-            دسترسی سریع
-          </h2>
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-4 bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:border-teal-200 hover:shadow-md transition-all group"
-            >
-              <div
-                className={`w-11 h-11 ${item.color} rounded-xl flex items-center justify-center flex-shrink-0`}
-              >
-                <item.icon className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 text-sm">
-                  {item.label}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {item.description}
-                </p>
-              </div>
-              <svg
-                className="w-4 h-4 text-gray-400 group-hover:text-teal-500 transition-colors flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </Link>
-          ))}
-        </div>
       </div>
     </div>
   );

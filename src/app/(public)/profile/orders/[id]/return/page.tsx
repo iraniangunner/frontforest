@@ -46,7 +46,6 @@ const REASONS = [
   { key: "damaged", label: "محصول آسیب دیده" },
   { key: "wrong_item", label: "محصول اشتباه ارسال شده" },
   { key: "not_as_described", label: "مطابق توضیحات نیست" },
-  // { key: "changed_mind", label: "پشیمان شدم" },
   { key: "other", label: "سایر" },
 ];
 
@@ -58,7 +57,7 @@ const CARRIERS = [
 
 const fmt = (n: number) => Number(n).toLocaleString("fa-IR");
 const inp =
-  "w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition";
+  "w-full px-4 py-3 border border-[#EDEDED] rounded-xl text-sm focus:ring-4 focus:ring-[#A72F3B]/10 focus:border-[#A72F3B] outline-none transition bg-white text-[#242424]";
 
 // ── فرم ثبت/ویرایش کد رهگیری ──
 function TrackingForm({
@@ -70,7 +69,7 @@ function TrackingForm({
 }) {
   const [editing, setEditing] = useState(false);
   const [trackingCode, setTrackingCode] = useState(
-    returnRequest.return_tracking_code || ""
+    returnRequest.return_tracking_code || "",
   );
   const [carrier, setCarrier] = useState(returnRequest.return_carrier || "");
   const [saving, setSaving] = useState(false);
@@ -101,25 +100,24 @@ function TrackingForm({
     }
   };
 
-  // کد رهگیری ثبت شده — نمایش
   if (returnRequest.return_tracking_code && !editing) {
     return (
-      <div className="bg-white rounded-2xl p-5 shadow-sm">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <HiTruck className="w-5 h-5 text-indigo-500" /> کد رهگیری مرجوعی
+      <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+        <h2 className="font-semibold text-[#242424] mb-4 flex items-center gap-2">
+          <HiTruck className="w-5 h-5 text-[#A72F3B]" /> کد رهگیری مرجوعی
         </h2>
-        <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-          <p className="text-xs text-indigo-600 mb-1">
+        <div className="bg-[#F6EAEB] rounded-xl p-4 border border-[#EDD5D8]">
+          <p className="text-xs text-[#86262F] mb-1">
             {CARRIERS.find((c) => c.key === returnRequest.return_carrier)
               ?.label || returnRequest.return_carrier}
           </p>
           <p
-            className="text-xl font-bold text-indigo-700 font-mono tracking-wider"
+            className="text-xl font-bold text-[#A72F3B] font-mono tracking-wider"
             dir="ltr"
           >
             {returnRequest.return_tracking_code}
           </p>
-          <p className="text-xs text-indigo-500 mt-2">✅ کد رهگیری ثبت شده</p>
+          <p className="text-xs text-[#00966D] mt-2">✅ کد رهگیری ثبت شده</p>
         </div>
         <button
           onClick={() => {
@@ -127,7 +125,7 @@ function TrackingForm({
             setCarrier(returnRequest.return_carrier!);
             setEditing(true);
           }}
-          className="mt-3 flex items-center gap-1 text-xs text-teal-600 hover:text-teal-700 transition"
+          className="mt-3 flex items-center gap-1 text-xs text-[#A72F3B] hover:text-[#86262F] transition"
         >
           <HiPencil className="w-3.5 h-3.5" /> ویرایش کد رهگیری
         </button>
@@ -135,29 +133,24 @@ function TrackingForm({
     );
   }
 
-  // فرم ثبت/ویرایش
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm">
-      <h2 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-        <HiTruck className="w-5 h-5 text-indigo-500" />
+    <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+      <h2 className="font-semibold text-[#242424] mb-2 flex items-center gap-2">
+        <HiTruck className="w-5 h-5 text-[#A72F3B]" />
         {editing ? "ویرایش کد رهگیری" : "ارسال کالا به انبار"}
       </h2>
 
       {!editing && (
-        <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100 mb-4">
-          <p className="text-sm text-indigo-800 font-medium mb-1">
-            آدرس انبار:
-          </p>
-          <p className="text-sm text-indigo-700">
+        <div className="bg-[#F6EAEB] rounded-xl p-4 border border-[#EDD5D8] mb-4">
+          <p className="text-sm text-[#86262F] font-medium mb-1">آدرس انبار:</p>
+          <p className="text-sm text-[#86262F]">
             تهران — میرداماد میدان مادر خیابان سنجابی کوچه شریفی پلاک ۶ واحد ۲
           </p>
-          <p className="text-sm text-indigo-800 font-medium mb-1">
-           کد پستی:
+          <p className="text-sm text-[#86262F] font-medium mb-1 mt-2">
+            کد پستی:
           </p>
-          <p className="text-sm text-indigo-700">
-           ۱۹۱۱۹۱۴۹۴۶
-          </p>
-          <p className="text-xs text-indigo-500 mt-2">
+          <p className="text-sm text-[#86262F]">۱۹۱۱۹۱۴۹۴۶</p>
+          <p className="text-xs text-[#A72F3B] mt-2">
             پس از ارسال کالا، کد رهگیری را در زیر وارد کنید
           </p>
         </div>
@@ -165,8 +158,8 @@ function TrackingForm({
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            شرکت پستی <span className="text-red-500">*</span>
+          <label className="block text-xs font-medium text-[#656565] mb-1">
+            شرکت پستی <span className="text-[#C30000]">*</span>
           </label>
           <select
             value={carrier}
@@ -182,8 +175,8 @@ function TrackingForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            کد رهگیری <span className="text-red-500">*</span>
+          <label className="block text-xs font-medium text-[#656565] mb-1">
+            کد رهگیری <span className="text-[#C30000]">*</span>
           </label>
           <input
             type="text"
@@ -199,7 +192,7 @@ function TrackingForm({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
+              className="flex-1 py-3 border border-[#EDEDED] text-[#656565] rounded-xl text-sm font-medium hover:bg-[#F8F8F8] transition"
             >
               انصراف
             </button>
@@ -207,13 +200,13 @@ function TrackingForm({
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 py-3 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
+            className="flex-1 py-3 bg-[#A72F3B] text-white rounded-xl text-sm font-medium hover:bg-[#86262F] disabled:opacity-50 transition"
           >
             {saving
               ? "در حال ثبت..."
               : editing
-              ? "ذخیره تغییرات"
-              : "ثبت کد رهگیری"}
+                ? "ذخیره تغییرات"
+                : "ثبت کد رهگیری"}
           </button>
         </div>
       </form>
@@ -230,7 +223,7 @@ export default function ReturnRequestPage() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -243,7 +236,7 @@ export default function ReturnRequestPage() {
   >({});
   const [bankCard, setBankCard] = useState(user?.bank_card_number || "");
   const [bankCardOwner, setBankCardOwner] = useState(
-    user?.bank_card_owner || ""
+    user?.bank_card_owner || "",
   );
 
   useEffect(() => {
@@ -271,7 +264,6 @@ export default function ReturnRequestPage() {
       if (rr) {
         setReturnRequest(rr);
 
-        // اگه واریز شده برگردون
         if (rr.refund_status === "refunded") {
           toast.error("مبلغ این مرجوعی قبلاً واریز شده");
           router.replace(`/profile/orders/${orderId}`);
@@ -356,7 +348,7 @@ export default function ReturnRequestPage() {
           return_tracking_code: null,
           return_carrier: null,
           admin_note: null,
-        }
+        },
       );
       setSubmitted(true);
     } catch (err: any) {
@@ -368,49 +360,46 @@ export default function ReturnRequestPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-gray-200 border-t-teal-600 rounded-full animate-spin" />
+      <div className="flex items-center justify-center py-24">
+        <div className="w-10 h-10 border-2 border-[#EDEDED] border-t-[#A72F3B] rounded-full animate-spin" />
       </div>
     );
 
   // ── حالت تایید شده ──
   if (returnRequest?.status === "approved")
     return (
-      <div className="min-h-screen bg-gray-50" dir="rtl">
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Link
-              href={`/profile/orders/${orderId}`}
-              className="p-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition"
-            >
-              <HiArrowRight className="w-5 h-5 text-gray-600" />
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">
-              مرجوعی سفارش #{order?.order_number}
-            </h1>
-          </div>
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <Link
+            href={`/profile/orders/${orderId}`}
+            className="p-2 bg-white border border-[#F0F0F0] rounded-xl hover:bg-[#F8F8F8] transition"
+          >
+            <HiArrowRight className="w-5 h-5 text-[#656565]" />
+          </Link>
+          <h2 className="text-lg font-bold text-[#242424]">
+            مرجوعی سفارش #{order?.order_number}
+          </h2>
+        </div>
 
-          <div className="space-y-4">
-            <div className="bg-green-50 rounded-2xl p-5 border border-green-200 flex items-start gap-3">
-              <HiCheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-green-800">
-                  درخواست مرجوعی تایید شد
+        <div className="space-y-4">
+          <div className="bg-[#E6F4EF] rounded-2xl p-5 border border-[#00966D]/20 flex items-start gap-3">
+            <HiCheckCircle className="w-6 h-6 text-[#00966D] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-[#00714F]">
+                درخواست مرجوعی تایید شد
+              </p>
+              <p className="text-sm text-[#00966D] mt-1">
+                لطفاً کالا را به آدرس انبار ارسال کنید و کد رهگیری را ثبت نمایید
+              </p>
+              {returnRequest.admin_note && (
+                <p className="text-sm text-[#00966D] mt-2 bg-[#D5EFE6] rounded-lg px-3 py-2">
+                  یادداشت: {returnRequest.admin_note}
                 </p>
-                <p className="text-sm text-green-700 mt-1">
-                  لطفاً کالا را به آدرس انبار ارسال کنید و کد رهگیری را ثبت
-                  نمایید
-                </p>
-                {returnRequest.admin_note && (
-                  <p className="text-sm text-green-600 mt-2 bg-green-100 rounded-lg px-3 py-2">
-                    یادداشت: {returnRequest.admin_note}
-                  </p>
-                )}
-              </div>
+              )}
             </div>
-
-            <TrackingForm returnRequest={returnRequest} onSuccess={loadData} />
           </div>
+
+          <TrackingForm returnRequest={returnRequest} onSuccess={loadData} />
         </div>
       </div>
     );
@@ -418,24 +407,21 @@ export default function ReturnRequestPage() {
   // ── حالت در انتظار ──
   if (submitted || returnRequest?.status === "pending")
     return (
-      <div
-        className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
-        dir="rtl"
-      >
-        <div className="bg-white rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <HiCheckCircle className="w-8 h-8 text-amber-500" />
+      <div className="flex items-center justify-center py-10">
+        <div className="bg-white rounded-2xl border border-[#F0F0F0] p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-[#FBEFD7] rounded-full flex items-center justify-center mx-auto mb-4">
+            <HiCheckCircle className="w-8 h-8 text-[#A9791C]" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-[#242424] mb-2">
             درخواست در انتظار بررسی
           </h2>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-[#898989] text-sm mb-6">
             درخواست مرجوعی شما ثبت شد و پس از بررسی توسط تیم ما اطلاع‌رسانی
             خواهد شد.
           </p>
           <Link
             href="/profile/orders"
-            className="inline-block px-6 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition"
+            className="inline-block px-6 py-3 bg-[#A72F3B] text-white rounded-xl font-medium hover:bg-[#86262F] transition"
           >
             بازگشت به سفارشات
           </Link>
@@ -445,246 +431,241 @@ export default function ReturnRequestPage() {
 
   // ── فرم ثبت درخواست ──
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Link
-            href={`/profile/orders/${orderId}`}
-            className="p-2 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition"
-          >
-            <HiArrowRight className="w-5 h-5 text-gray-600" />
-          </Link>
+    <div>
+      <div className="flex items-center gap-3 mb-6">
+        <Link
+          href={`/profile/orders/${orderId}`}
+          className="p-2 bg-white border border-[#F0F0F0] rounded-xl hover:bg-[#F8F8F8] transition"
+        >
+          <HiArrowRight className="w-5 h-5 text-[#656565]" />
+        </Link>
+        <div>
+          <h2 className="text-lg font-bold text-[#242424]">درخواست مرجوعی</h2>
+          <p className="text-sm text-[#898989]">سفارش #{order?.order_number}</p>
+        </div>
+      </div>
+
+      {returnRequest?.status === "rejected" && (
+        <div className="bg-[#FBEAEA] rounded-2xl p-4 border border-[#C30000]/20 mb-4 flex items-start gap-3">
+          <HiX className="w-5 h-5 text-[#C30000] flex-shrink-0 mt-0.5" />
           <div>
-            <h1 className="text-xl font-bold text-gray-900">درخواست مرجوعی</h1>
-            <p className="text-sm text-gray-500">
-              سفارش #{order?.order_number}
+            <p className="font-semibold text-[#C30000] text-sm">
+              درخواست قبلی رد شد
+            </p>
+            {returnRequest.admin_note && (
+              <p className="text-xs text-[#C30000] mt-1">
+                دلیل: {returnRequest.admin_note}
+              </p>
+            )}
+            <p className="text-xs text-[#C30000] mt-1">
+              می‌توانید درخواست جدید ثبت کنید
             </p>
           </div>
         </div>
+      )}
 
-        {/* درخواست رد شده */}
-        {returnRequest?.status === "rejected" && (
-          <div className="bg-red-50 rounded-2xl p-4 border border-red-200 mb-4 flex items-start gap-3">
-            <HiX className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-red-800 text-sm">
-                درخواست قبلی رد شد
-              </p>
-              {returnRequest.admin_note && (
-                <p className="text-xs text-red-600 mt-1">
-                  دلیل: {returnRequest.admin_note}
-                </p>
-              )}
-              <p className="text-xs text-red-500 mt-1">
-                میتوانید درخواست جدید ثبت کنید
-              </p>
-            </div>
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* انتخاب محصولات */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+          <h2 className="font-semibold text-[#242424] mb-4">محصولات مرجوعی</h2>
+          <div className="space-y-3">
+            {order?.items.map((item) => (
+              <div
+                key={item.id}
+                className={`border rounded-xl p-4 transition-colors cursor-pointer ${
+                  selectedItems[item.id]?.selected
+                    ? "border-[#A72F3B] bg-[#F6EAEB]"
+                    : "border-[#F0F0F0] hover:border-[#EDEDED]"
+                }`}
+                onClick={() => toggleItem(item.id)}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      selectedItems[item.id]?.selected
+                        ? "border-[#A72F3B] bg-[#A72F3B]"
+                        : "border-[#CBCBCB]"
+                    }`}
+                  >
+                    {selectedItems[item.id]?.selected && (
+                      <HiCheckCircle className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-[#242424] line-clamp-1">
+                      {item.product_title}
+                    </p>
+                    <p className="text-xs text-[#898989] mt-0.5">
+                      {item.quantity} عدد · {fmt(item.paid_price)} تومان
+                    </p>
+                  </div>
+                </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* انتخاب محصولات */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-4">محصولات مرجوعی</h2>
-            <div className="space-y-3">
-              {order?.items.map((item) => (
-                <div
-                  key={item.id}
-                  className={`border rounded-xl p-4 transition-colors cursor-pointer ${
-                    selectedItems[item.id]?.selected
-                      ? "border-teal-400 bg-teal-50"
-                      : "border-gray-100 hover:border-gray-200"
-                  }`}
-                  onClick={() => toggleItem(item.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                        selectedItems[item.id]?.selected
-                          ? "border-teal-500 bg-teal-500"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      {selectedItems[item.id]?.selected && (
-                        <HiCheckCircle className="w-4 h-4 text-white" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-gray-900 line-clamp-1">
-                        {item.product_title}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {item.quantity} عدد · {fmt(item.paid_price)} تومان
-                      </p>
+                {selectedItems[item.id]?.selected && (
+                  <div
+                    className="mt-3 flex items-center gap-2 mr-8"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="text-xs text-[#898989]">
+                      تعداد مرجوعی:
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQty(
+                            item.id,
+                            selectedItems[item.id].quantity - 1,
+                            item.quantity,
+                          )
+                        }
+                        className="w-7 h-7 rounded-lg bg-[#F5F5F5] hover:bg-[#EDEDED] flex items-center justify-center text-[#656565] transition"
+                      >
+                        −
+                      </button>
+                      <span className="w-6 text-center text-sm font-medium">
+                        {selectedItems[item.id].quantity.toLocaleString(
+                          "fa-IR",
+                        )}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQty(
+                            item.id,
+                            selectedItems[item.id].quantity + 1,
+                            item.quantity,
+                          )
+                        }
+                        className="w-7 h-7 rounded-lg bg-[#F5F5F5] hover:bg-[#EDEDED] flex items-center justify-center text-[#656565] transition"
+                      >
+                        +
+                      </button>
+                      <span className="text-xs text-[#AFAFAF]">
+                        از {item.quantity.toLocaleString("fa-IR")} عدد
+                      </span>
                     </div>
                   </div>
-
-                  {selectedItems[item.id]?.selected && (
-                    <div
-                      className="mt-3 flex items-center gap-2 mr-8"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <span className="text-xs text-gray-500">
-                        تعداد مرجوعی:
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQty(
-                              item.id,
-                              selectedItems[item.id].quantity - 1,
-                              item.quantity
-                            )
-                          }
-                          className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
-                        >
-                          −
-                        </button>
-                        <span className="w-6 text-center text-sm font-medium">
-                          {selectedItems[item.id].quantity.toLocaleString(
-                            "fa-IR"
-                          )}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setQty(
-                              item.id,
-                              selectedItems[item.id].quantity + 1,
-                              item.quantity
-                            )
-                          }
-                          className="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition"
-                        >
-                          +
-                        </button>
-                        <span className="text-xs text-gray-400">
-                          از {item.quantity.toLocaleString("fa-IR")} عدد
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* دلیل */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-4">دلیل مرجوعی</h2>
-            <div className="space-y-2">
-              {REASONS.map((r) => (
-                <label
-                  key={r.key}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                    reason === r.key
-                      ? "border-teal-400 bg-teal-50"
-                      : "border-gray-100 hover:border-gray-200"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="reason"
-                    value={r.key}
-                    checked={reason === r.key}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="accent-teal-600"
-                  />
-                  <span className="text-sm text-gray-700">{r.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* توضیحات */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-3">
-              توضیحات{" "}
-              <span className="text-gray-400 font-normal text-sm">
-                (اختیاری)
-              </span>
-            </h2>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="توضیحات بیشتر..."
-              rows={3}
-              maxLength={1000}
-              className={inp + " resize-none"}
-            />
-            <p className="text-xs text-gray-400 mt-1 text-left">
-              {description.length}/1000
-            </p>
-          </div>
-
-          {/* اطلاعات بانکی */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <HiCreditCard className="w-5 h-5 text-gray-500" />
-              <h2 className="font-semibold text-gray-900">اطلاعات بانکی</h2>
-            </div>
-            <p className="text-xs text-gray-400 mb-4">
-              در صورت تایید مرجوعی، مبلغ به این کارت واریز میشه
-            </p>
-
-            {user?.bank_card_number && (
-              <div className="flex items-center gap-2 p-3 bg-teal-50 border border-teal-100 rounded-xl mb-4">
-                <HiCheckCircle className="w-4 h-4 text-teal-500 flex-shrink-0" />
-                <p className="text-xs text-teal-700">
-                  اطلاعات بانکی از پروفایل شما بارگذاری شد
-                </p>
+                )}
               </div>
-            )}
+            ))}
+          </div>
+        </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  شماره کارت <span className="text-red-500">*</span>
-                </label>
+        {/* دلیل */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+          <h2 className="font-semibold text-[#242424] mb-4">دلیل مرجوعی</h2>
+          <div className="space-y-2">
+            {REASONS.map((r) => (
+              <label
+                key={r.key}
+                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                  reason === r.key
+                    ? "border-[#A72F3B] bg-[#F6EAEB]"
+                    : "border-[#F0F0F0] hover:border-[#EDEDED]"
+                }`}
+              >
                 <input
-                  type="text"
-                  value={bankCard}
-                  onChange={(e) =>
-                    setBankCard(e.target.value.replace(/\D/g, "").slice(0, 16))
-                  }
-                  placeholder="1234567890123456"
-                  dir="ltr"
-                  maxLength={16}
-                  className={inp + " font-mono tracking-widest"}
+                  type="radio"
+                  name="reason"
+                  value={r.key}
+                  checked={reason === r.key}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="accent-[#A72F3B]"
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  {bankCard.length}/16
-                </p>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  نام صاحب کارت <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={bankCardOwner}
-                  onChange={(e) => setBankCardOwner(e.target.value)}
-                  placeholder="نام و نام خانوادگی"
-                  className={inp}
-                />
-              </div>
-            </div>
+                <span className="text-sm text-[#656565]">{r.label}</span>
+              </label>
+            ))}
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-4 bg-teal-600 text-white rounded-2xl font-bold hover:bg-teal-700 disabled:opacity-50 transition shadow-lg shadow-teal-200"
-          >
-            {submitting ? "در حال ثبت..." : "ثبت درخواست مرجوعی"}
-          </button>
-
-          <p className="text-center text-xs text-gray-400">
-            پس از تایید، آدرس انبار و جزئیات ارسال به شما اطلاع داده میشه
+        {/* توضیحات */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+          <h2 className="font-semibold text-[#242424] mb-3">
+            توضیحات{" "}
+            <span className="text-[#AFAFAF] font-normal text-sm">
+              (اختیاری)
+            </span>
+          </h2>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="توضیحات بیشتر..."
+            rows={3}
+            maxLength={1000}
+            className={inp + " resize-none"}
+          />
+          <p className="text-xs text-[#AFAFAF] mt-1 text-left">
+            {description.length}/1000
           </p>
-        </form>
-      </div>
+        </div>
+
+        {/* اطلاعات بانکی */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+          <div className="flex items-center gap-2 mb-2">
+            <HiCreditCard className="w-5 h-5 text-[#898989]" />
+            <h2 className="font-semibold text-[#242424]">اطلاعات بانکی</h2>
+          </div>
+          <p className="text-xs text-[#AFAFAF] mb-4">
+            در صورت تایید مرجوعی، مبلغ به این کارت واریز می‌شه
+          </p>
+
+          {user?.bank_card_number && (
+            <div className="flex items-center gap-2 p-3 bg-[#F6EAEB] border border-[#EDD5D8] rounded-xl mb-4">
+              <HiCheckCircle className="w-4 h-4 text-[#A72F3B] flex-shrink-0" />
+              <p className="text-xs text-[#86262F]">
+                اطلاعات بانکی از پروفایل شما بارگذاری شد
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-[#656565] mb-1">
+                شماره کارت <span className="text-[#C30000]">*</span>
+              </label>
+              <input
+                type="text"
+                value={bankCard}
+                onChange={(e) =>
+                  setBankCard(e.target.value.replace(/\D/g, "").slice(0, 16))
+                }
+                placeholder="1234567890123456"
+                dir="ltr"
+                maxLength={16}
+                className={inp + " font-mono tracking-widest"}
+              />
+              <p className="text-xs text-[#AFAFAF] mt-1">
+                {bankCard.length}/16
+              </p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#656565] mb-1">
+                نام صاحب کارت <span className="text-[#C30000]">*</span>
+              </label>
+              <input
+                type="text"
+                value={bankCardOwner}
+                onChange={(e) => setBankCardOwner(e.target.value)}
+                placeholder="نام و نام خانوادگی"
+                className={inp}
+              />
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full py-4 bg-[#A72F3B] text-white rounded-2xl font-bold hover:bg-[#86262F] disabled:opacity-50 transition"
+        >
+          {submitting ? "در حال ثبت..." : "ثبت درخواست مرجوعی"}
+        </button>
+
+        <p className="text-center text-xs text-[#AFAFAF]">
+          پس از تای��د، آدرس انبار و جزئیات ارسال به شما اطلاع داده می‌شه
+        </p>
+      </form>
     </div>
   );
 }

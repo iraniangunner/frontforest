@@ -2,7 +2,14 @@
 
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import { useAuth } from "./AuthContext";
 import { userAPI } from "@/lib/api";
 
@@ -11,12 +18,12 @@ interface UserStatusContextType {
   favoriteIds: number[];
   purchasedIds: number[];
   loading: boolean;
-  isInCart: (componentId: number) => boolean;
-  isFavorite: (componentId: number) => boolean;
-  isPurchased: (componentId: number) => boolean;
-  addToCart: (componentId: number) => void;
-  removeFromCart: (componentId: number) => void;
-  toggleFavorite: (componentId: number) => void;
+  isInCart: (productId: number) => boolean;
+  isFavorite: (productId: number) => boolean;
+  isPurchased: (productId: number) => boolean;
+  addToCart: (productId: number) => void;
+  removeFromCart: (productId: number) => void;
+  toggleFavorite: (productId: number) => void;
   refresh: () => Promise<void>;
 }
 
@@ -38,11 +45,11 @@ export function UserStatusProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-  
+
     try {
       const response = await userAPI.getProductStatuses();
       const data = response.data;
-  
+
       // تبدیل رشته‌ها به عدد
       setCartIds((data.cart || []).map(Number));
       setFavoriteIds((data.favorites || []).map(Number));
@@ -59,24 +66,33 @@ export function UserStatusProvider({ children }: { children: ReactNode }) {
   }, [fetchStatuses]);
 
   // Check functions
-  const isInCart = useCallback((componentId: number) => cartIds.includes(componentId), [cartIds]);
-  const isFavorite = useCallback((componentId: number) => favoriteIds.includes(componentId), [favoriteIds]);
-  const isPurchased = useCallback((componentId: number) => purchasedIds.includes(componentId), [purchasedIds]);
+  const isInCart = useCallback(
+    (productId: number) => cartIds.includes(productId),
+    [cartIds],
+  );
+  const isFavorite = useCallback(
+    (productId: number) => favoriteIds.includes(productId),
+    [favoriteIds],
+  );
+  const isPurchased = useCallback(
+    (productId: number) => purchasedIds.includes(productId),
+    [purchasedIds],
+  );
 
   // Optimistic update functions
-  const addToCart = useCallback((componentId: number) => {
-    setCartIds((prev) => [...prev, componentId]);
+  const addToCart = useCallback((productId: number) => {
+    setCartIds((prev) => [...prev, productId]);
   }, []);
 
-  const removeFromCart = useCallback((componentId: number) => {
-    setCartIds((prev) => prev.filter((id) => id !== componentId));
+  const removeFromCart = useCallback((productId: number) => {
+    setCartIds((prev) => prev.filter((id) => id !== productId));
   }, []);
 
-  const toggleFavorite = useCallback((componentId: number) => {
+  const toggleFavorite = useCallback((productId: number) => {
     setFavoriteIds((prev) =>
-      prev.includes(componentId)
-        ? prev.filter((id) => id !== componentId)
-        : [...prev, componentId]
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId],
     );
   }, []);
 
