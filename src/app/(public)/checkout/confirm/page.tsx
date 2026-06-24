@@ -17,6 +17,10 @@ import {
   HiTag,
   HiPhone,
   HiUser,
+  HiPencil,
+  HiMail,
+  HiOfficeBuilding,
+  HiGlobeAlt,
 } from "react-icons/hi";
 import { cartAPI, addressAPI, checkoutAPI, couponAPI } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -287,34 +291,50 @@ export default function CheckoutConfirmPage() {
             {/* آدرس */}
             {address && (
               <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold text-[#242424] flex items-center gap-2">
-                    <HiLocationMarker className="w-5 h-5 text-[#A72F3B]" /> آدرس
-                    تحویل
+                    <span className="w-9 h-9 rounded-xl bg-[#F6EAEB] flex items-center justify-center">
+                      <HiLocationMarker className="w-5 h-5 text-[#A72F3B]" />
+                    </span>
+                    آدرس تحویل
                   </h2>
                   <Link
                     href="/checkout/address"
-                    className="text-xs text-[#A72F3B] hover:text-[#86262F]"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 border border-[#EDEDED] text-[#A72F3B] rounded-lg text-xs font-medium hover:bg-[#F6EAEB] hover:border-[#DCACB1] transition"
                   >
-                    تغییر
+                    <HiPencil className="w-3.5 h-3.5" /> تغییر
                   </Link>
                 </div>
-                <p className="text-sm text-[#656565] mb-3 leading-relaxed">
+
+                {/* نشانی کامل */}
+                <p className="text-sm font-medium text-[#242424] leading-relaxed mb-4">
                   {address.address}
                 </p>
-                <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-[#656565]">
-                  <span className="flex items-center gap-1.5">
-                    <HiLocationMarker className="w-3.5 h-3.5 text-[#A72F3B]" />
-                    {address.province}، {address.city}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <HiUser className="w-3.5 h-3.5 text-[#A72F3B]" />
-                    {address.receiver_name}
-                  </span>
-                  <span className="flex items-center gap-1.5" dir="ltr">
-                    <HiPhone className="w-3.5 h-3.5 text-[#A72F3B]" />
-                    {address.receiver_mobile}
-                  </span>
+
+                {/* فیلدها در باکس ملایم، دو ردیف منظم */}
+                <div className="bg-[#FAFAFA] rounded-xl p-4 space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex items-center gap-1.5 text-[#656565]">
+                      <HiGlobeAlt className="w-3.5 h-3.5 text-[#A72F3B] flex-shrink-0" />
+                      {address.province}، {address.city}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-[#656565]">
+                      <HiPhone className="w-3.5 h-3.5 text-[#A72F3B] flex-shrink-0" />
+                      موبایل: {address.receiver_mobile}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex items-center gap-1.5 text-[#656565]">
+                      <HiUser className="w-3.5 h-3.5 text-[#A72F3B] flex-shrink-0" />
+                      {address.receiver_name}
+                    </span>
+                    {address.postal_code && (
+                      <span className="flex items-center gap-1.5 text-[#656565]">
+                        <HiMail className="w-3.5 h-3.5 text-[#A72F3B] flex-shrink-0" />
+                        کد پستی: {address.postal_code}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
