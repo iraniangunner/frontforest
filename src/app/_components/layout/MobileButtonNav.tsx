@@ -11,7 +11,6 @@ import {
   HiUser,
   HiX,
   HiChevronDown,
-  HiShoppingBag,
 } from "react-icons/hi";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -30,16 +29,9 @@ interface MegaMenuCategory {
 }
 
 interface Props {
-  /** همان دسته‌بندی‌هایی که به Header می‌دهید را به این هم بدهید */
   categories?: MegaMenuCategory[];
 }
 
-/**
- * نوار ناوبری پایین مخصوص موبایل — شبیه فرادرس.
- * فقط زیر breakpoint مربوط به lg نمایش داده می‌شود؛ در دسکتاپ مخفی است.
- * دکمه «دسته‌بندی‌ها» همان drawer دسته‌بندی هدر را باز می‌کند،
- * و سبد خرید از useCart خودِ شما می‌آید.
- */
 export default function MobileBottomNav({ categories = [] }: Props) {
   const pathname = usePathname();
   const { cartCount } = useCart();
@@ -50,13 +42,11 @@ export default function MobileBottomNav({ categories = [] }: Props) {
     null,
   );
 
-  // بستن drawer هنگام تغییر مسیر
   useEffect(() => {
     setCategoriesOpen(false);
     setActiveParent(null);
   }, [pathname]);
 
-  // قفل کردن scroll صفحه وقتی drawer بازه
   useEffect(() => {
     document.body.style.overflow = categoriesOpen ? "hidden" : "";
     return () => {
@@ -69,16 +59,21 @@ export default function MobileBottomNav({ categories = [] }: Props) {
 
   const itemClass = (active: boolean) =>
     `relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 transition-colors ${
-      active ? "text-teal-600" : "text-gray-500 hover:text-gray-800"
+      active ? "text-[#A72F3B]" : "text-[#898989] hover:text-[#242424]"
+    }`;
+
+  const indicator = (active: boolean) =>
+    `absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${
+      active ? "bg-[#A72F3B] opacity-100" : "opacity-0"
     }`;
 
   return (
     <>
-      {/* ── نوار پایین موبایل — فقط زیر lg ── */}
+      {/* ── نوار پایین موبایل ── */}
       <nav
         dir="rtl"
         aria-label="ناوبری اصلی موبایل"
-        className="fixed bottom-0 inset-x-0 z-50 lg:hidden border-t border-gray-100 bg-white/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-0 inset-x-0 z-50 lg:hidden border-t border-[#F0F0F0] bg-white/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]"
       >
         <ul className="flex items-stretch justify-around">
           {/* خانه */}
@@ -88,9 +83,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               className={itemClass(isActive("/"))}
               aria-current={isActive("/") ? "page" : undefined}
             >
-              <span
-                className={`absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${isActive("/") ? "bg-teal-600 opacity-100" : "opacity-0"}`}
-              />
+              <span className={indicator(isActive("/"))} />
               <HiHome
                 className={`w-6 h-6 transition-transform ${isActive("/") ? "scale-110" : ""}`}
               />
@@ -98,7 +91,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
             </Link>
           </li>
 
-          {/* دسته‌بندی‌ها — باز کردن drawer */}
+          {/* محصولات — باز کردن drawer */}
           <li className="flex-1">
             <button
               type="button"
@@ -108,7 +101,9 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               className={`${itemClass(categoriesOpen || pathname.startsWith("/products"))} w-full`}
             >
               <span
-                className={`absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${categoriesOpen || pathname.startsWith("/products") ? "bg-teal-600 opacity-100" : "opacity-0"}`}
+                className={indicator(
+                  categoriesOpen || pathname.startsWith("/products"),
+                )}
               />
               <HiViewGrid className="w-6 h-6" />
               <span className="text-[11px] font-medium leading-none">
@@ -124,15 +119,13 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               className={itemClass(isActive("/cart"))}
               aria-current={isActive("/cart") ? "page" : undefined}
             >
-              <span
-                className={`absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${isActive("/cart") ? "bg-teal-600 opacity-100" : "opacity-0"}`}
-              />
+              <span className={indicator(isActive("/cart"))} />
               <span className="relative">
                 <HiShoppingCart
                   className={`w-6 h-6 transition-transform ${isActive("/cart") ? "scale-110" : ""}`}
                 />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+                  <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A72F3B] px-1 text-[10px] font-bold leading-none text-white">
                     {cartCount > 99 ? "99+" : cartCount}
                   </span>
                 )}
@@ -150,9 +143,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               className={itemClass(isActive("/posts"))}
               aria-current={isActive("/posts") ? "page" : undefined}
             >
-              <span
-                className={`absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${isActive("/posts") ? "bg-teal-600 opacity-100" : "opacity-0"}`}
-              />
+              <span className={indicator(isActive("/posts"))} />
               <HiNewspaper
                 className={`w-6 h-6 transition-transform ${isActive("/posts") ? "scale-110" : ""}`}
               />
@@ -172,7 +163,9 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               }
             >
               <span
-                className={`absolute top-0 h-0.5 w-8 rounded-full transition-all duration-200 ${isActive("/profile") || isActive("/login") ? "bg-teal-600 opacity-100" : "opacity-0"}`}
+                className={indicator(
+                  isActive("/profile") || isActive("/login"),
+                )}
               />
               <HiUser
                 className={`w-6 h-6 transition-transform ${isActive("/profile") || isActive("/login") ? "scale-110" : ""}`}
@@ -185,26 +178,26 @@ export default function MobileBottomNav({ categories = [] }: Props) {
         </ul>
       </nav>
 
-      {/* ── Drawer دسته‌بندی موبایل — مثل فرادرس ── */}
+      {/* ── Drawer دسته‌بندی موبایل با انیمیشن ── */}
       {categoriesOpen && (
         <div className="fixed inset-0 z-[70] lg:hidden" dir="rtl">
-          {/* backdrop */}
+          {/* backdrop با fade */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
             onClick={() => {
               setCategoriesOpen(false);
               setActiveParent(null);
             }}
           />
 
-          {/* پنل اصلی — از راست */}
-          <div className="absolute top-0 right-0 h-full w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col">
+          {/* پنل از راست با slide */}
+          <div className="absolute top-0 right-0 h-full w-72 max-w-[85vw] bg-white shadow-2xl flex flex-col animate-[slideInRight_0.3s_cubic-bezier(0.16,1,0.3,1)]">
             {/* هدر drawer */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-[#F0F0F0] bg-[#F6EAEB]">
               {activeParent ? (
                 <button
                   onClick={() => setActiveParent(null)}
-                  className="flex items-center gap-2 text-gray-700"
+                  className="flex items-center gap-2 text-[#A72F3B]"
                 >
                   <HiChevronDown className="w-5 h-5 -rotate-90" />
                   <span className="font-semibold text-sm">
@@ -212,7 +205,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
                   </span>
                 </button>
               ) : (
-                <span className="font-semibold text-gray-900 text-sm">
+                <span className="font-bold text-[#242424] text-sm">
                   دسته‌بندی‌ها
                 </span>
               )}
@@ -221,7 +214,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
                   setCategoriesOpen(false);
                   setActiveParent(null);
                 }}
-                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+                className="p-1.5 text-[#898989] hover:text-[#A72F3B] hover:bg-white rounded-lg transition-colors"
                 aria-label="بستن"
               >
                 <HiX className="w-5 h-5" />
@@ -231,23 +224,22 @@ export default function MobileBottomNav({ categories = [] }: Props) {
             {/* محتوا */}
             <div className="flex-1 overflow-y-auto">
               {!activeParent ? (
-                /* لیست parentها */
                 <ul className="py-2">
                   {categories.map((cat) => (
                     <li key={cat.id}>
                       {cat.children && cat.children.length > 0 ? (
                         <button
                           onClick={() => setActiveParent(cat)}
-                          className="flex items-center justify-between w-full px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50"
+                          className="flex items-center justify-between w-full px-4 py-3.5 text-sm text-[#444444] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition-colors border-b border-[#F5F5F5]"
                         >
                           <span className="font-medium">{cat.name}</span>
-                          <HiChevronDown className="w-4 h-4 text-gray-400 -rotate-90 flex-shrink-0" />
+                          <HiChevronDown className="w-4 h-4 text-[#AFAFAF] -rotate-90 flex-shrink-0" />
                         </button>
                       ) : (
                         <Link
                           href={`/products/${cat.slug}`}
                           onClick={() => setCategoriesOpen(false)}
-                          className="flex items-center justify-between px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50"
+                          className="flex items-center justify-between px-4 py-3.5 text-sm text-[#444444] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition-colors border-b border-[#F5F5F5]"
                         >
                           <span className="font-medium">{cat.name}</span>
                         </Link>
@@ -256,8 +248,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
                   ))}
                 </ul>
               ) : (
-                /* لیست childهای parent انتخاب‌شده */
-                <ul className="py-2">
+                <ul className="py-2 animate-[slideInRight_0.25s_cubic-bezier(0.16,1,0.3,1)]">
                   <li>
                     <Link
                       href={`/products/${activeParent.slug}`}
@@ -265,10 +256,10 @@ export default function MobileBottomNav({ categories = [] }: Props) {
                         setCategoriesOpen(false);
                         setActiveParent(null);
                       }}
-                      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-teal-600 hover:bg-teal-50 transition-colors border-b border-gray-100"
+                      className="flex items-center gap-2 px-4 py-3.5 text-sm font-semibold text-[#A72F3B] hover:bg-[#F6EAEB] transition-colors border-b border-[#F0F0F0]"
                     >
                       همه‌ی {activeParent.name}
-                      <span className="text-xs text-gray-400 mr-1">←</span>
+                      <span className="text-xs text-[#AFAFAF] mr-1">←</span>
                     </Link>
                   </li>
                   {activeParent.children?.map((child) => (
@@ -279,7 +270,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
                           setCategoriesOpen(false);
                           setActiveParent(null);
                         }}
-                        className="block px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-teal-600 transition-colors border-b border-gray-50"
+                        className="block px-4 py-3.5 text-sm text-[#444444] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition-colors border-b border-[#F5F5F5]"
                       >
                         {child.name}
                       </Link>
@@ -289,6 +280,18 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               )}
             </div>
           </div>
+
+          {/* keyframes */}
+          <style>{`
+            @keyframes slideInRight {
+              from { transform: translateX(100%); }
+              to { transform: translateX(0); }
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          `}</style>
         </div>
       )}
     </>

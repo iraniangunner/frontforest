@@ -1,8 +1,6 @@
-
 // app/(public)/_components/home/HeroCarousel.tsx
 import { HiChevronRight, HiChevronLeft } from "react-icons/hi";
 import { SwiperHeroCarousel } from "../ui/SwiperHeroCarousel";
-
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -39,10 +37,10 @@ export default async function HeroCarousel() {
       {/* Nav buttons */}
       {products.length > 1 && (
         <>
-          <button className="hero-prev absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
+          <button className="hero-prev absolute top-1/2 -translate-y-1/2 right-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm  items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
             <HiChevronRight className="w-4 h-4 text-gray-600" />
           </button>
-          <button className="hero-next absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
+          <button className="hero-next absolute top-1/2 -translate-y-1/2 left-3 z-20 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm  items-center justify-center shadow-sm hover:bg-white hover:scale-105 transition-all border-none hidden sm:flex">
             <HiChevronLeft className="w-4 h-4 text-gray-600" />
           </button>
         </>

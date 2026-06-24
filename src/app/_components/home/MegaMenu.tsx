@@ -49,8 +49,8 @@ export default function MegaMenu({ categories }: Props) {
       <button
         className={`flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
           open
-            ? "text-teal-600 bg-teal-50"
-            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            ? "text-[#A72F3B] bg-[#F6EAEB]"
+            : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
         }`}
       >
         محصولات
@@ -66,20 +66,20 @@ export default function MegaMenu({ categories }: Props) {
 
       {open && (
         <div
-          className="absolute right-0 top-[calc(100%+0.5rem)] bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden z-50 flex"
+          className="absolute right-0 top-[calc(100%+0.5rem)] bg-white rounded-2xl shadow-xl shadow-[#A72F3B]/10 border border-[#F0F0F0] overflow-hidden z-50 flex animate-[megaIn_0.2s_ease-out]"
           dir="rtl"
           style={{ minWidth: "560px" }}
         >
           {/* ── ستون راست: لیست parentها ── */}
-          <div className="w-52 border-l border-gray-100 py-2 bg-gray-50/50">
+          <div className="w-52 border-l border-[#F0F0F0] py-2 bg-[#FAFAFA]">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onMouseEnter={() => setActiveParent(cat)}
                 className={`flex items-center justify-between w-full px-4 py-2.5 text-sm transition-colors ${
                   activeParent?.id === cat.id
-                    ? "bg-white text-teal-600 font-semibold"
-                    : "text-gray-700 hover:bg-white hover:text-gray-900"
+                    ? "bg-white text-[#A72F3B] font-semibold"
+                    : "text-[#444444] hover:bg-white hover:text-[#242424]"
                 }`}
               >
                 <Link
@@ -90,7 +90,13 @@ export default function MegaMenu({ categories }: Props) {
                   {cat.name}
                 </Link>
                 {cat.children && cat.children.length > 0 && (
-                  <HiChevronLeft className="w-4 h-4 flex-shrink-0 mr-1" />
+                  <HiChevronLeft
+                    className={`w-4 h-4 flex-shrink-0 mr-1 ${
+                      activeParent?.id === cat.id
+                        ? "text-[#A72F3B]"
+                        : "text-[#AFAFAF]"
+                    }`}
+                  />
                 )}
               </button>
             ))}
@@ -103,7 +109,7 @@ export default function MegaMenu({ categories }: Props) {
                 <Link
                   href={`/products/${activeParent.slug}`}
                   onClick={() => setOpen(false)}
-                  className="block text-sm font-semibold text-gray-900 hover:text-teal-600 transition-colors mb-3 pb-2 border-b border-gray-100"
+                  className="block text-sm font-semibold text-[#242424] hover:text-[#A72F3B] transition-colors mb-3 pb-2 border-b border-[#F0F0F0]"
                 >
                   همه‌ی {activeParent.name}
                 </Link>
@@ -115,7 +121,7 @@ export default function MegaMenu({ categories }: Props) {
                         <Link
                           href={`/products/${activeParent.slug}/${child.slug}`}
                           onClick={() => setOpen(false)}
-                          className="block px-2 py-2 text-sm text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          className="block px-2 py-2 text-sm text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-lg transition-colors"
                         >
                           {child.name}
                         </Link>
@@ -123,11 +129,18 @@ export default function MegaMenu({ categories }: Props) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-gray-400">زیردسته‌ای موجود نیست</p>
+                  <p className="text-sm text-[#AFAFAF]">زیردسته‌ای موجود نیست</p>
                 )}
               </>
             )}
           </div>
+
+          <style>{`
+            @keyframes megaIn {
+              from { opacity: 0; transform: translateY(-6px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
         </div>
       )}
     </div>
