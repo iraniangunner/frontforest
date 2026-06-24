@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Thumbs, FreeMode, Keyboard } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 
-
 interface Props {
   thumbnail: string | null;
   images: string[] | null;
@@ -31,9 +30,9 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
 
   if (allImages.length === 0) {
     return (
-      <div className="aspect-square rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center gap-3">
-        <HiCube className="w-20 h-20 text-gray-200" />
-        <p className="text-sm text-gray-300">تصویری موجود نیست</p>
+      <div className="aspect-square rounded-2xl bg-[#F8F8F8] border border-[#F0F0F0] flex flex-col items-center justify-center gap-3">
+        <HiCube className="w-20 h-20 text-[#EDEDED]" />
+        <p className="text-sm text-[#CBCBCB]">تصویری موجود نیست</p>
       </div>
     );
   }
@@ -48,10 +47,13 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
     <>
       <div className="space-y-3" dir="ltr">
         {/* ── تصویر اصلی ── */}
-        <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 group">
+        <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#F8F8F8] border border-[#F0F0F0] group">
           <Swiper
             modules={[Thumbs, Keyboard]}
-            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+            thumbs={{
+              swiper:
+                thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+            }}
             keyboard={{ enabled: true }}
             onSwiper={(s) => (mainSwiperRef.current = s)}
             onSlideChange={(s) => setActiveIndex(s.activeIndex)}
@@ -80,7 +82,7 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
             title="بزرگنمایی"
             aria-label="بزرگنمایی"
           >
-            <HiZoomIn className="w-4 h-4 text-gray-700" />
+            <HiZoomIn className="w-4 h-4 text-[#656565]" />
           </button>
 
           {/* ناوبری */}
@@ -90,13 +92,13 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
                 onClick={() => mainSwiperRef.current?.slideNext()}
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:shadow-md z-10"
               >
-                <HiChevronLeft className="w-5 h-5 text-gray-700" />
+                <HiChevronLeft className="w-5 h-5 text-[#656565]" />
               </button>
               <button
                 onClick={() => mainSwiperRef.current?.slidePrev()}
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:shadow-md z-10"
               >
-                <HiChevronRight className="w-5 h-5 text-gray-700" />
+                <HiChevronRight className="w-5 h-5 text-[#656565]" />
               </button>
 
               {/* dots */}
@@ -107,8 +109,8 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
                     onClick={() => mainSwiperRef.current?.slideTo(i)}
                     className={`rounded-full transition-all ${
                       i === activeIndex
-                        ? "w-5 h-1.5 bg-gray-800"
-                        : "w-1.5 h-1.5 bg-gray-400/60 hover:bg-gray-600"
+                        ? "w-5 h-1.5 bg-[#A72F3B]"
+                        : "w-1.5 h-1.5 bg-[#CBCBCB] hover:bg-[#A72F3B]/60"
                     }`}
                   />
                 ))}
@@ -134,12 +136,18 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
                 style={{ width: "64px", height: "64px" }}
                 className={`rounded-xl overflow-hidden border-2 transition-all cursor-pointer flex-shrink-0 ${
                   i === activeIndex
-                    ? "border-gray-900 shadow-md scale-105"
-                    : "border-gray-200 hover:border-gray-400 opacity-70 hover:opacity-100"
+                    ? "border-[#A72F3B] shadow-md scale-105"
+                    : "border-[#EDEDED] hover:border-[#DCACB1] opacity-70 hover:opacity-100"
                 }`}
               >
                 <div className="relative w-16 h-16">
-                  <Image src={img} alt="" fill className="object-cover" sizes="64px" />
+                  <Image
+                    src={img}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
                 </div>
               </SwiperSlide>
             ))}
@@ -185,7 +193,9 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
                 <SwiperSlide key={i} className="relative">
                   <div
                     className={`relative w-full h-full transition-transform duration-200 ${
-                      zoomed ? "cursor-zoom-out scale-150" : "cursor-zoom-in scale-100"
+                      zoomed
+                        ? "cursor-zoom-out scale-150"
+                        : "cursor-zoom-in scale-100"
                     }`}
                     onClick={() => setZoomed((z) => !z)}
                   >
@@ -207,13 +217,19 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
           {allImages.length > 1 && (
             <>
               <button
-                onClick={(e) => { e.stopPropagation(); lightboxSwiperRef.current?.slideNext(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  lightboxSwiperRef.current?.slideNext();
+                }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors z-10"
               >
                 <HiChevronLeft className="w-6 h-6" />
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); lightboxSwiperRef.current?.slidePrev(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  lightboxSwiperRef.current?.slidePrev();
+                }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center text-white transition-colors z-10"
               >
                 <HiChevronRight className="w-6 h-6" />
@@ -249,7 +265,13 @@ export default function ImageGallery({ thumbnail, images, title }: Props) {
                     onClick={() => lightboxSwiperRef.current?.slideTo(i)}
                   >
                     <div className="relative w-12 h-12">
-                      <Image src={img} alt="" fill className="object-cover" sizes="48px" />
+                      <Image
+                        src={img}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
                     </div>
                   </SwiperSlide>
                 ))}

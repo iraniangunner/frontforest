@@ -142,10 +142,10 @@ export default function ProductCard({
     return (
       <Link
         href={`/products/${product.slug}`}
-        className="group flex items-center gap-4 bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all"
+        className="group flex items-center gap-4 bg-white rounded-2xl p-4 border border-[#F0F0F0] hover:border-[#DCACB1] hover:shadow-sm transition-all"
       >
         {/* تصویر */}
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#F8F8F8] flex-shrink-0 border border-[#F0F0F0]">
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
@@ -161,7 +161,7 @@ export default function ProductCard({
             </span>
           )}
           {product.is_on_sale && (
-            <span className="absolute top-1 right-1 text-[10px] font-bold bg-red-500 text-white px-1 py-0.5 rounded">
+            <span className="absolute top-1 right-1 text-[10px] font-bold bg-[#A72F3B] text-white px-1 py-0.5 rounded">
               {product.discount_percent}٪
             </span>
           )}
@@ -170,30 +170,30 @@ export default function ProductCard({
         {/* اطلاعات */}
         <div className="flex-1 min-w-0">
           {product.category && (
-            <p className="text-xs text-gray-400 mb-0.5">
+            <p className="text-xs text-[#AFAFAF] mb-0.5">
               {product.category.name}
             </p>
           )}
-          <h3 className="font-semibold text-gray-900 text-sm truncate group-hover:text-teal-600 transition-colors">
+          <h3 className="font-semibold text-[#242424] text-sm truncate group-hover:text-[#A72F3B] transition-colors">
             {product.title}
           </h3>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <div className="flex items-center gap-0.5">
-              <HiStar className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-xs text-gray-600 font-medium">
+              <HiStar className="w-3.5 h-3.5 text-[#F4B740]" />
+              <span className="text-xs text-[#656565] font-medium">
                 {rating > 0 ? rating.toFixed(1) : "—"}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-[#AFAFAF]">
                 ({product.reviews_count})
               </span>
             </div>
             {!product.is_in_stock && (
-              <span className="flex items-center gap-0.5 text-xs text-red-400">
+              <span className="flex items-center gap-0.5 text-xs text-[#C30000]">
                 <HiExclamationCircle className="w-3 h-3" /> ناموجود
               </span>
             )}
             {product.is_low_stock && product.is_in_stock && (
-              <span className="text-xs text-orange-400 flex items-center gap-0.5">
+              <span className="text-xs text-[#A9791C] flex items-center gap-0.5">
                 <HiTag className="w-3 h-3" /> موجودی محدود
               </span>
             )}
@@ -204,18 +204,18 @@ export default function ProductCard({
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
           {product.sale_price ? (
             <>
-              <p className="text-xs text-gray-400 line-through">
+              <p className="text-xs text-[#AFAFAF] line-through">
                 {fmt(product.price)} ت
               </p>
-              <p className="font-bold text-gray-900 text-sm">
+              <p className="font-bold text-[#242424] text-sm">
                 {fmt(product.sale_price)}{" "}
-                <span className="text-xs font-normal text-gray-400">ت</span>
+                <span className="text-xs font-normal text-[#AFAFAF]">ت</span>
               </p>
             </>
           ) : (
-            <p className="font-bold text-gray-900 text-sm">
+            <p className="font-bold text-[#242424] text-sm">
               {fmt(product.price)}{" "}
-              <span className="text-xs font-normal text-gray-400">ت</span>
+              <span className="text-xs font-normal text-[#AFAFAF]">ت</span>
             </p>
           )}
           <div className="flex items-center gap-1.5">
@@ -229,8 +229,8 @@ export default function ProductCard({
               }
               className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${
                 isFavorite(product.id)
-                  ? "border-red-200 bg-red-50 text-red-500"
-                  : "border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-400"
+                  ? "border-[#F3C5C9] bg-[#FBEAEA] text-[#C30000]"
+                  : "border-[#EDEDED] text-[#AFAFAF] hover:border-[#F3C5C9] hover:text-[#C30000]"
               }`}
             >
               <HiHeart className="w-4 h-4" />
@@ -242,8 +242,8 @@ export default function ProductCard({
               aria-label={inCart ? "در سبد خرید" : "افزودن به سبد خرید"}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 inCart
-                  ? "bg-teal-50 text-teal-700 border border-teal-200"
-                  : "bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-40"
+                  ? "bg-[#F6EAEB] text-[#A72F3B] border border-[#EDD5D8]"
+                  : "bg-[#A72F3B] text-white hover:bg-[#86262F] disabled:opacity-40"
               }`}
             >
               {cartButtonLoading ? (
@@ -269,10 +269,10 @@ export default function ProductCard({
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all flex flex-col"
+      className="group bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] hover:border-[#DCACB1] hover:shadow-lg transition-all flex flex-col"
     >
       {/* تصویر */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
+      <div className="relative aspect-square overflow-hidden bg-[#F8F8F8]">
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
@@ -291,12 +291,12 @@ export default function ProductCard({
         {/* badges */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
           {product.is_on_sale && (
-            <span className="text-[10px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full shadow-sm">
+            <span className="text-[10px] font-bold bg-[#A72F3B] text-white px-2 py-0.5 rounded-full shadow-sm">
               {product.discount_percent}٪ تخفیف
             </span>
           )}
           {product.is_new && !product.is_on_sale && (
-            <span className="text-[10px] font-bold bg-teal-500 text-white px-2 py-0.5 rounded-full shadow-sm">
+            <span className="text-[10px] font-bold bg-[#00966D] text-white px-2 py-0.5 rounded-full shadow-sm">
               جدید
             </span>
           )}
@@ -305,7 +305,7 @@ export default function ProductCard({
         {/* ناموجود */}
         {!product.is_in_stock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="text-xs font-semibold text-gray-600 bg-white px-3 py-1.5 rounded-full border border-gray-200">
+            <span className="text-xs font-semibold text-[#656565] bg-white px-3 py-1.5 rounded-full border border-[#EDEDED]">
               ناموجود
             </span>
           </div>
@@ -323,8 +323,8 @@ export default function ProductCard({
           className={`absolute top-2 left-2 w-8 h-8 rounded-full shadow flex items-center justify-center transition-all
             opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 ${
               isFavorite(product.id)
-                ? "bg-red-50 text-red-500 !opacity-100 border border-red-200"
-                : "bg-white text-gray-400 hover:text-red-500 border border-gray-100"
+                ? "bg-[#FBEAEA] text-[#C30000] !opacity-100 border border-[#F3C5C9]"
+                : "bg-white text-[#AFAFAF] hover:text-[#C30000] border border-[#F0F0F0]"
             }`}
         >
           <HiHeart className="w-4 h-4" />
@@ -334,12 +334,12 @@ export default function ProductCard({
       {/* محتوا */}
       <div className="p-3 flex flex-col flex-1">
         {product.category && (
-          <p className="text-xs text-gray-400 mb-0.5">
+          <p className="text-xs text-[#AFAFAF] mb-0.5">
             {product.category.name}
           </p>
         )}
 
-        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug mb-2 flex-1 group-hover:text-teal-600 transition-colors">
+        <h3 className="text-sm font-semibold text-[#242424] line-clamp-2 leading-snug mb-2 flex-1 group-hover:text-[#A72F3B] transition-colors">
           {product.title}
         </h3>
 
@@ -349,11 +349,11 @@ export default function ProductCard({
             <HiStar
               key={i}
               className={`w-3 h-3 ${
-                i < Math.round(rating) ? "text-amber-400" : "text-gray-200"
+                i < Math.round(rating) ? "text-[#F4B740]" : "text-[#EDEDED]"
               }`}
             />
           ))}
-          <span className="text-xs text-gray-400 mr-0.5">
+          <span className="text-xs text-[#AFAFAF] mr-0.5">
             ({product.reviews_count})
           </span>
         </div>
@@ -363,20 +363,20 @@ export default function ProductCard({
           <div>
             {product.sale_price ? (
               <>
-                <p className="text-xs text-gray-400 line-through leading-none mb-0.5">
+                <p className="text-xs text-[#AFAFAF] line-through leading-none mb-0.5">
                   {fmt(product.price)} ت
                 </p>
-                <p className="font-bold text-gray-900 text-sm leading-tight">
+                <p className="font-bold text-[#242424] text-sm leading-tight">
                   {fmt(product.sale_price)}
-                  <span className="text-xs font-normal text-gray-400 mr-0.5">
+                  <span className="text-xs font-normal text-[#AFAFAF] mr-0.5">
                     تومان
                   </span>
                 </p>
               </>
             ) : (
-              <p className="font-bold text-gray-900 text-sm leading-tight">
+              <p className="font-bold text-[#242424] text-sm leading-tight">
                 {fmt(product.price)}
-                <span className="text-xs font-normal text-gray-400 mr-0.5">
+                <span className="text-xs font-normal text-[#AFAFAF] mr-0.5">
                   تومان
                 </span>
               </p>
@@ -390,8 +390,8 @@ export default function ProductCard({
             title={inCart ? "در سبد خرید" : "افزودن به سبد"}
             className={`w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-all ${
               inCart
-                ? "bg-teal-50 text-teal-600 border-2 border-teal-300"
-                : "bg-teal-600 text-white hover:bg-teal-700 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                ? "bg-[#F6EAEB] text-[#A72F3B] border-2 border-[#DCACB1]"
+                : "bg-[#A72F3B] text-white hover:bg-[#86262F] shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
             }`}
           >
             {cartButtonLoading ? (
@@ -405,7 +405,7 @@ export default function ProductCard({
         </div>
 
         {product.is_low_stock && product.is_in_stock && (
-          <p className="text-xs text-orange-400 mt-1.5 flex items-center gap-1">
+          <p className="text-xs text-[#A9791C] mt-1.5 flex items-center gap-1">
             <HiTag className="w-3 h-3" /> موجودی محدود
           </p>
         )}

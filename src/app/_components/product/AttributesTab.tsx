@@ -6,10 +6,10 @@ interface AttributesTabProps {
 
 export default function AttributesTab({ product }: AttributesTabProps) {
   const staticSpecs = [
-    { label: "برند",      value: product.brand },
+    { label: "برند", value: product.brand },
     { label: "کد محصول", value: product.sku },
-    { label: "وزن",       value: product.weight ? `${product.weight} گرم` : null },
-    { label: "ابعاد",     value: product.dimensions },
+    { label: "وزن", value: product.weight ? `${product.weight} گرم` : null },
+    { label: "ابعاد", value: product.dimensions },
     { label: "دسته‌بندی", value: product.category?.name },
   ].filter((r) => r.value);
 
@@ -22,20 +22,20 @@ export default function AttributesTab({ product }: AttributesTabProps) {
 
   if (allRows.length === 0) {
     return (
-      <p className="text-gray-500 text-center py-8">مشخصاتی ثبت نشده است.</p>
+      <p className="text-[#898989] text-center py-8">مشخصاتی ثبت نشده است.</p>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100">
+    <div className="overflow-hidden rounded-xl border border-[#F0F0F0]">
       <table className="w-full text-sm">
         <tbody>
           {allRows.map((row, i) => (
-            <tr key={i} className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-              <td className="px-4 py-3 text-gray-500 w-1/3 font-medium">
+            <tr key={i} className={i % 2 === 0 ? "bg-[#F8F8F8]" : "bg-white"}>
+              <td className="px-4 py-3 text-[#898989] w-1/3 font-medium">
                 {row.label}
               </td>
-              <td className="px-4 py-3 text-gray-800">{row.value}</td>
+              <td className="px-4 py-3 text-[#242424]">{row.value}</td>
             </tr>
           ))}
         </tbody>

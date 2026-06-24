@@ -17,22 +17,22 @@ export default function ProductTabs({ product, reviews }: ProductTabsProps) {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "description", label: "توضیحات" },
-    { key: "attributes",  label: "مشخصات فنی" },
-    { key: "reviews",     label: `نظرات (${product.reviews_count})` },
+    { key: "attributes", label: "مشخصات فنی" },
+    { key: "reviews", label: `نظرات (${product.reviews_count})` },
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+    <div className="bg-white rounded-2xl border border-[#F0F0F0]">
       {/* هدر تب‌ها */}
-      <div className="flex border-b border-gray-100 overflow-x-auto">
+      <div className="flex border-b border-[#F0F0F0] overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap transition ${
               activeTab === tab.key
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                ? "border-[#A72F3B] text-[#A72F3B]"
+                : "border-transparent text-[#898989] hover:text-[#242424]"
             }`}
           >
             {tab.label}
@@ -42,20 +42,19 @@ export default function ProductTabs({ product, reviews }: ProductTabsProps) {
 
       {/* محتوای تب */}
       <div className="p-6">
-        {activeTab === "description" && (
-          product.description ? (
+        {activeTab === "description" &&
+          (product.description ? (
             <div
-              className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+              className="prose prose-sm max-w-none text-[#656565] leading-relaxed"
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           ) : (
-            <p className="text-gray-500 text-center py-8">توضیحاتی ثبت نشده است.</p>
-          )
-        )}
+            <p className="text-[#898989] text-center py-8">
+              توضیحاتی ثبت نشده است.
+            </p>
+          ))}
 
-        {activeTab === "attributes" && (
-          <AttributesTab product={product} />
-        )}
+        {activeTab === "attributes" && <AttributesTab product={product} />}
 
         {activeTab === "reviews" && (
           <ReviewsTab

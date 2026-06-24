@@ -18,18 +18,18 @@ export default function ProductDetail({
   reviews,
 }: ProductDetailProps) {
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-[#FAFAFA]" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-1 text-sm text-gray-500 mb-6 flex-wrap">
-          <Link href="/" className="hover:text-teal-600 transition">
+        <nav className="flex items-center gap-1 text-sm text-[#898989] mb-6 flex-wrap">
+          <Link href="/" className="hover:text-[#A72F3B] transition">
             خانه
           </Link>
           <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
           {product.category?.parent && (
             <Link
               href={`/products/${product.category.parent.slug}`}
-              className="hover:text-teal-600 transition"
+              className="hover:text-[#A72F3B] transition"
             >
               {product.category.parent.name}
             </Link>
@@ -40,7 +40,7 @@ export default function ProductDetail({
               <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
               <Link
                 href={`/products/${product.category.parent.slug}/${product.category.slug}`}
-                className="hover:text-teal-600 transition"
+                className="hover:text-[#A72F3B] transition"
               >
                 {product.category.name}
               </Link>
@@ -48,7 +48,7 @@ export default function ProductDetail({
           )}
 
           <HiChevronLeft className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="text-gray-800 font-medium truncate max-w-[200px]">
+          <span className="text-[#242424] font-medium truncate max-w-[200px]">
             {product.title}
           </span>
         </nav>
