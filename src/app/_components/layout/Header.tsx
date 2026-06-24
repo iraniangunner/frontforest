@@ -178,15 +178,15 @@ export default function Header({ categories = [] }: Props) {
                 <Link
                   href={user ? "/profile" : "/login"}
                   aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                  className="hidden lg:flex items-center gap-2 px-4 py-2 border border-[#EDEDED] text-[#242424] hover:border-[#DCACB1] hover:text-[#A72F3B] text-sm font-medium rounded-xl transition-colors"
+                  className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-sm font-semibold rounded-xl shadow-lg shadow-[#A72F3B]/25 hover:-translate-y-0.5 transition-all duration-200"
                 >
                   {user && (user.name || user.mobile || user.email) ? (
                     <>
-                      <span className="w-6 h-6 rounded-lg bg-[#F6EAEB] text-[#A72F3B] flex items-center justify-center text-xs font-bold">
+                      <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-xs font-bold">
                         {user.name?.charAt(0) ||
                           (user.mobile ?? user.email)?.charAt(0)}
                       </span>
-                      <span>پروفایل من</span>
+                      <span>حساب کاربری</span>
                     </>
                   ) : (
                     <>
@@ -259,15 +259,15 @@ export default function Header({ categories = [] }: Props) {
                   <Link
                     href={user ? "/profile" : "/login"}
                     aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-[#EDEDED] text-[#242424] hover:border-[#DCACB1] hover:text-[#A72F3B] text-[13px] font-medium rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-[13px] font-semibold rounded-lg transition-colors"
                   >
                     {user && (user.name || user.mobile || user.email) ? (
                       <>
-                        <span className="w-5 h-5 rounded-md bg-[#F6EAEB] text-[#A72F3B] flex items-center justify-center text-[11px] font-bold">
+                        <span className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[11px] font-bold">
                           {user.name?.charAt(0) ||
                             (user.mobile ?? user.email)?.charAt(0)}
                         </span>
-                        <span>پروفایل من</span>
+                        <span>حساب کاربری</span>
                       </>
                     ) : (
                       <>
