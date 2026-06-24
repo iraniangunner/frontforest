@@ -243,14 +243,13 @@ export default function OrdersPage() {
       {/* سرچ */}
       <div className="p-4 border-b border-[#F0F0F0]">
         <div className="relative">
-          <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AFAFAF]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="جستجو با شماره سفارش..."
-            className="w-full pr-9 pl-9 py-2.5 border border-[#EDEDED] rounded-xl text-sm focus:ring-4 focus:ring-[#A72F3B]/10 focus:border-[#A72F3B] outline-none transition"
+            className="w-full pr-3 pl-9 py-2.5 border border-[#EDEDED] rounded-xl text-sm focus:ring-4 focus:ring-[#A72F3B]/10 focus:border-[#A72F3B] outline-none transition"
           />
           {search ? (
             <button
@@ -278,7 +277,10 @@ export default function OrdersPage() {
               key={i}
               className="border border-[#F0F0F0] rounded-2xl p-4 animate-pulse"
             >
-              <div className="h-4 bg-[#F5F5F5] rounded w-1/3 mb-4" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-6 bg-[#F5F5F5] rounded-full w-24" />
+                <div className="h-4 bg-[#F5F5F5] rounded w-20" />
+              </div>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((j) => (
                   <div key={j} className="w-14 h-14 bg-[#F5F5F5] rounded-xl" />
@@ -303,29 +305,33 @@ export default function OrdersPage() {
                 key={order.id}
                 className="border border-[#F0F0F0] rounded-2xl p-5 hover:border-[#EDEDED] transition"
               >
-                <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+                {/* ردیف بالا: وضعیت (راست) — مبلغ (چپ) */}
+                <div className="flex items-center justify-between gap-3 mb-3">
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${cls}`}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     {label}
                   </span>
-                  <div className="flex items-center gap-4 text-xs text-[#898989] flex-wrap">
-                    <span>{fmtDate(order.created_at)}</span>
-                    <span>
-                      کد سفارش{" "}
-                      <span className="font-mono text-[#656565]">
-                        {order.order_number}
-                      </span>
-                    </span>
-                    <span className="font-semibold text-[#242424]">
-                      مبلغ {fmtPrice(order.total)}
-                    </span>
-                  </div>
+                  <span className="font-bold text-[#242424] text-sm">
+                    {fmtPrice(order.total)}
+                  </span>
                 </div>
 
-                {order.items && order.items.length > 0 ? (
-                  <div className="flex items-center gap-2 flex-wrap">
+                {/* ردیف اطلاعات: کد سفارش (راست) — تاریخ (چپ) */}
+                <div className="flex items-center justify-between gap-3 text-xs text-[#898989] pb-3 border-b border-[#F5F5F5]">
+                  <span>
+                    کد سفارش{" "}
+                    <span className="font-mono text-[#656565]">
+                      {order.order_number}
+                    </span>
+                  </span>
+                  <span>{fmtDate(order.created_at)}</span>
+                </div>
+
+                {/* تصاویر محصولات */}
+                {order.items && order.items.length > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap mt-4">
                     {order.items.slice(0, 7).map((it) => (
                       <div
                         key={it.id}
@@ -352,12 +358,9 @@ export default function OrdersPage() {
                       </div>
                     )}
                   </div>
-                ) : (
-                  <p className="text-xs text-[#898989]">
-                    {order.items_count.toLocaleString("fa-IR")} محصول
-                  </p>
                 )}
 
+                {/* کد رهگیری */}
                 {order.tracking_code && (
                   <p className="text-xs text-[#A72F3B] font-mono mt-3 flex items-center gap-1">
                     <HiTruck className="w-3.5 h-3.5" />
@@ -365,7 +368,11 @@ export default function OrdersPage() {
                   </p>
                 )}
 
-                <div className="mt-4 pt-3 border-t border-[#F5F5F5]">
+                {/* پایین: تعداد محصول (راست) — دکمه مشاهده (چپ) */}
+                <div className="mt-4 pt-3 border-t border-[#F5F5F5] flex items-center justify-between">
+                  <span className="text-xs text-[#898989]">
+                    {order.items_count.toLocaleString("fa-IR")} محصول
+                  </span>
                   <Link
                     href={`/profile/orders/${order.id}`}
                     className="inline-flex items-center gap-1.5 text-sm text-[#A72F3B] hover:text-[#86262F] font-medium transition-colors"

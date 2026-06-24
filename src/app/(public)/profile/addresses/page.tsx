@@ -8,7 +8,9 @@ import {
   HiPencil,
   HiTrash,
   HiCheck,
-  HiHome,
+  HiPhone,
+  HiUser,
+  HiMail,
 } from "react-icons/hi";
 import { addressAPI } from "@/lib/api";
 import { PROVINCE_NAMES, getCities } from "@/lib/iranProvinces";
@@ -117,7 +119,7 @@ function AddressFormModal({
       <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#F0F0F0] sticky top-0 bg-white z-10">
           <h2 className="font-bold text-[#242424]">
-            {editAddress ? "ویرایش آدرس" : "ثبت آدرس جدید"}
+            {editAddress ? "ویرایش آدرس" : "جزئیات آدرس"}
           </h2>
           <button
             onClick={onClose}
@@ -143,7 +145,7 @@ function AddressFormModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-[#656565] mb-1">
-                نام گیرنده <span className="text-[#C30000]">*</span>
+                نام و نام خانوادگی <span className="text-[#C30000]">*</span>
               </label>
               <input
                 required
@@ -156,7 +158,7 @@ function AddressFormModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-[#656565] mb-1">
-                موبایل <span className="text-[#C30000]">*</span>
+                شماره تماس <span className="text-[#C30000]">*</span>
               </label>
               <input
                 required
@@ -172,52 +174,53 @@ function AddressFormModal({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-[#656565] mb-1">
-              استان <span className="text-[#C30000]">*</span>
-            </label>
-            <select
-              required
-              value={form.province}
-              onChange={(e) =>
-                setForm({ ...form, province: e.target.value, city: "" })
-              }
-              className={inp}
-            >
-              <option value="">انتخاب استان</option>
-              {PROVINCE_NAMES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-[#656565] mb-1">
+                استان <span className="text-[#C30000]">*</span>
+              </label>
+              <select
+                required
+                value={form.province}
+                onChange={(e) =>
+                  setForm({ ...form, province: e.target.value, city: "" })
+                }
+                className={inp}
+              >
+                <option value="">انتخاب کنید</option>
+                {PROVINCE_NAMES.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#656565] mb-1">
+                شهر <span className="text-[#C30000]">*</span>
+              </label>
+              <select
+                required
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                disabled={!form.province}
+                className={`${inp} disabled:bg-[#F8F8F8] disabled:text-[#AFAFAF] disabled:cursor-not-allowed`}
+              >
+                <option value="">
+                  {form.province ? "انتخاب کنید" : "ابتدا استان"}
                 </option>
-              ))}
-            </select>
+                {cities.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-[#656565] mb-1">
-              شهر <span className="text-[#C30000]">*</span>
-            </label>
-            <select
-              required
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              disabled={!form.province}
-              className={`${inp} disabled:bg-[#F8F8F8] disabled:text-[#AFAFAF] disabled:cursor-not-allowed`}
-            >
-              <option value="">
-                {form.province ? "انتخاب شهر" : "ابتدا استان را انتخاب کنید"}
-              </option>
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#656565] mb-1">
-              آدرس کامل <span className="text-[#C30000]">*</span>
+              نشانی پستی <span className="text-[#C30000]">*</span>
             </label>
             <textarea
               required
@@ -281,7 +284,7 @@ function AddressFormModal({
 }
 
 // ─────────────────────────────────────────────
-// Page — محتوای داخل layout (بدون سایدبار و min-h-screen)
+// Page — محتوای داخل layout
 // ─────────────────────────────────────────────
 export default function ProfileAddressesPage() {
   const { user } = useAuth();
@@ -388,18 +391,14 @@ export default function ProfileAddressesPage() {
               key={i}
               className="bg-white rounded-2xl p-5 border border-[#F0F0F0] animate-pulse"
             >
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#F5F5F5] flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-[#F5F5F5] rounded w-1/3" />
-                  <div className="h-3 bg-[#F5F5F5] rounded w-3/4" />
-                  <div className="h-3 bg-[#F5F5F5] rounded w-1/2" />
-                </div>
+              <div className="h-4 bg-[#F5F5F5] rounded w-2/3 mb-4" />
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="h-3 bg-[#F5F5F5] rounded" />
+                <div className="h-3 bg-[#F5F5F5] rounded" />
+                <div className="h-3 bg-[#F5F5F5] rounded" />
+                <div className="h-3 bg-[#F5F5F5] rounded" />
               </div>
-              <div className="flex gap-2 mt-4 pt-3 border-t border-[#F5F5F5]">
-                <div className="h-6 bg-[#F5F5F5] rounded-lg w-20" />
-                <div className="h-6 bg-[#F5F5F5] rounded-lg w-16" />
-              </div>
+              <div className="h-8 bg-[#F5F5F5] rounded-lg w-24" />
             </div>
           ))}
         </div>
@@ -431,44 +430,58 @@ export default function ProfileAddressesPage() {
               key={addr.id}
               className="bg-white rounded-2xl p-5 border border-[#F0F0F0] hover:border-[#EDEDED] transition"
             >
-              <div className="flex items-start gap-3">
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    addr.is_default ? "bg-[#F6EAEB]" : "bg-[#F5F5F5]"
-                  }`}
-                >
-                  <HiHome
-                    className={`w-4 h-4 ${
-                      addr.is_default ? "text-[#A72F3B]" : "text-[#AFAFAF]"
-                    }`}
-                  />
+              {/* نشانی کامل */}
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <p className="font-semibold text-[#242424] text-sm leading-relaxed">
+                  {addr.address}
+                </p>
+                {addr.is_default && (
+                  <span className="text-xs px-2.5 py-0.5 bg-[#F6EAEB] text-[#A72F3B] rounded-full font-medium whitespace-nowrap flex-shrink-0">
+                    پیش‌فرض
+                  </span>
+                )}
+              </div>
+
+              {/* فیلدها — دو ردیف منظم مثل فیگما (هر ردیف: راست و چپ) */}
+              <div className="space-y-2.5 text-sm">
+                {/* ردیف ۱: استان/شهر (راست) — موبایل (چپ) */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="flex items-center gap-2 text-[#656565]">
+                    <HiLocationMarker className="w-4 h-4 text-[#A72F3B] flex-shrink-0" />
+                    {addr.province}، {addr.city}
+                  </span>
+                  <span
+                    className="flex items-center gap-2 text-[#656565]"
+                   
+                  >
+                    <HiPhone className="w-4 h-4 text-[#A72F3B] flex-shrink-0" />
+                   موبایل: {addr.receiver_mobile}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="font-semibold text-[#242424] text-sm">
-                      {addr.title || `${addr.province}، ${addr.city}`}
-                    </span>
-                    {addr.is_default && (
-                      <span className="text-xs px-2.5 py-0.5 bg-[#F6EAEB] text-[#A72F3B] rounded-full font-medium">
-                        پیش‌فرض
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[#656565] leading-relaxed mb-2">
-                    {addr.address}
-                  </p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#898989]">
-                    <span>
-                      {addr.province}، {addr.city}
-                    </span>
-                    <span>{addr.receiver_name}</span>
-                    <span dir="ltr">{addr.receiver_mobile}</span>
-                    <span>کد پستی: {addr.postal_code}</span>
-                  </div>
+                {/* ردیف ۲: نام گیرنده (راست) — کد پستی (چپ) */}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="flex items-center gap-2 text-[#656565]">
+                    <HiUser className="w-4 h-4 text-[#A72F3B] flex-shrink-0" />
+                    {addr.receiver_name}
+                  </span>
+                  <span className="flex items-center gap-2 text-[#656565]">
+                    <HiMail className="w-4 h-4 text-[#A72F3B] flex-shrink-0" />
+                    کد پستی: {addr.postal_code}
+                  </span>
                 </div>
               </div>
 
+              {/* اکشن‌ها */}
               <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[#F5F5F5]">
+                <button
+                  onClick={() => {
+                    setEditingAddress(addr);
+                    setModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-1.5 border border-[#A72F3B] text-[#A72F3B] rounded-lg text-xs font-medium hover:bg-[#F6EAEB] transition"
+                >
+                  <HiPencil className="w-3.5 h-3.5" /> ویرایش
+                </button>
                 {!addr.is_default && (
                   <button
                     onClick={() => handleSetDefault(addr.id)}
@@ -482,18 +495,9 @@ export default function ProfileAddressesPage() {
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    setEditingAddress(addr);
-                    setModalOpen(true);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#A72F3B] hover:bg-[#F6EAEB] rounded-lg transition"
-                >
-                  <HiPencil className="w-3.5 h-3.5" /> ویرایش
-                </button>
-                <button
                   onClick={() => handleDelete(addr.id)}
                   disabled={deletingId === addr.id}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#C30000] hover:bg-[#FBEAEA] rounded-lg transition disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#C30000] hover:bg-[#FBEAEA] rounded-lg transition disabled:opacity-50 mr-auto"
                 >
                   <HiTrash className="w-3.5 h-3.5" />
                   {deletingId === addr.id ? "در حال حذف..." : "حذف"}
