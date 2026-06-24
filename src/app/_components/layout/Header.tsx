@@ -77,7 +77,7 @@ export default function Header({ categories = [] }: Props) {
   const displayCount = !loading && !user ? guestCount : cartCount;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > (bannerOpen ? 96 : 70));
+    const onScroll = () => setScrolled(window.scrollY > (bannerOpen ? 80 : 56));
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, [bannerOpen]);
@@ -95,19 +95,19 @@ export default function Header({ categories = [] }: Props) {
 
   return (
     <header dir="rtl">
-      {/* ── نوار اعلان باریک — قابل بستن ── */}
+      {/* ── نوار اعلان باریک ── */}
       {bannerOpen && (
-        <div className="relative bg-[#A72F3B] text-white text-center text-xs sm:text-[13px] py-2 px-10">
+        <div className="relative bg-[#A72F3B] text-white text-center text-xs py-1.5 px-10">
           <span className="inline-flex items-center gap-1.5">
-            <HiTruck className="w-4 h-4 flex-shrink-0" />
+            <HiTruck className="w-3.5 h-3.5 flex-shrink-0" />
             ارسال سریع به سراسر کشور — همراه با ضمانت اصالت کالا
           </span>
           <button
             onClick={() => setBannerOpen(false)}
             aria-label="بستن"
-            className="absolute top-1/2 -translate-y-1/2 right-3 w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/15 transition-colors"
+            className="absolute top-1/2 -translate-y-1/2 right-3 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/15 transition-colors"
           >
-            <HiX className="w-4 h-4" />
+            <HiX className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
@@ -116,77 +116,73 @@ export default function Header({ categories = [] }: Props) {
       <div
         className={`transition-all duration-300 ${
           scrolled
-            ? "bg-white/90 backdrop-blur-xl shadow-lg shadow-[#A72F3B]/5"
+            ? "bg-white/95 backdrop-blur-xl border-b border-[#F0F0F0]"
             : "bg-white border-b border-[#F0F0F0]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 sm:gap-6 h-16 sm:h-[72px]">
+          <div className="flex items-center gap-4 sm:gap-6 h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center flex-shrink-0">
               <Image
                 src="/images/petra-logo.png"
                 alt="فروشگاه پترا"
-                width={120}
-                height={40}
-                className="object-contain w-24 sm:w-[120px]"
+                width={110}
+                height={36}
+                className="object-contain w-20 sm:w-[110px]"
                 priority
               />
             </Link>
 
-            {/* جستجو — درازتر، کنار لوگو سمت راست */}
-            <form
-              onSubmit={handleSearch}
-              className="flex-1 sm:flex-none sm:w-[26rem] lg:w-[34rem] sm:ml-auto"
-            >
-              <div className="group relative flex items-center bg-[#F4F4F4] focus-within:bg-white border-[1.5px] border-transparent focus-within:border-[#DCACB1] rounded-xl sm:rounded-2xl transition-all focus-within:shadow-[0_0_0_4px_rgba(167,47,59,0.07)]">
-                <HiSearch className="w-5 h-5 text-[#AFAFAF] mr-3 sm:mr-4 flex-shrink-0" />
+            {/* جستجو — جمع‌وجورتر و وسط */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-md mx-auto">
+              <div className="group relative flex items-center bg-[#F6F6F6] focus-within:bg-white border border-[#F0F0F0] focus-within:border-[#DCACB1] rounded-xl transition-all">
+                <HiSearch className="w-[18px] h-[18px] text-[#AFAFAF] mr-3 flex-shrink-0" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="جستجوی محصولات..."
-                  className="flex-1 bg-transparent py-2.5 sm:py-3 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
+                  className="flex-1 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
                 />
                 <button
                   type="submit"
-                  className="hidden sm:block m-1.5 px-5 py-2 bg-[#A72F3B] hover:bg-[#86262F] text-white text-[13px] font-semibold rounded-lg sm:rounded-xl transition-colors flex-shrink-0"
+                  aria-label="جستجو"
+                  className="sm:hidden p-2 text-[#AFAFAF]"
                 >
-                  جستجو
+                  <HiSearch className="w-[18px] h-[18px]" />
                 </button>
               </div>
             </form>
 
             {/* اکشن‌ها */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* سبد خرید */}
               <Link
                 href="/cart"
-                className="relative w-11 h-11 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-xl transition-colors group"
+                className="relative w-10 h-10 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-xl transition-colors"
                 aria-label="سبد خرید"
               >
-                <HiShoppingCart className="w-[22px] h-[22px] group-hover:scale-110 transition-transform" />
+                <HiShoppingCart className="w-[21px] h-[21px]" />
                 {displayCount > 0 && (
-                  <span className="absolute top-1 left-1 min-w-[18px] h-[18px] px-1.5 bg-[#A72F3B] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-0.5 left-0.5 min-w-[17px] h-[17px] px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {displayCount > 99 ? "99+" : displayCount}
                   </span>
                 )}
               </Link>
 
-              <div className="hidden sm:block w-px h-6 bg-[#EDEDED] mx-1" />
-
-              {/* کاربر — فقط دسکتاپ (موبایل توی نوار پایینه) */}
+              {/* کاربر — فقط دسکتاپ، تخت و مینیمال */}
               {loading ? (
-                <div className="hidden lg:block w-10 h-10 bg-[#F5F5F5] rounded-xl animate-pulse" />
+                <div className="hidden lg:block w-28 h-10 bg-[#F5F5F5] rounded-xl animate-pulse" />
               ) : (
                 <Link
                   href={user ? "/profile" : "/login"}
                   aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                  className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-sm font-semibold rounded-xl shadow-lg shadow-[#A72F3B]/25 hover:-translate-y-0.5 transition-all duration-200"
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 border border-[#EDEDED] text-[#242424] hover:border-[#DCACB1] hover:text-[#A72F3B] text-sm font-medium rounded-xl transition-colors"
                 >
                   {user && (user.name || user.mobile || user.email) ? (
                     <>
-                      <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-xs font-bold">
+                      <span className="w-6 h-6 rounded-lg bg-[#F6EAEB] text-[#A72F3B] flex items-center justify-center text-xs font-bold">
                         {user.name?.charAt(0) ||
                           (user.mobile ?? user.email)?.charAt(0)}
                       </span>
@@ -205,21 +201,18 @@ export default function Header({ categories = [] }: Props) {
         </div>
       </div>
 
-      {/* ── ردیف دسته‌بندی — وقتی اسکرول شد fixed می‌شود و بالا می‌ماند ── */}
-      {/* spacer که جای نوار fixed را پر می‌کند تا محتوا نپرد */}
-      {scrolled && <div className="hidden lg:block h-12" />}
+      {/* ── ردیف دسته‌بندی ── */}
+      {scrolled && <div className="hidden lg:block h-11" />}
       <div
         className={`hidden lg:block bg-white border-b border-[#F0F0F0] z-50 ${
-          scrolled
-            ? "fixed top-0 inset-x-0 shadow-md shadow-[#A72F3B]/5"
-            : "relative"
+          scrolled ? "fixed top-0 inset-x-0 shadow-sm" : "relative"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-1 h-12">
+          <div className="flex items-center gap-1 h-11">
             <Link
               href="/"
-              className={`px-3.5 py-2 text-sm font-medium rounded-xl transition-all ${
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 isActive("/")
                   ? "text-[#A72F3B] bg-[#F6EAEB]"
                   : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
@@ -236,7 +229,7 @@ export default function Header({ categories = [] }: Props) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3.5 py-2 text-sm font-medium rounded-xl transition-all ${
+                  className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     isActive(link.href)
                       ? "text-[#A72F3B] bg-[#F6EAEB]"
                       : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
@@ -246,15 +239,15 @@ export default function Header({ categories = [] }: Props) {
                 </Link>
               ))}
 
-            {/* سبد و پروفایل — فقط وقتی اسکرول شد و نوار ثابت است */}
+            {/* سبد و پروفایل — وقتی اسکرول شد */}
             {scrolled && (
               <div className="mr-auto flex items-center gap-1.5 animate-[slideInLeft_0.3s_cubic-bezier(0.16,1,0.3,1)]">
                 <Link
                   href="/cart"
-                  className="relative w-9 h-9 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-lg transition-colors group"
+                  className="relative w-9 h-9 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-lg transition-colors"
                   aria-label="سبد خرید"
                 >
-                  <HiShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <HiShoppingCart className="w-5 h-5" />
                   {displayCount > 0 && (
                     <span className="absolute -top-1 -left-1 min-w-[16px] h-4 px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {displayCount > 99 ? "99+" : displayCount}
@@ -266,11 +259,11 @@ export default function Header({ categories = [] }: Props) {
                   <Link
                     href={user ? "/profile" : "/login"}
                     aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-[13px] font-semibold rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-[#EDEDED] text-[#242424] hover:border-[#DCACB1] hover:text-[#A72F3B] text-[13px] font-medium rounded-lg transition-colors"
                   >
                     {user && (user.name || user.mobile || user.email) ? (
                       <>
-                        <span className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[11px] font-bold">
+                        <span className="w-5 h-5 rounded-md bg-[#F6EAEB] text-[#A72F3B] flex items-center justify-center text-[11px] font-bold">
                           {user.name?.charAt(0) ||
                             (user.mobile ?? user.email)?.charAt(0)}
                         </span>
