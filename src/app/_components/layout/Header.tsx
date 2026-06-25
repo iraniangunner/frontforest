@@ -7,8 +7,6 @@ import {
   HiShoppingCart,
   HiUser,
   HiSearch,
-  HiTruck,
-  HiX,
   HiHome,
   HiPhone,
   HiInformationCircle,
@@ -50,8 +48,6 @@ export default function Header({ categories = [] }: Props) {
   const { user, loading } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [scrolled, setScrolled] = useState(false);
-  const [bannerOpen, setBannerOpen] = useState(true);
 
   // ── guest cart count ──
   const [guestCount, setGuestCount] = useState(0);
@@ -76,12 +72,6 @@ export default function Header({ categories = [] }: Props) {
 
   const displayCount = !loading && !user ? guestCount : cartCount;
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > (bannerOpen ? 40 : 10));
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [bannerOpen]);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -94,147 +84,118 @@ export default function Header({ categories = [] }: Props) {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header dir="rtl">
-      {/* ── نوار اعلان باریک ── */}
-      {/* {bannerOpen && (
-        <div className="relative bg-[#A72F3B] text-white text-center text-xs py-1.5 px-10">
-          <span className="inline-flex items-center gap-1.5">
-            <HiTruck className="w-3.5 h-3.5 flex-shrink-0" />
-            ارسال سریع به سراسر کشور — همراه با ضمانت اصالت کالا
-          </span>
-          <button
-            onClick={() => setBannerOpen(false)}
-            aria-label="بستن"
-            className="absolute top-1/2 -translate-y-1/2 right-3 w-5 h-5 flex items-center justify-center rounded-md hover:bg-white/15 transition-colors"
-          >
-            <HiX className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )} */}
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4 lg:gap-6 h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <Image
+              src="/images/petra-logo.png"
+              alt="فروشگاه پترا"
+              width={110}
+              height={36}
+              className="object-contain w-20 sm:w-[110px]"
+              priority
+            />
+          </Link>
 
-      {/* spacer وقتی هدر fixed می‌شود تا محتوا نپرد */}
-      {scrolled && <div className="h-16" />}
+          {/* لینک‌ها + دسته‌بندی‌ها — دسکتاپ، کنار لوگو */}
+          <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
+            <MegaMenu categories={categories} />
 
-      {/* ── هدر یک‌ردیفه ── */}
-      <div
-        className={`transition-all duration-300 z-50 ${
-          scrolled
-            ? "fixed top-0 inset-x-0 bg-white/95 backdrop-blur-xl border-b border-[#F0F0F0] shadow-sm"
-            : "relative bg-white border-b border-[#F0F0F0]"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 lg:gap-6 h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center flex-shrink-0">
-              <Image
-                src="/images/petra-logo.png"
-                alt="فروشگاه پترا"
-                width={110}
-                height={36}
-                className="object-contain w-20 sm:w-[110px]"
-                priority
-              />
+            <Link
+              href="/"
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                isActive("/")
+                  ? "text-[#A72F3B] bg-[#F6EAEB]"
+                  : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
+              }`}
+            >
+              خانه
             </Link>
 
-            {/* لینک‌ها + دسته‌بندی‌ها — دسکتاپ، کنار لوگو */}
-            <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
-              <MegaMenu categories={categories} />
-
-              <Link
-                href="/"
-                className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                  isActive("/")
-                    ? "text-[#A72F3B] bg-[#F6EAEB]"
-                    : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
-                }`}
-              >
-                خانه
-              </Link>
-
-              {navLinks
-                .filter((l) => l.href !== "/")
-                .map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                      isActive(link.href)
-                        ? "text-[#A72F3B] bg-[#F6EAEB]"
-                        : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-            </nav>
-
-            {/* جستجو — وسط، کشسان */}
-            <form
-              onSubmit={handleSearch}
-              className="flex-1 min-w-0 max-w-md mx-auto"
-            >
-              <div className="group relative flex items-center bg-[#F6F6F6] focus-within:bg-white border border-[#F0F0F0] focus-within:border-[#DCACB1] rounded-xl transition-all">
-                <HiSearch className="w-[18px] h-[18px] text-[#AFAFAF] mr-3 flex-shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="جستجوی محصولات..."
-                  className="flex-1 min-w-0 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  aria-label="جستجو"
-                  className="sm:hidden p-2 text-[#AFAFAF]"
+            {navLinks
+              .filter((l) => l.href !== "/")
+              .map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                    isActive(link.href)
+                      ? "text-[#A72F3B] bg-[#F6EAEB]"
+                      : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
+                  }`}
                 >
-                  <HiSearch className="w-[18px] h-[18px]" />
-                </button>
-              </div>
-            </form>
+                  {link.label}
+                </Link>
+              ))}
+          </nav>
 
-            {/* اکشن‌ها */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {/* سبد خرید */}
-              <Link
-                href="/cart"
-                className="relative w-10 h-10 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-xl transition-colors"
-                aria-label="سبد خرید"
+          {/* جستجو — وسط، کشسان */}
+          <form
+            onSubmit={handleSearch}
+            className="flex-1 min-w-0 max-w-md mx-auto"
+          >
+            <div className="group relative flex items-center bg-[#F6F6F6] focus-within:bg-white border border-[#F0F0F0] focus-within:border-[#DCACB1] rounded-xl transition-all">
+              <HiSearch className="w-[18px] h-[18px] text-[#AFAFAF] mr-3 flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="جستجوی محصولات..."
+                className="flex-1 min-w-0 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="جستجو"
+                className="sm:hidden p-2 text-[#AFAFAF]"
               >
-                <HiShoppingCart className="w-[21px] h-[21px]" />
-                {displayCount > 0 && (
-                  <span className="absolute top-0.5 left-0.5 min-w-[17px] h-[17px] px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {displayCount > 99 ? "99+" : displayCount}
-                  </span>
+                <HiSearch className="w-[18px] h-[18px]" />
+              </button>
+            </div>
+          </form>
+
+          {/* اکشن‌ها */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* سبد خرید */}
+            <Link
+              href="/cart"
+              className="relative w-10 h-10 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-xl transition-colors"
+              aria-label="سبد خرید"
+            >
+              <HiShoppingCart className="w-[21px] h-[21px]" />
+              {displayCount > 0 && (
+                <span className="absolute top-0.5 left-0.5 min-w-[17px] h-[17px] px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {displayCount > 99 ? "99+" : displayCount}
+                </span>
+              )}
+            </Link>
+
+            {/* کاربر — دسکتاپ */}
+            {loading ? (
+              <div className="hidden lg:block w-28 h-10 bg-[#F5F5F5] rounded-xl animate-pulse" />
+            ) : (
+              <Link
+                href={user ? "/profile" : "/login"}
+                aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
+                className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-sm font-semibold rounded-xl shadow-lg shadow-[#A72F3B]/25 hover:-translate-y-0.5 transition-all duration-200"
+              >
+                {user && (user.name || user.mobile || user.email) ? (
+                  <>
+                    <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-xs font-bold">
+                      {user.name?.charAt(0) ||
+                        (user.mobile ?? user.email)?.charAt(0)}
+                    </span>
+                    <span>حساب کاربری</span>
+                  </>
+                ) : (
+                  <>
+                    <HiUser className="w-4 h-4" />
+                    <span>ورود / ثبت‌نام</span>
+                  </>
                 )}
               </Link>
-
-              {/* کاربر — دسکتاپ */}
-              {loading ? (
-                <div className="hidden lg:block w-28 h-10 bg-[#F5F5F5] rounded-xl animate-pulse" />
-              ) : (
-                <Link
-                  href={user ? "/profile" : "/login"}
-                  aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                  className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-sm font-semibold rounded-xl shadow-lg shadow-[#A72F3B]/25 hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  {user && (user.name || user.mobile || user.email) ? (
-                    <>
-                      <span className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-xs font-bold">
-                        {user.name?.charAt(0) ||
-                          (user.mobile ?? user.email)?.charAt(0)}
-                      </span>
-                      <span>حساب کاربری</span>
-                    </>
-                  ) : (
-                    <>
-                      <HiUser className="w-4 h-4" />
-                      <span>ورود / ثبت‌نام</span>
-                    </>
-                  )}
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ export const revalidate = 60;
 
 export default function HomePage() {
   return (
-    <main className="max-w-7xl mx-auto px-4 py-6 space-y-12">
+    <main className="max-w-7xl mx-auto px-4 py-6 space-y-12 pt-16">
       <h1 className="sr-only">فروشگاه پترا — خرید محصولات اصل با گارانتی</h1>
 
       {/* HERO (critical path) */}
