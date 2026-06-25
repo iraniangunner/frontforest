@@ -16,9 +16,9 @@ export default function ProductTabs({ product, reviews }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("description");
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "description", label: "توضیحات" },
-    { key: "attributes", label: "مشخصات فنی" },
-    { key: "reviews", label: `نظرات (${product.reviews_count})` },
+    { key: "description", label: "توضیحات محصول" },
+    { key: "attributes", label: "ویژگی های محصول" },
+    { key: "reviews", label: `نظرات کاربران(${product.reviews_count})` },
   ];
 
   return (

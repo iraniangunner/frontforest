@@ -137,10 +137,9 @@ export default function RootLayout({
         </Suspense>
         <OrganizationJsonLd />
         <AuthProvider>
-          <CartProvider>
-            <UserStatusProvider>
+          <UserStatusProvider>
+            <CartProvider>
               {children}
-
               <Toaster
                 position="top-center"
                 toastOptions={{
@@ -148,8 +147,8 @@ export default function RootLayout({
                   style: { fontFamily: "var(--font-yekanbakh), sans-serif" },
                 }}
               />
-            </UserStatusProvider>
-          </CartProvider>
+            </CartProvider>
+          </UserStatusProvider>
         </AuthProvider>
       </body>
     </html>

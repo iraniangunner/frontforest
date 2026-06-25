@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -15,10 +15,7 @@ import {
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { guestCart } from "@/lib/guestCart";
 import MegaMenu from "../home/MegaMenu";
-import { useUserStatus } from "@/context/UserStatusContext";
-import { cartAPI } from "@/lib/api";
 
 interface MegaMenuChild {
   id: number;
@@ -46,88 +43,10 @@ interface Props {
 export default function Header({ categories = [] }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { cartCount, refreshCart } = useCart();
+  // فقط نمایش — منطق merge توی CartContext هست
+  const { displayCount, cartLoading } = useCart();
   const { user, loading } = useAuth();
-  const { refresh: refreshUserStatus } = useUserStatus();
-  const cartReady = useRef(false);
-  const [cartLoading, setCartLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [guestCount, setGuestCount] = useState(0);
-
-  useEffect(() => {
-    const updateGuestCount = () => setGuestCount(user ? 0 : guestCart.count());
-    updateGuestCount();
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "guest_cart") updateGuestCount();
-    };
-    const handleGuestCartUpdate = () => updateGuestCount();
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("guestCartUpdated", handleGuestCartUpdate);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("guestCartUpdated", handleGuestCartUpdate);
-    };
-  }, [user]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      setCartLoading(false);
-      cartReady.current = true;
-    }
-  }, [loading, user]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    setCartLoading(true);
-
-    const syncThenRefresh = async () => {
-      try {
-        const guestItems = guestCart.get();
-        const owner = localStorage.getItem("guest_cart_owner");
-
-        if (owner && String(user.id) !== owner) {
-          guestCart.clear();
-          localStorage.removeItem("guest_cart_owner");
-          await refreshCart();
-          return;
-        }
-
-        if (
-          guestItems.length > 0 &&
-          sessionStorage.getItem("guest_cart_synced") !== "true"
-        ) {
-          sessionStorage.setItem("guest_cart_synced", "true");
-
-          await cartAPI.merge(
-            guestItems.map((i: any) => ({
-              product_id: i.id,
-              quantity: i.quantity,
-            })),
-            "replace",
-          );
-
-          guestCart.clear();
-          localStorage.removeItem("guest_cart_owner");
-
-          await refreshUserStatus();
-        }
-
-        await refreshCart();
-      } catch (err) {
-        console.error("Cart sync failed:", err);
-      } finally {
-        setCartLoading(false);
-        cartReady.current = true;
-      }
-    };
-
-    syncThenRefresh();
-  }, [user, refreshCart, refreshUserStatus]);
-
-  const displayCount = !loading && !user ? guestCount : cartCount;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
