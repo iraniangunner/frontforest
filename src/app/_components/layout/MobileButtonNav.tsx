@@ -107,7 +107,7 @@ export default function MobileBottomNav({ categories = [] }: Props) {
               />
               <HiViewGrid className="w-6 h-6" />
               <span className="text-[11px] font-medium leading-none">
-                محصولات
+              دسته بندی ها
               </span>
             </button>
           </li>
