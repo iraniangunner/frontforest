@@ -295,11 +295,11 @@ export default function ProductCard({
               {product.discount_percent}٪ تخفیف
             </span>
           )}
-          {product.is_new && !product.is_on_sale && (
+          {/* {product.is_new && !product.is_on_sale && (
             <span className="text-[10px] font-bold bg-[#00966D] text-white px-2 py-0.5 rounded-full shadow-sm">
               جدید
             </span>
-          )}
+          )} */}
         </div>
 
         {/* ناموجود */}

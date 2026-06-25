@@ -42,7 +42,7 @@ export default function HomePage() {
         <BlogSection />
       </Suspense>
 
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
     </main>
   );
 }

@@ -21,7 +21,6 @@ export default function SearchBar({
   const debounceRef = useRef<NodeJS.Timeout>();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync with URL changes
   useEffect(() => {
     setLocalValue(searchParams.get("q") || "");
   }, [searchParams]);
@@ -35,7 +34,6 @@ export default function SearchBar({
       params.delete("q");
     }
 
-    // Reset to page 1 when searching
     params.delete("page");
 
     const queryString = params.toString();
@@ -72,31 +70,28 @@ export default function SearchBar({
 
   return (
     <div className="relative group">
-      {/* Glow effect on focus */}
+      {/* Glow effect on focus — maroon */}
       <div
-        className={`absolute -inset-1 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl blur-lg transition-opacity duration-300 ${
+        className={`absolute -inset-1 bg-gradient-to-r from-[#A72F3B] to-[#86262F] rounded-2xl blur-lg transition-opacity duration-300 ${
           isFocused ? "opacity-20" : "opacity-0"
         }`}
       />
 
-      {/* Search container */}
       <div
         className={`relative flex items-center bg-white rounded-xl border-2 transition-all duration-300 ${
           isFocused
-            ? "border-teal-500 shadow-lg shadow-teal-500/10"
-            : "border-gray-200 hover:border-gray-300"
+            ? "border-[#A72F3B] shadow-lg shadow-[#A72F3B]/10"
+            : "border-[#EDEDED] hover:border-[#DCACB1]"
         }`}
       >
-        {/* Search icon */}
         <div
           className={`flex items-center justify-center w-12 h-12 transition-colors duration-200 ${
-            isFocused ? "text-teal-500" : "text-gray-400"
+            isFocused ? "text-[#A72F3B]" : "text-[#AFAFAF]"
           }`}
         >
           <HiSearch className="w-5 h-5" />
         </div>
 
-        {/* Input */}
         <input
           ref={inputRef}
           type="text"
@@ -106,26 +101,23 @@ export default function SearchBar({
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1 py-3.5 bg-transparent text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+          className="flex-1 py-3.5 bg-transparent text-[#242424] placeholder-[#AFAFAF] focus:outline-none text-sm sm:text-base"
         />
 
-        {/* Clear button & keyboard hint */}
         <div className="flex items-center gap-2 pl-3">
-          {/* Clear button */}
           {localValue && (
             <button
               onClick={handleClear}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
+              className="p-1.5 text-[#AFAFAF] hover:text-[#656565] hover:bg-[#F5F5F5] rounded-lg transition-all duration-200"
               type="button"
             >
               <HiX className="w-4 h-4" />
             </button>
           )}
 
-          {/* Keyboard shortcut hint - hidden on mobile */}
           {!localValue && (
-            <div className="hidden sm:flex items-center gap-1 text-xs text-gray-400">
-              <kbd className="px-2 py-1 bg-gray-100 rounded-md font-mono text-gray-500">
+            <div className="hidden sm:flex items-center gap-1 text-xs text-[#AFAFAF]">
+              <kbd className="px-2 py-1 bg-[#F5F5F5] rounded-md font-mono text-[#898989]">
                 ESC
               </kbd>
             </div>
@@ -133,11 +125,10 @@ export default function SearchBar({
         </div>
       </div>
 
-      {/* Searching indicator */}
       {isSearching && (
         <div className="absolute left-14 top-1/2 -translate-y-1/2">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-[#A72F3B] border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
       )}

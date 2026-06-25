@@ -126,28 +126,28 @@ export default function AboutPage() {
       <div className="bg-white" dir="rtl">
         {/* Hero */}
         <div className="relative isolate overflow-hidden">
-          <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+          <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-flex items-center rounded-full bg-teal-50 px-4 py-1.5 text-sm font-medium text-teal-700 ring-1 ring-inset ring-teal-600/20 mb-6">
+              <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-4 py-1.5 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-6">
                 درباره ما
               </span>
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+              <h1 className="text-4xl font-bold tracking-tight text-[#242424] sm:text-5xl">
                 فروشگاه پترا
               </h1>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
+              <p className="mt-6 text-lg leading-8 text-[#656565]">
                 ما با افتخار بهترین محصولات را با گارانتی اصالت و خدمات پس از
                 فروش معتبر ارائه می‌دهیم.
               </p>
             </div>
           </div>
 
-          {/* Decorative blob */}
+          {/* Decorative blob — maroon */}
           <div
             className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
             aria-hidden="true"
           >
             <div
-              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-teal-200 to-emerald-200 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#DCACB1] to-[#F6EAEB] opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
               style={{
                 clipPath:
                   "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
@@ -159,56 +159,35 @@ export default function AboutPage() {
         {/* Mission */}
         <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
           <div className="mx-auto max-w-3xl">
-            <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700 ring-1 ring-inset ring-teal-600/20 mb-4">
+            <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-3 py-1 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-4">
               ماموریت
             </span>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-[#242424] sm:text-4xl">
               ماموریت ما
             </h2>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 text-lg leading-8 text-[#656565]">
               ماموریت ما ارائه محصولات اصل با بالاترین کیفیت، قیمت مناسب و خدمات
               پس از فروش قابل اطمینان است.
             </p>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
+            <p className="mt-4 text-lg leading-8 text-[#656565]">
               ما متعهدیم که تجربه خرید آسان، امن و رضایت‌بخشی را برای مشتریان
               سراسر ایران فراهم کنیم و با ارسال سریع و گارانتی معتبر، اعتماد شما
               را جلب کنیم.
             </p>
-            {/* <div className="mt-8">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-500 transition-colors"
-              >
-                مشاهده محصولات
-                <svg
-                  className="w-4 h-4 rotate-180"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  />
-                </svg>
-              </Link>
-            </div> */}
           </div>
         </div>
 
         {/* Values */}
-        <div className="bg-gray-50 py-24 sm:py-32">
+        <div className="bg-[#FAFAFA] py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700 ring-1 ring-inset ring-teal-600/20 mb-4">
+              <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-3 py-1 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-4">
                 ارزش‌ها
               </span>
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight text-[#242424] sm:text-4xl">
                 چرا ما را انتخاب کنید؟
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
+              <p className="mt-4 text-lg text-[#656565]">
                 اصولی که ما را در مسیر ارائه بهترین خدمات هدایت می‌کنند.
               </p>
             </div>
@@ -218,17 +197,17 @@ export default function AboutPage() {
                 {values.map((value) => (
                   <div
                     key={value.title}
-                    className="group bg-white rounded-2xl p-8 shadow-sm ring-1 ring-gray-100 hover:shadow-md hover:ring-teal-100 transition-all"
+                    className="group bg-white rounded-2xl p-8 ring-1 ring-[#F0F0F0] hover:shadow-lg hover:shadow-[#A72F3B]/5 hover:ring-[#DCACB1] hover:-translate-y-1 transition-all duration-300"
                   >
                     <dt className="flex flex-col items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-100 transition-colors">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F6EAEB] text-[#A72F3B] group-hover:bg-[#A72F3B] group-hover:text-white transition-colors">
                         {value.icon}
                       </div>
-                      <span className="text-lg font-semibold text-gray-900">
+                      <span className="text-lg font-semibold text-[#242424]">
                         {value.title}
                       </span>
                     </dt>
-                    <dd className="mt-2 text-gray-600 leading-7">
+                    <dd className="mt-2 text-[#656565] leading-7">
                       {value.description}
                     </dd>
                   </div>

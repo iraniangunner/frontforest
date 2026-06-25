@@ -1,14 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { HiChevronRight, HiChevronLeft, HiDotsHorizontal } from "react-icons/hi";
+import {
+  HiChevronRight,
+  HiChevronLeft,
+  HiDotsHorizontal,
+} from "react-icons/hi";
 
 interface PaginationProps {
   currentPage: number;
   lastPage: number;
-  onPageChange?: (page: number) => void; // Optional callback
-  basePath?: string; // Used when onPageChange is not provided
-  preserveParams?: boolean; // Keep existing query params (default: true)
+  onPageChange?: (page: number) => void;
+  basePath?: string;
+  preserveParams?: boolean;
 }
 
 export default function Pagination({
@@ -23,17 +27,14 @@ export default function Pagination({
 
   if (lastPage <= 1) return null;
 
-  // Smart page change handler
   const handlePageChange = (page: number) => {
-    // If callback provided, use it (client component mode)
     if (onPageChange) {
       onPageChange(page);
       return;
     }
 
-    // Otherwise, use URL navigation (server component mode)
     const params = new URLSearchParams(
-      preserveParams ? searchParams.toString() : ""
+      preserveParams ? searchParams.toString() : "",
     );
 
     if (page > 1) {
@@ -44,7 +45,7 @@ export default function Pagination({
 
     const queryString = params.toString();
     const url = queryString ? `${basePath}?${queryString}` : basePath;
-    
+
     router.push(url);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -83,36 +84,35 @@ export default function Pagination({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Page Info */}
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-[#898989]">
         صفحه{" "}
-        <span className="font-bold text-gray-700">{currentPage.toLocaleString("fa-IR")}</span>
-        {" "}از{" "}
-        <span className="font-bold text-gray-700">{lastPage.toLocaleString("fa-IR")}</span>
+        <span className="font-bold text-[#656565]">
+          {currentPage.toLocaleString("fa-IR")}
+        </span>{" "}
+        از{" "}
+        <span className="font-bold text-[#656565]">
+          {lastPage.toLocaleString("fa-IR")}
+        </span>
       </p>
 
-      {/* Pagination Controls */}
-      <div className="inline-flex items-center gap-1 p-1.5 bg-white rounded-2xl border border-gray-200 shadow-sm">
-        {/* Previous */}
+      <div className="inline-flex items-center gap-1 p-1.5 bg-white rounded-2xl border border-[#F0F0F0] shadow-sm">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
         >
           <HiChevronRight className="w-5 h-5" />
           <span className="hidden sm:inline">قبلی</span>
         </button>
 
-        {/* Divider */}
-        <div className="w-px h-6 bg-gray-200 mx-1" />
+        <div className="w-px h-6 bg-[#EDEDED] mx-1" />
 
-        {/* Page Numbers */}
         <div className="flex items-center gap-1">
           {getPageNumbers().map((page, index) =>
             page === "..." ? (
               <span
                 key={`dots-${index}`}
-                className="w-10 h-10 flex items-center justify-center text-gray-400"
+                className="w-10 h-10 flex items-center justify-center text-[#AFAFAF]"
               >
                 <HiDotsHorizontal className="w-5 h-5" />
               </span>
@@ -123,43 +123,41 @@ export default function Pagination({
                 className={`relative min-w-[40px] h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${
                   currentPage === page
                     ? "text-white"
-                    : "text-gray-600 hover:bg-gray-100"
+                    : "text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B]"
                 }`}
               >
-                {/* Active Background */}
                 {currentPage === page && (
-                  <span className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-lg shadow-emerald-500/30" />
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#A72F3B] to-[#86262F] rounded-xl shadow-lg shadow-[#A72F3B]/30" />
                 )}
-                <span className="relative z-10">{(page as number).toLocaleString("fa-IR")}</span>
+                <span className="relative z-10">
+                  {(page as number).toLocaleString("fa-IR")}
+                </span>
               </button>
-            )
+            ),
           )}
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-6 bg-gray-200 mx-1" />
+        <div className="w-px h-6 bg-[#EDEDED] mx-1" />
 
-        {/* Next */}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === lastPage}
-          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+          className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
         >
           <span className="hidden sm:inline">بعدی</span>
           <HiChevronLeft className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Quick Jump (for many pages) */}
       {lastPage > 10 && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">رفتن به صفحه:</span>
+          <span className="text-sm text-[#898989]">رفتن به صفحه:</span>
           <input
             type="number"
             min={1}
             max={lastPage}
             placeholder="..."
-            className="w-16 px-3 py-1.5 text-sm text-center border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200"
+            className="w-16 px-3 py-1.5 text-sm text-center border-2 border-[#EDEDED] rounded-lg focus:border-[#A72F3B] focus:ring-2 focus:ring-[#A72F3B]/20 transition-all duration-200 outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 const value = parseInt((e.target as HTMLInputElement).value);

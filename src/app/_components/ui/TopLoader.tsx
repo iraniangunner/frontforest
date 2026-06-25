@@ -12,7 +12,6 @@ export default function TopLoader() {
   const start = () => {
     const bar = barRef.current;
     if (!bar) return;
-    // اگه قبلاً شروع شده reset کن
     if (timerRef.current) clearTimeout(timerRef.current);
     isStarted.current = true;
     bar.style.transition = "none";
@@ -22,7 +21,6 @@ export default function TopLoader() {
       bar.style.transition = "width 8s cubic-bezier(0.1,0.05,0,1)";
       bar.style.width = "85%";
     }, 10);
-    // اگه ۱۰ ثانیه گذشت و finish نشد خودکار reset کن
     timerRef.current = setTimeout(() => {
       finish();
     }, 10000);
@@ -50,7 +48,6 @@ export default function TopLoader() {
       const a = (e.target as Element).closest("a");
       if (!a?.href) return;
       const url = new URL(a.href, window.location.href);
-      // همون page — باز هم start کن ولی بعد finish
       if (
         url.pathname === window.location.pathname &&
         url.search === window.location.search
@@ -84,10 +81,10 @@ export default function TopLoader() {
         height: "3px",
         width: "0%",
         opacity: 0,
-        background: "#0d9488",
+        background: "#A72F3B",
         zIndex: 9999,
         borderRadius: "0 2px 2px 0",
-        boxShadow: "0 0 8px rgba(13,148,136,0.4)",
+        boxShadow: "0 0 8px rgba(167,47,59,0.4)",
       }}
     />
   );

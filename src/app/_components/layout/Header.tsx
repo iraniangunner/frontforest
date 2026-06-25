@@ -77,7 +77,7 @@ export default function Header({ categories = [] }: Props) {
   const displayCount = !loading && !user ? guestCount : cartCount;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > (bannerOpen ? 80 : 56));
+    const onScroll = () => setScrolled(window.scrollY > (bannerOpen ? 40 : 10));
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, [bannerOpen]);
@@ -96,7 +96,7 @@ export default function Header({ categories = [] }: Props) {
   return (
     <header dir="rtl">
       {/* ── نوار اعلان باریک ── */}
-      {bannerOpen && (
+      {/* {bannerOpen && (
         <div className="relative bg-[#A72F3B] text-white text-center text-xs py-1.5 px-10">
           <span className="inline-flex items-center gap-1.5">
             <HiTruck className="w-3.5 h-3.5 flex-shrink-0" />
@@ -110,18 +110,21 @@ export default function Header({ categories = [] }: Props) {
             <HiX className="w-3.5 h-3.5" />
           </button>
         </div>
-      )}
+      )} */}
 
-      {/* ── ردیف اصلی ── */}
+      {/* spacer وقتی هدر fixed می‌شود تا محتوا نپرد */}
+      {scrolled && <div className="h-16" />}
+
+      {/* ── هدر یک‌ردیفه ── */}
       <div
-        className={`transition-all duration-300 ${
+        className={`transition-all duration-300 z-50 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-xl border-b border-[#F0F0F0]"
-            : "bg-white border-b border-[#F0F0F0]"
+            ? "fixed top-0 inset-x-0 bg-white/95 backdrop-blur-xl border-b border-[#F0F0F0] shadow-sm"
+            : "relative bg-white border-b border-[#F0F0F0]"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 sm:gap-6 h-16">
+          <div className="flex items-center gap-4 lg:gap-6 h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center flex-shrink-0">
               <Image
@@ -134,8 +137,43 @@ export default function Header({ categories = [] }: Props) {
               />
             </Link>
 
-            {/* جستجو — جمع‌وجورتر و وسط */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-md mx-auto">
+            {/* لینک‌ها + دسته‌بندی‌ها — دسکتاپ، کنار لوگو */}
+            <nav className="hidden lg:flex items-center gap-1 flex-shrink-0">
+              <MegaMenu categories={categories} />
+
+              <Link
+                href="/"
+                className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                  isActive("/")
+                    ? "text-[#A72F3B] bg-[#F6EAEB]"
+                    : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
+                }`}
+              >
+                خانه
+              </Link>
+
+              {navLinks
+                .filter((l) => l.href !== "/")
+                .map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                      isActive(link.href)
+                        ? "text-[#A72F3B] bg-[#F6EAEB]"
+                        : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+            </nav>
+
+            {/* جستجو — وسط، کشسان */}
+            <form
+              onSubmit={handleSearch}
+              className="flex-1 min-w-0 max-w-md mx-auto"
+            >
               <div className="group relative flex items-center bg-[#F6F6F6] focus-within:bg-white border border-[#F0F0F0] focus-within:border-[#DCACB1] rounded-xl transition-all">
                 <HiSearch className="w-[18px] h-[18px] text-[#AFAFAF] mr-3 flex-shrink-0" />
                 <input
@@ -143,7 +181,7 @@ export default function Header({ categories = [] }: Props) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="جستجوی محصولات..."
-                  className="flex-1 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
+                  className="flex-1 min-w-0 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
                 />
                 <button
                   type="submit"
@@ -171,7 +209,7 @@ export default function Header({ categories = [] }: Props) {
                 )}
               </Link>
 
-              {/* کاربر — فقط دسکتاپ، تخت و مینیمال */}
+              {/* کاربر — دسکتاپ */}
               {loading ? (
                 <div className="hidden lg:block w-28 h-10 bg-[#F5F5F5] rounded-xl animate-pulse" />
               ) : (
@@ -200,95 +238,6 @@ export default function Header({ categories = [] }: Props) {
           </div>
         </div>
       </div>
-
-      {/* ── ردیف دسته‌بندی ── */}
-      {scrolled && <div className="hidden lg:block h-11" />}
-      <div
-        className={`hidden lg:block bg-white border-b border-[#F0F0F0] z-50 ${
-          scrolled ? "fixed top-0 inset-x-0 shadow-sm" : "relative"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-1 h-11">
-            <Link
-              href="/"
-              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                isActive("/")
-                  ? "text-[#A72F3B] bg-[#F6EAEB]"
-                  : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
-              }`}
-            >
-              خانه
-            </Link>
-
-            <MegaMenu categories={categories} />
-
-            {navLinks
-              .filter((l) => l.href !== "/")
-              .map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                    isActive(link.href)
-                      ? "text-[#A72F3B] bg-[#F6EAEB]"
-                      : "text-[#656565] hover:text-[#242424] hover:bg-[#F8F8F8]"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-            {/* سبد و پروفایل — وقتی اسکرول شد */}
-            {scrolled && (
-              <div className="mr-auto flex items-center gap-1.5 animate-[slideInLeft_0.3s_cubic-bezier(0.16,1,0.3,1)]">
-                <Link
-                  href="/cart"
-                  className="relative w-9 h-9 flex items-center justify-center text-[#656565] hover:text-[#A72F3B] hover:bg-[#F6EAEB] rounded-lg transition-colors"
-                  aria-label="سبد خرید"
-                >
-                  <HiShoppingCart className="w-5 h-5" />
-                  {displayCount > 0 && (
-                    <span className="absolute -top-1 -left-1 min-w-[16px] h-4 px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {displayCount > 99 ? "99+" : displayCount}
-                    </span>
-                  )}
-                </Link>
-
-                {!loading && (
-                  <Link
-                    href={user ? "/profile" : "/login"}
-                    aria-label={user ? "پروفایل من" : "ورود / ثبت‌نام"}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#A72F3B] hover:bg-[#86262F] text-white text-[13px] font-semibold rounded-lg transition-colors"
-                  >
-                    {user && (user.name || user.mobile || user.email) ? (
-                      <>
-                        <span className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[11px] font-bold">
-                          {user.name?.charAt(0) ||
-                            (user.mobile ?? user.email)?.charAt(0)}
-                        </span>
-                        <span>حساب کاربری</span>
-                      </>
-                    ) : (
-                      <>
-                        <HiUser className="w-4 h-4" />
-                        <span>ورود / ثبت نام</span>
-                      </>
-                    )}
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-12px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </header>
   );
 }

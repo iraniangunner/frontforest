@@ -114,7 +114,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       toggleFavoriteContext(product.id);
       await favoritesAPI.toggle(product.id);
       toast.success(
-        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد"
+        isFavorite ? "از علاقه‌مندی‌ها حذف شد" : "به علاقه‌مندی‌ها اضافه شد",
       );
     } catch {
       toggleFavoriteContext(product.id);
@@ -126,12 +126,12 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const btnState: BtnState = authLoading
     ? "loading"
     : inCart
-    ? "inCart"
-    : guestAdded
-    ? "guestAdded"
-    : addingToCart
-    ? "loading"
-    : "idle";
+      ? "inCart"
+      : guestAdded
+        ? "guestAdded"
+        : addingToCart
+          ? "loading"
+          : "idle";
 
   // مبلغ صرفه‌جویی (فقط نمایشی — از همان فیلدهای موجود)
   const saving =
@@ -156,7 +156,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             {product.category?.name}
           </Link>
         )}
-        {product.is_featured && (
+        {/* {product.is_featured && (
           <span className="px-3 py-1 bg-[#FBEFD7] text-[#A9791C] text-sm rounded-full">
             ویژه
           </span>
@@ -165,7 +165,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           <span className="px-3 py-1 bg-[#E6F4EF] text-[#00966D] text-sm rounded-full">
             جدید
           </span>
-        )}
+        )} */}
       </div>
 
       {/* عنوان */}
@@ -252,21 +252,21 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           {btnState === "idle" && (
             <div className="flex items-center border border-[#EDEDED] rounded-xl overflow-hidden bg-white">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-11 h-12 flex items-center justify-center text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition text-lg"
-              >
-                −
-              </button>
-              <span className="w-10 h-12 flex items-center justify-center font-bold text-[#242424]">
-                {quantity}
-              </span>
-              <button
                 onClick={() =>
                   setQuantity((q) => Math.min(product.stock, q + 1))
                 }
                 className="w-11 h-12 flex items-center justify-center text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition text-lg"
               >
                 +
+              </button>
+              <span className="w-10 h-12 flex items-center justify-center font-bold text-[#242424]">
+                {quantity}
+              </span>
+              <button
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="w-11 h-12 flex items-center justify-center text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] transition text-lg"
+              >
+                −
               </button>
             </div>
           )}

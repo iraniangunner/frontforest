@@ -1,4 +1,4 @@
-// app/products/[slug]/CategoryProductsPage.tsx
+// app/_components/ui/CategoryProductsPage.tsx
 import Pagination from "@/app/_components/ui/Pagination";
 import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
 import { publicProductsAPI } from "@/lib/api";
@@ -23,32 +23,35 @@ export interface CategoryData {
 }
 
 interface Props {
-  // دسته‌ای که محصولاتش نشون داده می‌شه — می‌تواند parent یا child باشد
   category: CategoryData;
-  // همیشه parent (با children کامل) — برای ساخت sidebar فیلتر flat
   parentCategory: CategoryData;
   searchParams: Record<string, string | string[] | undefined>;
-  // مسیر فعلی صفحه — برای Pagination. مثال: "/products/home" یا
-  // "/products/home/vacuum-cleaner"
   basePath: string;
 }
 
 // ── URL searchParams + forced category slugs → FilterParams ────────────────
+//
+// منطق دسته‌بندی:
+//  - اگر کاربر صریحاً از query دسته‌ای انتخاب کرده باشد (categories[]=...)،
+//    فقط همان‌ها اعمال می‌شوند (forced نادیده گرفته می‌شود). این همان حالتیست
+//    که در /products/[parent] چند زیردسته را تیک می‌زنی.
+//  - در غیر این صورت، forcedCategorySlugs (خود دسته + children‌اش) اعمال می‌شود
+//    تا محصولات کل دسته/زیردسته‌های فعلی نمایش داده شود.
 function parseParams(
   sp: Record<string, string | string[] | undefined>,
-  forcedCategorySlugs: string[]
+  forcedCategorySlugs: string[],
 ): FilterParams {
   const p: FilterParams = {};
 
-  // categories[] از query — وقتی کاربر چند زیردسته با هم انتخاب کرده باشه
+  // categories[] از query — انتخاب صریح کاربر
   const cats = sp["categories[]"];
   const extraCats = cats ? (Array.isArray(cats) ? cats : [cats]) : [];
 
-  // دسته‌بندی(های) فعلی از route میاد و همیشه باید توی فیلتر باشن.
-  // اگه category یک parent با children باشه، همه‌ی children.slug هم
-  // اینجا اضافه می‌شن — چون بک‌اند فقط محصولات مستقیم همون category
-  // رو برمی‌گردونه، نه محصولات children رو.
-  p.categories = Array.from(new Set([...forcedCategorySlugs, ...extraCats]));
+  // اگر کاربر صریحاً دسته انتخاب کرده، فقط همان‌ها؛ وگرنه forced
+  p.categories =
+    extraCats.length > 0
+      ? Array.from(new Set(extraCats))
+      : Array.from(new Set(forcedCategorySlugs));
 
   if (sp.brand && typeof sp.brand === "string") p.brand = sp.brand;
   if (sp.on_sale === "1") p.on_sale = true;
@@ -100,18 +103,18 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-xl p-4 flex gap-4 border border-gray-100 animate-pulse"
+            className="bg-white rounded-2xl p-4 flex gap-4 border border-[#F0F0F0] animate-pulse"
           >
-            <div className="w-20 h-20 rounded-xl bg-gray-100 flex-shrink-0" />
+            <div className="w-20 h-20 rounded-xl bg-[#F5F5F5] flex-shrink-0" />
             <div className="flex-1 space-y-2 py-1">
-              <div className="h-3 bg-gray-100 rounded w-1/4" />
-              <div className="h-4 bg-gray-100 rounded w-3/4" />
-              <div className="h-3 bg-gray-100 rounded w-1/2" />
+              <div className="h-3 bg-[#F5F5F5] rounded w-1/4" />
+              <div className="h-4 bg-[#F5F5F5] rounded w-3/4" />
+              <div className="h-3 bg-[#F5F5F5] rounded w-1/2" />
             </div>
             <div className="w-28 space-y-2 py-1">
-              <div className="h-3 bg-gray-100 rounded" />
-              <div className="h-5 bg-gray-100 rounded" />
-              <div className="h-8 bg-gray-100 rounded mt-2" />
+              <div className="h-3 bg-[#F5F5F5] rounded" />
+              <div className="h-5 bg-[#F5F5F5] rounded" />
+              <div className="h-8 bg-[#F5F5F5] rounded mt-2" />
             </div>
           </div>
         ))}
@@ -123,16 +126,16 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white rounded-xl overflow-hidden border border-gray-100 animate-pulse"
+          className="bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] animate-pulse"
         >
-          <div className="aspect-square bg-gray-100" />
+          <div className="aspect-square bg-[#F5F5F5]" />
           <div className="p-3 space-y-2">
-            <div className="h-3 bg-gray-100 rounded w-1/3" />
-            <div className="h-4 bg-gray-100 rounded" />
-            <div className="h-4 bg-gray-100 rounded w-2/3" />
+            <div className="h-3 bg-[#F5F5F5] rounded w-1/3" />
+            <div className="h-4 bg-[#F5F5F5] rounded" />
+            <div className="h-4 bg-[#F5F5F5] rounded w-2/3" />
             <div className="flex justify-between items-center pt-1">
-              <div className="h-4 bg-gray-100 rounded w-1/3" />
-              <div className="w-9 h-9 bg-gray-100 rounded-xl" />
+              <div className="h-4 bg-[#F5F5F5] rounded w-1/3" />
+              <div className="w-9 h-9 bg-[#F5F5F5] rounded-xl" />
             </div>
           </div>
         </div>
@@ -144,12 +147,12 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
 // ── Empty state ──────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
-    <div className="bg-white rounded-xl border border-dashed border-gray-200 py-20 text-center">
+    <div className="bg-white rounded-2xl border border-dashed border-[#EDEDED] py-20 text-center">
       <p className="text-5xl mb-4">📦</p>
-      <h3 className="font-semibold text-gray-800 text-lg mb-1">
+      <h3 className="font-semibold text-[#242424] text-lg mb-1">
         محصولی یافت نشد
       </h3>
-      <p className="text-sm text-gray-400">
+      <p className="text-sm text-[#AFAFAF]">
         فیلترها را تغییر دهید یا جستجوی دیگری امتحان کنید
       </p>
     </div>
@@ -204,16 +207,8 @@ export default async function CategoryProductsPage({
   searchParams,
   basePath,
 }: Props) {
-  // forcedCategorySlugs: خود category + children‌اش (اگه داشته باشه).
-  // اگه category یک child بدون فرزند باشه، فقط خودشه.
-  // اگه category همون parentCategory باشه (یعنی کاربر روی /products/[parent] است)،
-  // همه‌ی children هم اضافه می‌شن — چون بک‌اند فقط محصولات مستقیم category
-  // رو برمی‌گردونه، نه محصولات children رو.
   const forcedCategorySlugs = Array.from(
-    new Set([
-      category.slug,
-      ...(category.children?.map((c) => c.slug) || []),
-    ])
+    new Set([category.slug, ...(category.children?.map((c) => c.slug) || [])]),
   );
 
   const filters = parseParams(searchParams, forcedCategorySlugs);
@@ -228,20 +223,18 @@ export default async function CategoryProductsPage({
     price_range: null,
   };
 
-  // price_range مختص همین دسته‌بندی است (از meta همین API call)
   const priceRange: { min: number; max: number } =
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
 
-  // sidebar فیلتر: همیشه flat — children دسته‌ی والد (siblings)
   const siblings = parentCategory.children || [];
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-[#FAFAFA]" dir="rtl">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         {/* ── عنوان صفحه ── */}
         <div className="mb-5">
-          <h1 className="text-xl font-bold text-gray-900">{category.name}</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-xl font-bold text-[#242424]">{category.name}</h1>
+          <p className="text-sm text-[#898989] mt-0.5">
             {(meta.total || 0).toLocaleString("fa-IR")} محصول در دسترس
           </p>
         </div>
@@ -251,9 +244,12 @@ export default async function CategoryProductsPage({
           <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-6">
             <Suspense
               fallback={
-                <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+                <div className="bg-white rounded-2xl border border-[#F0F0F0] p-4 space-y-3">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />
+                    <div
+                      key={i}
+                      className="h-10 bg-[#F5F5F5] rounded-xl animate-pulse"
+                    />
                   ))}
                 </div>
               }
@@ -266,7 +262,7 @@ export default async function CategoryProductsPage({
             </Suspense>
           </aside>
 
-          {/* ── محتوا + drawer موبایل (در wrapper) ── */}
+          {/* ── محتوا + drawer موبایل ── */}
           <main className="flex-1 min-w-0">
             <FilterDrawerWrapper
               siblings={siblings}
@@ -277,7 +273,7 @@ export default async function CategoryProductsPage({
                 {/* Toolbar */}
                 <Suspense
                   fallback={
-                    <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
+                    <div className="h-14 bg-white rounded-2xl border border-[#F0F0F0] animate-pulse" />
                   }
                 >
                   <CategoryToolbar

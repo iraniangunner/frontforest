@@ -242,9 +242,12 @@ export default function ContactForm() {
     }
   };
 
+  const inp =
+    "block w-full rounded-xl border-0 px-4 py-3 text-[#242424] shadow-sm ring-1 ring-inset ring-[#EDEDED] placeholder:text-[#AFAFAF] focus:ring-2 focus:ring-inset focus:ring-[#A72F3B] transition-shadow";
+
   return (
-    <div className="bg-gray-50 rounded-2xl p-8 sm:p-10">
-      <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-8">
+    <div className="bg-[#FAFAFA] rounded-2xl p-8 sm:p-10">
+      <h2 className="text-2xl font-bold tracking-tight text-[#242424] mb-8">
         ارسال پیام
       </h2>
 
@@ -252,7 +255,7 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-[#656565] mb-2"
           >
             نام و نام خانوادگی
           </label>
@@ -263,7 +266,7 @@ export default function ContactForm() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="block w-full rounded-xl border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 transition-shadow"
+            className={inp}
             placeholder="نام خود را وارد کنید"
           />
         </div>
@@ -271,7 +274,7 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-[#656565] mb-2"
           >
             ایمیل
           </label>
@@ -282,7 +285,7 @@ export default function ContactForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="block w-full rounded-xl border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 transition-shadow"
+            className={inp}
             placeholder="email@example.com"
             dir="ltr"
           />
@@ -291,7 +294,7 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="subject"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-[#656565] mb-2"
           >
             موضوع
           </label>
@@ -301,7 +304,7 @@ export default function ContactForm() {
             value={formData.subject}
             onChange={handleChange}
             required
-            className="block w-full rounded-xl border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 focus:ring-2 focus:ring-inset focus:ring-teal-500 transition-shadow"
+            className={inp}
           >
             <option value="">انتخاب کنید</option>
             <option value="support">پشتیبانی</option>
@@ -315,7 +318,7 @@ export default function ContactForm() {
         <div>
           <label
             htmlFor="message"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-[#656565] mb-2"
           >
             پیام
           </label>
@@ -326,7 +329,7 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             rows={5}
-            className="block w-full rounded-xl border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-teal-500 transition-shadow resize-none"
+            className={`${inp} resize-none`}
             placeholder="پیام خود را بنویسید..."
           />
         </div>
@@ -334,7 +337,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-xl bg-[#A72F3B] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#86262F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A72F3B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">

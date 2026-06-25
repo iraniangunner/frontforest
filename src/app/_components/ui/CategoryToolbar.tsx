@@ -59,7 +59,6 @@ export default function CategoryToolbar({
 
   const set = (key: string, val: string) => push({ [key]: val || null });
 
-  // انتخاب‌شده‌ها: از route (child فعلی) + از query (categories[])
   const routeChild =
     typeof params?.child === "string" ? params.child : undefined;
   const querySlugs = sp.getAll("categories[]");
@@ -106,18 +105,18 @@ export default function CategoryToolbar({
   return (
     <>
       <div
-        className={`bg-white rounded-xl border px-4 py-3 space-y-2.5 transition-colors ${
-          isPending ? "border-teal-200 bg-teal-50/30" : "border-gray-200"
+        className={`bg-white rounded-2xl border px-4 py-3 space-y-2.5 transition-colors ${
+          isPending ? "border-[#DCACB1] bg-[#F6EAEB]/30" : "border-[#F0F0F0]"
         }`}
       >
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-sm text-gray-600 flex items-center gap-2">
-            <span className="font-semibold text-gray-900">
+          <p className="text-sm text-[#656565] flex items-center gap-2">
+            <span className="font-semibold text-[#242424]">
               {total.toLocaleString("fa-IR")}
             </span>
             محصول
             {isPending && (
-              <span className="w-4 h-4 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin inline-block" />
+              <span className="w-4 h-4 border-2 border-[#DCACB1] border-t-[#A72F3B] rounded-full animate-spin inline-block" />
             )}
           </p>
 
@@ -125,7 +124,7 @@ export default function CategoryToolbar({
             <select
               value={sort}
               onChange={(e) => set("sort", e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="text-sm border border-[#EDEDED] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#A72F3B]/30 bg-white text-[#242424]"
             >
               {SORT.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -137,7 +136,7 @@ export default function CategoryToolbar({
             <select
               value={perPage}
               onChange={(e) => set("per_page", e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="text-sm border border-[#EDEDED] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#A72F3B]/30 bg-white text-[#242424]"
             >
               {PER_PAGE.map((n) => (
                 <option key={n} value={n}>
@@ -146,16 +145,16 @@ export default function CategoryToolbar({
               ))}
             </select>
 
-            <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+            <div className="flex border border-[#EDEDED] rounded-lg overflow-hidden">
               <button
                 onClick={() => set("view", "grid")}
-                className={`p-2 transition-colors ${view === "grid" ? "bg-teal-600 text-white" : "bg-white text-gray-400 hover:text-gray-700"}`}
+                className={`p-2 transition-colors ${view === "grid" ? "bg-[#A72F3B] text-white" : "bg-white text-[#AFAFAF] hover:text-[#242424]"}`}
               >
                 <HiViewGrid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => set("view", "list")}
-                className={`p-2 transition-colors ${view === "list" ? "bg-teal-600 text-white" : "bg-white text-gray-400 hover:text-gray-700"}`}
+                className={`p-2 transition-colors ${view === "list" ? "bg-[#A72F3B] text-white" : "bg-white text-[#AFAFAF] hover:text-[#242424]"}`}
               >
                 <HiViewList className="w-4 h-4" />
               </button>
@@ -163,12 +162,12 @@ export default function CategoryToolbar({
 
             <button
               onClick={openDrawer}
-              className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:border-gray-300"
+              className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-[#EDEDED] rounded-lg text-sm text-[#656565] hover:border-[#DCACB1]"
             >
               <HiAdjustments className="w-4 h-4" />
               فیلتر
               {chips.length > 0 && (
-                <span className="w-5 h-5 bg-teal-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="w-5 h-5 bg-[#A72F3B] text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {chips.length}
                 </span>
               )}
@@ -176,29 +175,26 @@ export default function CategoryToolbar({
           </div>
         </div>
 
-        {/* chips */}
         {chips.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-gray-100">
+          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#F0F0F0]">
             {chips.map((c, i) => (
               <button
                 key={i}
                 onClick={() => removeChip(c.key, c.value)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-teal-50 text-teal-700 text-xs font-medium rounded-full border border-teal-100 hover:bg-teal-100 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#F6EAEB] text-[#A72F3B] text-xs font-medium rounded-full border border-[#EDD5D8] hover:bg-[#EDD5D8] transition-colors"
               >
                 {c.label} <HiX className="w-3 h-3" />
               </button>
             ))}
             <button
               onClick={() => clearAll()}
-              className="px-2.5 py-1 text-xs text-red-400 hover:text-red-600 font-medium"
+              className="px-2.5 py-1 text-xs text-[#C30000]/70 hover:text-[#C30000] font-medium"
             >
               پاک کردن همه
             </button>
           </div>
         )}
       </div>
-
-      {/* Mobile drawer — مدیریت توسط FilterDrawerWrapper در CategoryProductsPage */}
     </>
   );
 }
