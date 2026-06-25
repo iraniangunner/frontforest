@@ -25,7 +25,7 @@ export default async function PublicLayout({
 }) {
   const categories = await getMenu();
   return (
-    <>
+    <div className="pt-16">
       <Suspense>
         <TopLoader />
       </Suspense>
@@ -33,6 +33,6 @@ export default async function PublicLayout({
       {children}
       <MobileBottomNav categories={categories} />
       <Footer />
-    </>
+    </div>
   );
 }
