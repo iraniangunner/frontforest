@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -15,7 +15,10 @@ import {
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { guestCart } from "@/lib/guestCart";
 import MegaMenu from "../home/MegaMenu";
+import { useUserStatus } from "@/context/UserStatusContext";
+import { cartAPI } from "@/lib/api";
 
 interface MegaMenuChild {
   id: number;
@@ -43,17 +46,15 @@ interface Props {
 export default function Header({ categories = [] }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-
-  const { cartCount } = useCart();
+  const { cartCount, refreshCart } = useCart();
   const { user, loading } = useAuth();
-
+  const { refresh: refreshUserStatus } = useUserStatus();
+  const cartReady = useRef(false);
+  const [cartLoading, setCartLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // ── guest cart count ──
   const [guestCount, setGuestCount] = useState(0);
 
   useEffect(() => {
-    const { guestCart } = require("@/lib/guestCart");
     const updateGuestCount = () => setGuestCount(user ? 0 : guestCart.count());
     updateGuestCount();
 
@@ -69,6 +70,62 @@ export default function Header({ categories = [] }: Props) {
       window.removeEventListener("guestCartUpdated", handleGuestCartUpdate);
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setCartLoading(false);
+      cartReady.current = true;
+    }
+  }, [loading, user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setCartLoading(true);
+
+    const syncThenRefresh = async () => {
+      try {
+        const guestItems = guestCart.get();
+        const owner = localStorage.getItem("guest_cart_owner");
+
+        if (owner && String(user.id) !== owner) {
+          guestCart.clear();
+          localStorage.removeItem("guest_cart_owner");
+          await refreshCart();
+          return;
+        }
+
+        if (
+          guestItems.length > 0 &&
+          sessionStorage.getItem("guest_cart_synced") !== "true"
+        ) {
+          sessionStorage.setItem("guest_cart_synced", "true");
+
+          await cartAPI.merge(
+            guestItems.map((i: any) => ({
+              product_id: i.id,
+              quantity: i.quantity,
+            })),
+            "replace",
+          );
+
+          guestCart.clear();
+          localStorage.removeItem("guest_cart_owner");
+
+          await refreshUserStatus();
+        }
+
+        await refreshCart();
+      } catch (err) {
+        console.error("Cart sync failed:", err);
+      } finally {
+        setCartLoading(false);
+        cartReady.current = true;
+      }
+    };
+
+    syncThenRefresh();
+  }, [user, refreshCart, refreshUserStatus]);
 
   const displayCount = !loading && !user ? guestCount : cartCount;
 
@@ -164,10 +221,16 @@ export default function Header({ categories = [] }: Props) {
               aria-label="سبد خرید"
             >
               <HiShoppingCart className="w-[21px] h-[21px]" />
-              {displayCount > 0 && (
-                <span className="absolute top-0.5 left-0.5 min-w-[17px] h-[17px] px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {displayCount > 99 ? "99+" : displayCount}
+              {cartLoading ? (
+                <span className="absolute top-0.5 left-0.5 w-[17px] h-[17px] flex items-center justify-center">
+                  <span className="w-2 h-2 border border-[#A72F3B]/40 border-t-[#A72F3B] rounded-full animate-spin" />
                 </span>
+              ) : (
+                displayCount > 0 && (
+                  <span className="absolute top-0.5 left-0.5 min-w-[17px] h-[17px] px-1 bg-[#A72F3B] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {displayCount > 99 ? "99+" : displayCount}
+                  </span>
+                )
               )}
             </Link>
 
