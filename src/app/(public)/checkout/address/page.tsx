@@ -309,7 +309,7 @@ function Stepper() {
                     : "bg-[#F0F0F0] text-[#AFAFAF]"
               }`}
             >
-              {i + 1}
+              {s.done ? <HiCheck className="w-4 h-4" /> : i + 1}
             </div>
             <span
               className={`text-xs ${
