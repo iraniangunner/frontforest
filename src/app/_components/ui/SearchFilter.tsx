@@ -1,18 +1,37 @@
 "use client";
 
 // app/search/_components/SearchFilter.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   HiChevronDown,
+  HiCheck,
   HiX,
   HiTag,
   HiShoppingBag,
   HiStar,
   HiAdjustments,
+  HiViewGrid,
+  HiSearch,
 } from "react-icons/hi";
 import PriceRangeSlider from "./PriceRangeSlider";
 import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
+import Image from "next/image";
+
+interface MenuChild {
+  id: number;
+  name: string;
+  slug: string;
+  products_count?: number;
+}
+interface MenuParent {
+  id: number;
+  name: string;
+  slug: string;
+  icon_image?: string | null;
+  products_count?: number;
+  children?: MenuChild[];
+}
 
 interface Props {
   priceRange: { min: number; max: number };
@@ -29,16 +48,55 @@ export default function SearchFilter({
   const { push, clearAll } = useSearchFilterPush();
 
   const [openSecs, setOpenSecs] = useState<string[]>([
+    "categories",
     "status",
     "price",
     "rating",
   ]);
 
+  // ── منوی دسته‌بندی ──
+  const [menu, setMenu] = useState<MenuParent[]>([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [openParent, setOpenParent] = useState<number | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/categories/menu`,
+          { cache: "no-store" },
+        );
+        const json = await res.json();
+        if (alive) setMenu(json?.data || []);
+      } catch {
+        if (alive) setMenu([]);
+      } finally {
+        if (alive) setMenuLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const q = sp.get("q") || "";
   const on_sale = sp.get("on_sale") === "1";
   const in_stock = sp.get("in_stock") === "1";
   const min_price = +(sp.get("min_price") || priceRange.min);
   const max_price = +(sp.get("max_price") || priceRange.max);
   const min_rating = sp.get("min_rating") || "";
+  const selectedCats = sp.getAll("categories[]");
+
+  // وقتی دسته‌ای انتخاب شده، والدِ مربوط را باز نگه دار
+  useEffect(() => {
+    if (!menu.length || selectedCats.length === 0) return;
+    const owner = menu.find((p) =>
+      p.children?.some((c) => selectedCats.includes(c.slug)),
+    );
+    if (owner) setOpenParent((cur) => (cur === null ? owner.id : cur));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menu]);
 
   const toggleBool = (k: "on_sale" | "in_stock", cur: boolean) =>
     push({ [k]: cur ? null : "1" });
@@ -52,15 +110,86 @@ export default function SearchFilter({
       max_price: max < priceRange.max ? String(max) : null,
     });
 
-  const removeChip = (key: string) => {
+  // ── دسته‌بندی: انتخاب/حذف یک فرزند ──
+  // اگر والدِ این فرزند به‌صورت «همه» انتخاب شده بود (slug والد در URL است)،
+  // اول والد را بردار، بعد فرزند را اضافه کن تا والد uncheck و فرزند checked شود.
+  const toggleChild = (childSlug: string) => {
+    const parent = menu.find((p) =>
+      p.children?.some((c) => c.slug === childSlug),
+    );
+    const parentSlug = parent?.slug;
+
+    let next: string[];
+    if (selectedCats.includes(childSlug)) {
+      // برداشتن فرزند
+      next = selectedCats.filter((s) => s !== childSlug);
+    } else {
+      // اضافه‌کردن فرزند + حذف slug والد (اگر «همه» فعال بود)
+      next = [...selectedCats.filter((s) => s !== parentSlug), childSlug];
+    }
+    push({ "categories[]": Array.from(new Set(next)) });
+  };
+
+  // وضعیت «همه‌ی والد»:
+  //  - allChecked: همه‌ی فرزندان این والد در URL هستند
+  //  - برای تیک‌زدن «همه»: همه‌ی فرزندان اضافه می‌شوند
+  //    (طبق خواسته، تیکِ خود فرزندها هم نمایش داده می‌شود چون در selected هستند)
+  // ولی طبق درخواست تو:
+  //  «همه» که تیک خورد → فرزندها تیک نخورند، فقط نتیجه کاملِ والد بیاد.
+  //  این یعنی به‌جای اضافه‌کردن تک‌تک فرزندان، خودِ slugِ والد را می‌فرستیم.
+  //  بک‌اند tو (inCategories با whereIn) اگر slug والد را بگیرد،
+  //  چون والد parent_id ندارد، باید children را هم پوشش دهد →
+  //  برای همین والد را به همراه فرزندان نمی‌فرستیم، فقط والد را می‌فرستیم.
+  const isParentWholeSelected = (parent: MenuParent) =>
+    selectedCats.includes(parent.slug);
+
+  const toggleWholeParent = (parent: MenuParent) => {
+    const childSlugs = parent.children?.map((c) => c.slug) || [];
+    if (isParentWholeSelected(parent)) {
+      // برداشتن والد
+      push({
+        "categories[]": selectedCats.filter((s) => s !== parent.slug),
+      });
+    } else {
+      // تیک «همه»: والد را اضافه کن و فرزندانِ همین والد را از انتخاب پاک کن
+      const withoutChildren = selectedCats.filter(
+        (s) => !childSlugs.includes(s),
+      );
+      push({
+        "categories[]": Array.from(new Set([...withoutChildren, parent.slug])),
+      });
+    }
+  };
+
+  // نام نمایشی یک slug (والد یا فرزند)
+  const catName = (slug: string) => {
+    for (const p of menu) {
+      if (p.slug === slug) return p.name;
+      const c = p.children?.find((ch) => ch.slug === slug);
+      if (c) return c.name;
+    }
+    return slug;
+  };
+
+  const removeChip = (key: string, value?: string) => {
     if (key === "price") {
       push({ min_price: null, max_price: null });
+    } else if (key === "categories[]") {
+      push({ "categories[]": selectedCats.filter((s) => s !== value) });
+    } else if (key === "q") {
+      push({ q: null });
     } else {
       push({ [key]: null });
     }
   };
 
-  const chips: { key: string; label: string }[] = [
+  const chips: { key: string; value?: string; label: string }[] = [
+    q ? { key: "q", label: `جستجو: ${q}` } : null,
+    ...selectedCats.map((slug) => ({
+      key: "categories[]",
+      value: slug,
+      label: catName(slug),
+    })),
     on_sale ? { key: "on_sale", label: "تخفیف‌دار" } : null,
     in_stock ? { key: "in_stock", label: "موجود در انبار" } : null,
     min_price > priceRange.min || max_price < priceRange.max
@@ -70,7 +199,7 @@ export default function SearchFilter({
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
-  ].filter(Boolean) as { key: string; label: string }[];
+  ].filter(Boolean) as { key: string; value?: string; label: string }[];
 
   const activeCount = chips.length;
   const togSec = (id: string) =>
@@ -146,15 +275,21 @@ export default function SearchFilter({
         </div>
       </div>
 
+      {/* chips فعال (شامل عبارت سرچ q) */}
       {chips.length > 0 && (
         <div className="px-3 py-2 border-b border-[#F0F0F0] flex flex-wrap gap-1.5">
           {chips.map((c, i) => (
             <button
               key={i}
               type="button"
-              onClick={() => removeChip(c.key)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#F5F5F5] text-[#656565] text-xs rounded-full hover:bg-[#EDEDED] border border-[#EDEDED] transition-colors"
+              onClick={() => removeChip(c.key, c.value)}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                c.key === "q"
+                  ? "bg-[#F6EAEB] text-[#A72F3B] border-[#DCACB1] hover:bg-[#EDD5D8]"
+                  : "bg-[#F5F5F5] text-[#656565] border-[#EDEDED] hover:bg-[#EDEDED]"
+              }`}
             >
+              {c.key === "q" && <HiSearch className="w-3 h-3" />}
               {c.label}
               <HiX className="w-3 h-3 opacity-60" />
             </button>
@@ -163,6 +298,169 @@ export default function SearchFilter({
       )}
 
       <div className={isMobile ? "flex-1 overflow-y-auto" : ""}>
+        {!menuLoading && menu.length > 0 && (
+          <div className="border-b border-[#F0F0F0]">
+            <SecHead
+              id="categories"
+              label="انتخاب دسته‌بندی"
+              extra={
+                selectedCats.length > 0 ? (
+                  <span className="text-xs text-[#A72F3B] font-medium">
+                    {selectedCats.length} انتخاب
+                  </span>
+                ) : undefined
+              }
+            />
+            {isOpen("categories") && (
+              <div className="pb-2">
+                <div className="max-h-[360px] overflow-y-auto">
+                  {menu.map((parent) => {
+                    const pOpen = openParent === parent.id;
+                    const childSlugs =
+                      parent.children?.map((c) => c.slug) || [];
+                    const wholeChecked = isParentWholeSelected(parent);
+                    const selInParent = childSlugs.filter((s) =>
+                      selectedCats.includes(s),
+                    ).length;
+                    const badge = wholeChecked ? 1 : selInParent;
+
+                    return (
+                      <div key={parent.id}>
+                        {/* ردیف والد */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenParent((cur) =>
+                              cur === parent.id ? null : parent.id,
+                            )
+                          }
+                          className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-[#F8F8F8] transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            {parent.icon_image ? (
+                              <Image
+                                src={parent.icon_image}
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="w-5 h-5 object-contain flex-shrink-0"
+                              />
+                            ) : (
+                              <span className="w-5 h-5 rounded-md bg-[#F6EAEB] flex items-center justify-center flex-shrink-0">
+                                <HiViewGrid className="w-3 h-3 text-[#A72F3B]" />
+                              </span>
+                            )}
+                            <span
+                              className={`text-sm ${
+                                pOpen || badge > 0
+                                  ? "text-[#A72F3B] font-semibold"
+                                  : "text-[#242424] font-medium"
+                              }`}
+                            >
+                              {parent.name}
+                            </span>
+                            {badge > 0 && (
+                              <span className="text-[11px] text-[#A72F3B] bg-[#F6EAEB] px-1.5 py-0.5 rounded-full">
+                                {wholeChecked ? "همه" : badge}
+                              </span>
+                            )}
+                          </div>
+                          <HiChevronDown
+                            className={`w-4 h-4 text-[#AFAFAF] transition-transform duration-200 ${
+                              pOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+
+                        {/* زیرمجموعه‌ها */}
+                        {pOpen && (
+                          <div className="px-3 pb-2 pt-0.5 bg-[#FCFCFC]">
+                            {/* همه‌ی والد — حالا چک‌باکس */}
+                            {childSlugs.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => toggleWholeParent(parent)}
+                                className="flex items-center gap-2.5 w-full py-2 px-2 rounded-lg hover:bg-[#F6EAEB] transition-colors mb-0.5 group"
+                              >
+                                <span
+                                  className={`w-[18px] h-[18px] rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                                    wholeChecked
+                                      ? "bg-[#A72F3B] border-[#A72F3B]"
+                                      : "border-[#CBCBCB] group-hover:border-[#AFAFAF]"
+                                  }`}
+                                >
+                                  {wholeChecked && (
+                                    <HiCheck className="w-3 h-3 text-white" />
+                                  )}
+                                </span>
+                                <span
+                                  className={`text-[13px] font-medium ${
+                                    wholeChecked
+                                      ? "text-[#A72F3B]"
+                                      : "text-[#A72F3B]"
+                                  }`}
+                                >
+                                  همه‌ی {parent.name}
+                                </span>
+                              </button>
+                            )}
+
+                            {parent.children?.map((child) => {
+                              // وقتی «همه» تیک است، فرزندها تیک نمی‌خورند (طبق خواسته)
+                              const checked =
+                                !wholeChecked &&
+                                selectedCats.includes(child.slug);
+                              return (
+                                <button
+                                  key={child.id}
+                                  type="button"
+                                  onClick={() => toggleChild(child.slug)}
+                                  className="flex items-center justify-between w-full py-2 px-2 rounded-lg hover:bg-[#F8F8F8] transition-colors group"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <span
+                                      className={`w-[18px] h-[18px] rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                                        checked
+                                          ? "bg-[#A72F3B] border-[#A72F3B]"
+                                          : "border-[#CBCBCB] group-hover:border-[#AFAFAF]"
+                                      }`}
+                                    >
+                                      {checked && (
+                                        <HiCheck className="w-3 h-3 text-white" />
+                                      )}
+                                    </span>
+                                    <span
+                                      className={`text-[13px] transition-colors ${
+                                        checked
+                                          ? "text-[#242424] font-medium"
+                                          : "text-[#656565]"
+                                      }`}
+                                    >
+                                      {child.name}
+                                    </span>
+                                  </div>
+                                  {child.products_count !== undefined && (
+                                    <span className="text-[11px] text-[#AFAFAF]">
+                                      {child.products_count.toLocaleString(
+                                        "fa-IR",
+                                      )}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* وضعیت */}
         <div className="border-b border-[#F0F0F0]">
           <SecHead id="status" label="وضعیت" />
           {isOpen("status") && (

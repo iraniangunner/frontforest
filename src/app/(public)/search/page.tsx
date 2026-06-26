@@ -20,7 +20,7 @@ interface PageProps {
 
 // ── URL searchParams → FilterParams ─────────────────────────────────────────
 function parseParams(
-  sp: Record<string, string | string[] | undefined>
+  sp: Record<string, string | string[] | undefined>,
 ): FilterParams {
   const p: FilterParams = {};
 
@@ -29,6 +29,13 @@ function parseParams(
   if (sp.on_sale === "1") p.on_sale = true;
   if (sp.in_stock === "1") p.in_stock = true;
   if (sp.featured === "1") p.featured = true;
+
+  // ── دسته‌بندی‌های انتخاب‌شده (categories[]) ──
+  const cats = sp["categories[]"];
+  const catList = cats ? (Array.isArray(cats) ? cats : [cats]) : [];
+  if (catList.length > 0) {
+    p.categories = Array.from(new Set(catList));
+  }
 
   if (sp.min_price && typeof sp.min_price === "string")
     p.min_price = +sp.min_price;
@@ -56,6 +63,7 @@ function buildApiParams(f: FilterParams): Record<string, unknown> {
   if (f.on_sale) p.on_sale = 1;
   if (f.in_stock) p.in_stock = 1;
   if (f.featured) p.featured = 1;
+  if (f.categories?.length) p["categories[]"] = f.categories;
   if (f.min_price) p.min_price = f.min_price;
   if (f.max_price) p.max_price = f.max_price;
   if (f.min_rating) p.min_rating = f.min_rating;
@@ -75,18 +83,18 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-xl p-4 flex gap-4 border border-gray-100 animate-pulse"
+            className="bg-white rounded-2xl p-4 flex gap-4 border border-[#F0F0F0] animate-pulse"
           >
-            <div className="w-20 h-20 rounded-xl bg-gray-100 flex-shrink-0" />
+            <div className="w-20 h-20 rounded-xl bg-[#F5F5F5] flex-shrink-0" />
             <div className="flex-1 space-y-2 py-1">
-              <div className="h-3 bg-gray-100 rounded w-1/4" />
-              <div className="h-4 bg-gray-100 rounded w-3/4" />
-              <div className="h-3 bg-gray-100 rounded w-1/2" />
+              <div className="h-3 bg-[#F5F5F5] rounded w-1/4" />
+              <div className="h-4 bg-[#F5F5F5] rounded w-3/4" />
+              <div className="h-3 bg-[#F5F5F5] rounded w-1/2" />
             </div>
             <div className="w-28 space-y-2 py-1">
-              <div className="h-3 bg-gray-100 rounded" />
-              <div className="h-5 bg-gray-100 rounded" />
-              <div className="h-8 bg-gray-100 rounded mt-2" />
+              <div className="h-3 bg-[#F5F5F5] rounded" />
+              <div className="h-5 bg-[#F5F5F5] rounded" />
+              <div className="h-8 bg-[#F5F5F5] rounded mt-2" />
             </div>
           </div>
         ))}
@@ -98,16 +106,16 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white rounded-xl overflow-hidden border border-gray-100 animate-pulse"
+          className="bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] animate-pulse"
         >
-          <div className="aspect-square bg-gray-100" />
+          <div className="aspect-square bg-[#F5F5F5]" />
           <div className="p-3 space-y-2">
-            <div className="h-3 bg-gray-100 rounded w-1/3" />
-            <div className="h-4 bg-gray-100 rounded" />
-            <div className="h-4 bg-gray-100 rounded w-2/3" />
+            <div className="h-3 bg-[#F5F5F5] rounded w-1/3" />
+            <div className="h-4 bg-[#F5F5F5] rounded" />
+            <div className="h-4 bg-[#F5F5F5] rounded w-2/3" />
             <div className="flex justify-between items-center pt-1">
-              <div className="h-4 bg-gray-100 rounded w-1/3" />
-              <div className="w-9 h-9 bg-gray-100 rounded-xl" />
+              <div className="h-4 bg-[#F5F5F5] rounded w-1/3" />
+              <div className="w-9 h-9 bg-[#F5F5F5] rounded-xl" />
             </div>
           </div>
         </div>
@@ -119,12 +127,12 @@ function ProductsSkeleton({ view }: { view: "grid" | "list" }) {
 // ── Empty state ──────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
-    <div className="bg-white rounded-xl border border-dashed border-gray-200 py-20 text-center">
+    <div className="bg-white rounded-2xl border border-dashed border-[#EDEDED] py-20 text-center">
       <p className="text-5xl mb-4">📦</p>
-      <h3 className="font-semibold text-gray-800 text-lg mb-1">
+      <h3 className="font-semibold text-[#242424] text-lg mb-1">
         محصولی یافت نشد
       </h3>
-      <p className="text-sm text-gray-400">
+      <p className="text-sm text-[#AFAFAF]">
         فیلترها را تغییر دهید یا جستجوی دیگری امتحان کنید
       </p>
     </div>
@@ -150,14 +158,14 @@ export default async function SearchPage({ searchParams }: PageProps) {
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-[#FAFAFA]" dir="rtl">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         {/* ── عنوان صفحه ── */}
         <div className="mb-5">
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-[#242424]">
             {filters.q ? `نتایج جستجو برای «${filters.q}»` : "جستجوی محصولات"}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm text-[#898989] mt-0.5">
             {(meta.total || 0).toLocaleString("fa-IR")} محصول یافت شد
           </p>
         </div>
@@ -167,11 +175,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <aside className="hidden lg:block w-60 flex-shrink-0 sticky top-6">
             <Suspense
               fallback={
-                <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-                  {[1, 2, 3].map((i) => (
+                <div className="bg-white rounded-2xl border border-[#F0F0F0] p-4 space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
-                      className="h-10 bg-gray-100 rounded-xl animate-pulse"
+                      className="h-10 bg-[#F5F5F5] rounded-xl animate-pulse"
                     />
                   ))}
                 </div>
@@ -185,7 +193,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <main className="flex-1 min-w-0 space-y-4">
             <Suspense
               fallback={
-                <div className="h-14 bg-white rounded-xl border border-gray-200 animate-pulse" />
+                <div className="h-14 bg-white rounded-2xl border border-[#F0F0F0] animate-pulse" />
               }
             >
               <SearchToolbar total={meta.total || 0} priceRange={priceRange} />
