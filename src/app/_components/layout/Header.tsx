@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   HiShoppingCart,
   HiUser,
-  HiSearch,
   HiHome,
   HiPhone,
   HiInformationCircle,
@@ -16,6 +14,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import MegaMenu from "../home/MegaMenu";
+import SearchBar from "../ui/SearchBar";
 
 interface MegaMenuChild {
   id: number;
@@ -41,20 +40,10 @@ interface Props {
 }
 
 export default function Header({ categories = [] }: Props) {
-  const router = useRouter();
   const pathname = usePathname();
   // فقط نمایش — منطق merge توی CartContext هست
   const { displayCount, cartLoading } = useCart();
   const { user, loading } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
-    }
-  };
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -107,29 +96,8 @@ export default function Header({ categories = [] }: Props) {
               ))}
           </nav>
 
-          {/* جستجو — وسط، کشسان */}
-          <form
-            onSubmit={handleSearch}
-            className="flex-1 min-w-0 max-w-md mx-auto"
-          >
-            <div className="group relative flex items-center bg-[#F6F6F6] focus-within:bg-white border border-[#F0F0F0] focus-within:border-[#DCACB1] rounded-xl transition-all">
-              <HiSearch className="w-[18px] h-[18px] text-[#AFAFAF] mr-3 flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="جستجوی محصولات..."
-                className="flex-1 min-w-0 bg-transparent py-2.5 px-2 text-sm text-[#242424] placeholder-[#AFAFAF] focus:outline-none"
-              />
-              <button
-                type="submit"
-                aria-label="جستجو"
-                className="sm:hidden p-2 text-[#AFAFAF]"
-              >
-                <HiSearch className="w-[18px] h-[18px]" />
-              </button>
-            </div>
-          </form>
+          {/* جستجو — کامپوننت جدا با dropdown اخیر/پرطرفدار */}
+          <SearchBar />
 
           {/* اکشن‌ها */}
           <div className="flex items-center gap-2 flex-shrink-0">

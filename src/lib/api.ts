@@ -234,6 +234,8 @@ export const publicProductsAPI = {
 
   getRelated: (slug: string) => api.get(`/products/${slug}/related`),
 
+  getPopularSearches: () => api.get("/products/popular-searches"),
+
   getReviews: (slug: string, params?: Record<string, unknown>) =>
     api.get(`/products/${slug}/reviews`, { params }),
 
@@ -316,7 +318,7 @@ export const cartAPI = {
   merge: (
     items: { product_id: number; quantity: number }[],
     mode: "replace" | "merge" = "replace",
-  ) => api.post("/cart/merge", { items, mode } , { requiresAuth: true }),
+  ) => api.post("/cart/merge", { items, mode }, { requiresAuth: true }),
 
   // خالی کردن کل سبد
   clear: () => api.delete("/cart", { requiresAuth: true }),
