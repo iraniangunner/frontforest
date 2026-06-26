@@ -264,7 +264,7 @@ export default function ProductCard({
     );
 
   // ════════════════════════════════════════════════════════
-  // GRID VIEW
+  // GRID VIEW  (جمع‌وجورتر)
   // ════════════════════════════════════════════════════════
   return (
     <Link
@@ -272,18 +272,18 @@ export default function ProductCard({
       className="group bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] hover:border-[#DCACB1] hover:shadow-lg transition-all flex flex-col"
     >
       {/* تصویر */}
-      <div className="relative aspect-square overflow-hidden bg-[#F8F8F8]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#F8F8F8]">
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
             alt={product.title}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             priority={priority}
           />
         ) : (
-          <span className="absolute inset-0 flex items-center justify-center text-4xl">
+          <span className="absolute inset-0 flex items-center justify-center text-3xl">
             📦
           </span>
         )}
@@ -295,11 +295,6 @@ export default function ProductCard({
               {product.discount_percent}٪ تخفیف
             </span>
           )}
-          {/* {product.is_new && !product.is_on_sale && (
-            <span className="text-[10px] font-bold bg-[#00966D] text-white px-2 py-0.5 rounded-full shadow-sm">
-              جدید
-            </span>
-          )} */}
         </div>
 
         {/* ناموجود */}

@@ -33,21 +33,21 @@ export function SwiperCarousel({ products }: Props) {
         onClick={() => swiperRef.current?.slidePrev()}
         aria-label="قبلی"
         className={`absolute right-0 top-1/2 -translate-y-1/2 z-10
-              w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md
-              items-center justify-center hover:border-teal-400 transition-all
-              ${showArrows && !isBegin ? "flex" : "hidden"}`}
+        w-10 h-10 rounded-full bg-white border border-[#F0F0F0] shadow-md
+        items-center justify-center hover:border-[#DCACB1] hover:text-[#A72F3B] transition-all
+        ${showArrows && !isBegin ? "flex" : "hidden"}`}
       >
-        <HiChevronRight className="w-5 h-5 text-gray-600" />
+        <HiChevronRight className="w-5 h-5 text-[#656565]" />
       </button>
       <button
         onClick={() => swiperRef.current?.slideNext()}
         aria-label="بعدی"
         className={`absolute left-0 top-1/2 -translate-y-1/2 z-10
-              w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md
-              items-center justify-center hover:border-teal-400 transition-all
-              ${showArrows && !isEnd ? "flex" : "hidden"}`}
+        w-10 h-10 rounded-full bg-white border border-[#F0F0F0] shadow-md
+        items-center justify-center hover:border-[#DCACB1] hover:text-[#A72F3B] transition-all
+        ${showArrows && !isEnd ? "flex" : "hidden"}`}
       >
-        <HiChevronLeft className="w-5 h-5 text-gray-600" />
+        <HiChevronLeft className="w-5 h-5 text-[#656565]" />
       </button>
 
       <div className="overflow-hidden" style={{ minHeight: "380px" }}>

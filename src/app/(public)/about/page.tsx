@@ -38,11 +38,12 @@ function AboutJsonLd() {
   );
 }
 
-const values = [
+// ── آمار شناور زیر هیرو ──
+const heroStats = [
   {
     title: "اصالت کالا",
     description:
-      "تمامی محصولات دارای گارانتی اصالت و مستقیماً از کارخانه تامین می‌شوند.",
+      "تمام محصولات اصل و دارای فاکتور رسمی و ضمانت اصالت‌اند؛ همان که می‌بینید، همان که می‌رسد.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -60,9 +61,9 @@ const values = [
     ),
   },
   {
-    title: "ارسال سریع",
+    title: "قیمت منصفانه",
     description:
-      "ارسال به سراسر کشور با پست پیشتاز و تیپاکس در کمترین زمان ممکن.",
+      "قیمت‌گذاری شفاف و بی‌واسطه؛ بدون واسطه‌های اضافه، منصفانه و قابل اعتماد.",
     icon: (
       <svg
         className="w-6 h-6"
@@ -74,17 +75,94 @@ const values = [
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+          d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
     ),
   },
   {
-    title: "پشتیبانی",
-    description: "تیم پشتیبانی ما آماده پاسخگویی به سوالات و رفع مشکلات شماست.",
+    title: "ارسال امن",
+    description:
+      "بسته‌بندی ایمن و بیمه‌شده، ارسال سریع با پست پیشتاز و تیپاکس به سراسر کشور.",
     icon: (
       <svg
         className="w-6 h-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+        />
+      </svg>
+    ),
+  },
+];
+
+// ── ویژگی‌ها (ردیف پایین) ──
+const features = [
+  {
+    title: "ضمانت اصالت",
+    icon: (
+      <svg
+        className="w-7 h-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "فاکتور رسمی",
+    icon: (
+      <svg
+        className="w-7 h-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "ضمانت بازگشت ۷ روزه",
+    icon: (
+      <svg
+        className="w-7 h-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+        />
+      </svg>
+    ),
+  },
+  {
+    title: "پشتیبانی همراه",
+    icon: (
+      <svg
+        className="w-7 h-7"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
@@ -98,25 +176,6 @@ const values = [
       </svg>
     ),
   },
-  {
-    title: "گارانتی",
-    description: "تمامی محصولات دارای گارانتی معتبر و خدمات پس از فروش هستند.",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-        />
-      </svg>
-    ),
-  },
 ];
 
 export default function AboutPage() {
@@ -124,98 +183,253 @@ export default function AboutPage() {
     <>
       <AboutJsonLd />
       <div className="bg-white" dir="rtl">
-        {/* Hero */}
-        <div className="relative isolate overflow-hidden">
-          <div className="mx-auto max-w-7xl px-6 py-20 sm:py-28 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-4 py-1.5 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-6">
-                درباره ما
-              </span>
-              <h1 className="text-4xl font-bold tracking-tight text-[#242424] sm:text-5xl">
-                فروشگاه پترا
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-[#656565]">
-                ما با افتخار بهترین محصولات را با گارانتی اصالت و خدمات پس از
-                فروش معتبر ارائه می‌دهیم.
-              </p>
-            </div>
-          </div>
-
-          {/* Decorative blob — maroon */}
-          <div
-            className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-            aria-hidden="true"
-          >
+        {/* ═══════════ Hero با نوار رنگی + کارت‌های آمار شناور ═══════════ */}
+        <section className="relative">
+          {/* نوار رنگی هیرو */}
+          <div className="relative overflow-hidden bg-gradient-to-bl from-[#F6EAEB] via-[#FBF3F4] to-[#FAFAFA] pb-32 pt-20 sm:pt-24">
+            {/* بافت محو تزئینی */}
             <div
-              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#DCACB1] to-[#F6EAEB] opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              aria-hidden
+              className="absolute inset-0 opacity-40"
               style={{
-                clipPath:
-                  "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+                backgroundImage:
+                  "radial-gradient(circle at 15% 25%, #F4B740 0, transparent 30%), radial-gradient(circle at 85% 75%, #DCACB1 0, transparent 38%)",
               }}
             />
-          </div>
-        </div>
-
-        {/* Mission */}
-        <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
-          <div className="mx-auto max-w-3xl">
-            <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-3 py-1 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-4">
-              ماموریت
-            </span>
-            <h2 className="text-3xl font-bold tracking-tight text-[#242424] sm:text-4xl">
-              ماموریت ما
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-[#656565]">
-              ماموریت ما ارائه محصولات اصل با بالاترین کیفیت، قیمت مناسب و خدمات
-              پس از فروش قابل اطمینان است.
-            </p>
-            <p className="mt-4 text-lg leading-8 text-[#656565]">
-              ما متعهدیم که تجربه خرید آسان، امن و رضایت‌بخشی را برای مشتریان
-              سراسر ایران فراهم کنیم و با ارسال سریع و گارانتی معتبر، اعتماد شما
-              را جلب کنیم.
-            </p>
-          </div>
-        </div>
-
-        {/* Values */}
-        <div className="bg-[#FAFAFA] py-24 sm:py-32">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-flex items-center rounded-full bg-[#F6EAEB] px-3 py-1 text-sm font-medium text-[#A72F3B] ring-1 ring-inset ring-[#A72F3B]/20 mb-4">
-                ارزش‌ها
-              </span>
-              <h2 className="text-3xl font-bold tracking-tight text-[#242424] sm:text-4xl">
-                چرا ما را انتخاب کنید؟
-              </h2>
-              <p className="mt-4 text-lg text-[#656565]">
-                اصولی که ما را در مسیر ارائه بهترین خدمات هدایت می‌کنند.
+            <div className="relative mx-auto max-w-3xl px-6 text-center">
+              <div className="mb-6 flex items-center justify-center gap-3">
+                <span aria-hidden className="block h-px w-12 bg-[#C9A227]/60" />
+                <span className="text-[13px] font-medium tracking-[0.3em] text-[#A72F3B]">
+                  فروشگاه پترا
+                </span>
+                <span aria-hidden className="block h-px w-12 bg-[#C9A227]/60" />
+              </div>
+              <h1 className="text-3xl font-bold leading-tight text-[#242424] sm:text-5xl">
+                زیبایی، در جزئیاتِ کوچک
+              </h1>
+              <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-[#656565] sm:text-lg">
+                پترا محصولاتی را گرد هم آورده که با دقت انتخاب شده‌اند؛ باکیفیت،
+                اصل و ماندگار، برای هر روزِ شما.
               </p>
             </div>
+          </div>
 
-            <div className="mx-auto mt-16 max-w-2xl lg:max-w-none">
-              <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {values.map((value) => (
-                  <div
-                    key={value.title}
-                    className="group bg-white rounded-2xl p-8 ring-1 ring-[#F0F0F0] hover:shadow-lg hover:shadow-[#A72F3B]/5 hover:ring-[#DCACB1] hover:-translate-y-1 transition-all duration-300"
-                  >
-                    <dt className="flex flex-col items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F6EAEB] text-[#A72F3B] group-hover:bg-[#A72F3B] group-hover:text-white transition-colors">
-                        {value.icon}
-                      </div>
-                      <span className="text-lg font-semibold text-[#242424]">
-                        {value.title}
-                      </span>
-                    </dt>
-                    <dd className="mt-2 text-[#656565] leading-7">
-                      {value.description}
-                    </dd>
+          {/* کارت‌های آمار شناور روی مرز نوار */}
+          <div className="relative z-10 mx-auto -mt-24 max-w-6xl px-6">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              {heroStats.map((s) => (
+                <div
+                  key={s.title}
+                  className="group rounded-2xl border border-[#F0F0F0] bg-white p-6 shadow-lg shadow-black/[0.03] transition-all duration-300 hover:-translate-y-1 hover:border-[#DCACB1] hover:shadow-xl hover:shadow-[#A72F3B]/5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#F6EAEB] text-[#A72F3B] transition-colors group-hover:bg-[#A72F3B] group-hover:text-white">
+                      {s.icon}
+                    </div>
+                    <h3 className="text-base font-bold text-[#242424]">
+                      {s.title}
+                    </h3>
                   </div>
-                ))}
-              </dl>
+                  <p className="mt-4 text-sm leading-7 text-[#656565]">
+                    {s.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* ═══════════ آرمان + تصویر گرافیکی ═══════════ */}
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:py-28 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            {/* متن */}
+            <div>
+              <span className="text-[13px] font-medium tracking-[0.2em] text-[#A72F3B]">
+                آرمان ما
+              </span>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#242424] sm:text-4xl">
+                خریدی که می‌توان
+                <br />
+                به آن اعتماد کرد
+              </h2>
+              <div className="mt-6 space-y-5 text-base leading-8 text-[#656565] sm:text-lg sm:leading-9">
+                <p>
+                  پترا را با یک هدف ساده ساختیم: جایی که خرید کردن، آسان و
+                  بی‌دغدغه باشد. هر محصول پیش از آن‌که به فروشگاه راه پیدا کند،
+                  به‌دقت سنجیده و انتخاب می‌شود؛ چون باور داریم کیفیت، مهم‌تر از
+                  تعداد است.
+                </p>
+                <p>
+                  قیمت‌ها شفاف‌اند و آنچه می‌خرید دقیقاً همان است که می‌بینید؛
+                  بی‌واسطه، با فاکتور رسمی و ضمانت اصالت. اینجا قرار نیست بین
+                  وعده و واقعیت فاصله‌ای باشد.
+                </p>
+                <p className="border-r-2 border-[#C9A227]/50 pr-5 font-medium text-[#242424]">
+                  ما فقط فروشنده نیستیم؛ همراهِ یک انتخاب خوبیم. از لحظه‌ی سفارش
+                  تا پس از تحویل، کنار شما می‌مانیم.
+                </p>
+              </div>
+            </div>
+
+            {/* تصویر گرافیکی (SVG تزئینی — نقش هندسی خنثی) */}
+            <div className="relative">
+              <div className="relative aspect-square w-full max-w-md mx-auto overflow-hidden rounded-3xl bg-gradient-to-br from-[#F6EAEB] via-[#FAFAFA] to-[#EDD5D8]">
+                {/* هاله‌ی نرم مرکزی */}
+                <div
+                  aria-hidden
+                  className="absolute inset-0 opacity-40"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 50% 45%, #F4B740 0, transparent 55%)",
+                  }}
+                />
+                {/* نقش هندسی متقارن (الماس‌گون) — خنثی نسبت به دسته‌بندی */}
+                <svg
+                  className="absolute inset-0 h-full w-full p-14 text-[#A72F3B]"
+                  viewBox="0 0 200 200"
+                  fill="none"
+                  aria-hidden
+                >
+                  {/* لوزی بیرونی */}
+                  <path
+                    d="M100 20 L165 100 L100 180 L35 100 Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    opacity="0.5"
+                  />
+                  {/* لوزی میانی */}
+                  <path
+                    d="M100 52 L140 100 L100 148 L60 100 Z"
+                    stroke="#C9A227"
+                    strokeWidth="1.5"
+                    opacity="0.8"
+                  />
+                  {/* مرکز */}
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="14"
+                    stroke="#C9A227"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="6"
+                    fill="#C9A227"
+                    opacity="0.3"
+                  />
+                  {/* خطوط فست‌دار از مرکز */}
+                  <g stroke="currentColor" strokeWidth="1" opacity="0.35">
+                    <path d="M100 52 L100 20" />
+                    <path d="M140 100 L165 100" />
+                    <path d="M100 148 L100 180" />
+                    <path d="M60 100 L35 100" />
+                  </g>
+                  {/* درخشش‌های کوچک */}
+                  <g fill="#F4B740">
+                    <circle cx="100" cy="34" r="2.2" />
+                    <circle cx="152" cy="100" r="2.2" />
+                    <circle cx="100" cy="166" r="2.2" />
+                    <circle cx="48" cy="100" r="2.2" />
+                  </g>
+                </svg>
+                {/* امضای برند روی تصویر */}
+                <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] font-medium tracking-[0.3em] text-[#A72F3B]/70">
+                  PETRA
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ نوار «در ارتباط باشید» ═══════════ */}
+        <section className="bg-[#FAFAFA]">
+          <div className="mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-8">
+            <div className="flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-right">
+              <div>
+                <h2 className="text-2xl font-bold text-[#242424] sm:text-3xl">
+                  سوالی دارید؟ کنار شماییم
+                </h2>
+                <p className="mt-2 text-[#656565]">
+                  تیم پشتیبانی پترا آماده‌ی راهنمایی و پاسخ به پرسش‌های شماست.
+                </p>
+              </div>
+              <Link
+                href="/contact"
+                className="inline-flex flex-shrink-0 items-center gap-2 rounded-full bg-[#A72F3B] px-7 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#86262F]"
+              >
+                تماس با ما
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 18l-6-6 6-6"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════ ویژگی‌ها ═══════════ */}
+        <section className="mx-auto max-w-7xl px-6 py-20 sm:py-24 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="flex flex-col items-center text-center"
+              >
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F6EAEB] text-[#A72F3B]">
+                  {f.icon}
+                </div>
+                <h3 className="mt-4 text-sm font-semibold text-[#242424] sm:text-base">
+                  {f.title}
+                </h3>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════ دعوت پایانی ═══════════ */}
+        <section className="mx-auto max-w-7xl px-6 pb-20 sm:pb-28 lg:px-8">
+          <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-bl from-[#A72F3B] to-[#641C23] px-6 py-14 text-center sm:px-16">
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10 opacity-20"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 20% 30%, #C9A227 0, transparent 40%), radial-gradient(circle at 80% 70%, #DCACB1 0, transparent 45%)",
+              }}
+            />
+            <h2 className="mx-auto max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-4xl">
+              قطعه‌ای پیدا کنید که شما را روایت کند
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-white/80 sm:text-lg">
+              مجموعه‌ی متنوع پترا را ببینید و چیزی را پیدا کنید که مناسب شماست.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/search"
+                className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#A72F3B] shadow-sm transition-colors hover:bg-[#F6EAEB]"
+              >
+                مشاهده محصولات
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-full px-7 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-white/40 transition-colors hover:bg-white/10"
+              >
+                تماس با ما
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );

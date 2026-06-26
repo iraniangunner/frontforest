@@ -24,60 +24,105 @@ export default async function CategoriesSection() {
     <section dir="rtl" className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-1 h-6 rounded-full bg-gradient-to-b from-teal-500 to-cyan-400 flex-shrink-0" />
-          <h2 className="text-[17px] font-bold text-gray-900">دسته‌بندی‌ها</h2>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-1 h-6 rounded-full bg-[#A72F3B] flex-shrink-0" />
+            <h2 className="text-[17px] font-bold text-[#242424]">
+              دسته‌بندی محصولات
+            </h2>
+          </div>
+          <Link
+            href="/search"
+            className="group inline-flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-[#A72F3B] bg-[#F6EAEB] hover:bg-[#EDD5D8] rounded-full transition-colors"
+          >
+            مشاهده همه
+            <svg
+              className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </Link>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6  gap-2.5 sm:gap-3">
+        {/*
+          موبایل: اسلایدر افقی قابل اسکرول (مثل فیگما)
+          دسکتاپ: گرید
+        */}
+        <div
+          className="
+            flex gap-2 overflow-x-auto pb-2 -mx-4 px-4
+            snap-x snap-mandatory scroll-smooth
+            [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden
+            sm:mx-0 sm:px-0 sm:overflow-visible sm:pb-0
+            sm:grid sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10
+          "
+        >
           {categories.map((cat: any) => (
             <Link
               key={cat.id}
               href={`/products/${cat.slug}`}
-              className="group flex flex-col items-center gap-2 p-2.5 sm:p-3 bg-white rounded-2xl border-[1.5px] border-slate-100 hover:border-teal-200 hover:shadow-md hover:-translate-y-0.5 transition-all"
+              className="
+                group relative flex-shrink-0 w-[128px] sm:w-auto
+                snap-start
+                rounded-xl overflow-hidden bg-white
+                border border-[#F0F0F0]
+                hover:border-[#DCACB1] hover:shadow-lg hover:shadow-[#A72F3B]/5
+                hover:-translate-y-1 transition-all duration-300
+              "
             >
-              {/* Icon */}
-              <div
-                className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-[11px] overflow-hidden flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform"
-                style={{
-                  backgroundColor: cat.color ? `${cat.color}20` : "#f1f5f9",
-                }}
-              >
-                {cat.icon_image ? (
-                  <Image
-                    src={cat.icon_image}
-                    alt={cat.name}
-                    fill
-                    className="object-contain p-1.5"
-                    sizes="52px"
-                  />
-                ) : cat.image ? (
+              {/* تصویر بزرگ کارت */}
+              <div className="relative aspect-square w-full overflow-hidden bg-[#F8F8F8]">
+                {cat.image ? (
                   <Image
                     src={cat.image}
                     alt={cat.name}
                     fill
-                    className="object-cover"
-                    sizes="52px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 150px, 220px"
                   />
-                ) : cat.icon ? (
-                  <span className="text-xl sm:text-2xl">{cat.icon}</span>
+                ) : cat.icon_image ? (
+                  <Image
+                    src={cat.icon_image}
+                    alt={cat.name}
+                    fill
+                    className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 150px, 220px"
+                  />
                 ) : (
-                  <span className="text-xl sm:text-2xl">📦</span>
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-5xl"
+                    style={{
+                      backgroundColor: cat.color ? `${cat.color}15` : "#F6EAEB",
+                    }}
+                  >
+                    {cat.icon || "📦"}
+                  </div>
                 )}
+
+                {/* گرادیان نرم پایین تصویر برای خوانایی */}
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
 
-              {/* Name */}
-              <span className="text-[10.5px] sm:text-xs font-semibold text-gray-700 text-center leading-tight group-hover:text-teal-600 transition-colors line-clamp-2">
-                {cat.name}
-              </span>
-
-              {/* Count */}
-              {cat.products_count > 0 && (
-                <span className="text-[10px] text-gray-400">
-                  {cat.products_count.toLocaleString("fa-IR")} محصول
-                </span>
-              )}
+              {/* نوار پایین: اسم + تعداد */}
+              <div className="px-1.5 py-1.5 text-center">
+                <h3 className="text-[10px] font-bold text-[#242424] group-hover:text-[#A72F3B] transition-colors line-clamp-1">
+                  {cat.name}
+                </h3>
+                {cat.products_count > 0 ? (
+                  <p className="text-[9px] text-[#898989] mt-0.5">
+                    {cat.products_count.toLocaleString("fa-IR")} محصول
+                  </p>
+                ) : (
+                  <p className="text-[9px] text-[#AFAFAF] mt-0.5">به‌زودی</p>
+                )}
+              </div>
             </Link>
           ))}
         </div>

@@ -74,6 +74,9 @@ export default function SearchBar() {
     saveRecent(next);
     setOpen(false);
     setQuery("");
+    if (typeof window !== "undefined" && (window as any).__topLoaderStart) {
+      (window as any).__topLoaderStart();
+    }
     router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
