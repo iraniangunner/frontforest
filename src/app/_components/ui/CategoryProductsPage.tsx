@@ -39,7 +39,7 @@ interface Props {
 //    تا محصولات کل دسته/زیردسته‌های فعلی نمایش داده شود.
 function parseParams(
   sp: Record<string, string | string[] | undefined>,
-  forcedCategorySlugs: string[],
+  forcedCategorySlugs: string[]
 ): FilterParams {
   const p: FilterParams = {};
 
@@ -64,7 +64,7 @@ function parseParams(
     p.max_price = +sp.max_price;
   if (sp.min_rating && typeof sp.min_rating === "string")
     p.min_rating = +sp.min_rating;
-  if (sp.sort && typeof sp.sort === "string") p.sort = sp.sort;
+  p.sort = sp.sort && typeof sp.sort === "string" ? sp.sort : "best-selling";
 
   p.page = sp.page && typeof sp.page === "string" ? +sp.page : 1;
   p.per_page =
@@ -208,7 +208,7 @@ export default async function CategoryProductsPage({
   basePath,
 }: Props) {
   const forcedCategorySlugs = Array.from(
-    new Set([category.slug, ...(category.children?.map((c) => c.slug) || [])]),
+    new Set([category.slug, ...(category.children?.map((c) => c.slug) || [])])
   );
 
   const filters = parseParams(searchParams, forcedCategorySlugs);
