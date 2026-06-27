@@ -162,153 +162,94 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ═══════════ آرمان ═══════════ */}
-        <section className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
-          <div className="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-2 lg:gap-16">
-            {/* متن */}
-            <div className="flex flex-col justify-center">
-              <p className="text-[13px] font-medium tracking-[0.2em] text-[#A72F3B]">
-                آرمان ما
-              </p>
-              <h2 className="mt-4 text-2xl font-bold leading-snug tracking-tight text-[#242424] sm:text-4xl sm:leading-tight">
-                همراهِ یک انتخاب خوب،
-                <br />
-                نه فقط یک فروشنده
-              </h2>
-              <p className="mt-6 text-base leading-8 text-[#656565] sm:text-lg sm:leading-9 text-justify">
-                از لحظه‌ی سفارش تا پس از تحویل کنار شما می‌مانیم. هر محصول با
-                وسواس انتخاب می‌شود، قیمت‌ها شفاف‌اند و آنچه می‌خرید دقیقاً همان
-                است که می‌بینید — بی‌واسطه، با فاکتور رسمی و ضمانت اصالت.
-              </p>
+        {/* ═══════════ تعهدنامه (واژه‌نامه‌ای) ═══════════ */}
+        <section className="mx-auto max-w-4xl px-6 py-20 sm:py-28">
+          <div className="mb-14 max-w-xl">
+            <p className="text-[13px] font-medium tracking-[0.25em] text-[#A72F3B]">
+              چرا پترا
+            </p>
+            <h2 className="mt-4 text-3xl font-bold leading-[1.25] tracking-tight text-[#242424] sm:text-[2.75rem] sm:leading-[1.2]">
+              سه چیز که هیچ‌وقت
+              <br className="hidden sm:block" /> سرش معامله نمی‌کنیم
+            </h2>
+          </div>
 
-              <div className="mt-8 flex flex-wrap gap-x-8 gap-y-4">
-                <div>
-                  <p className="text-2xl font-bold text-[#A72F3B]">۱۰۰٪</p>
-                  <p className="mt-0.5 text-sm text-[#898989]">
-                    اصالت و فاکتور
-                  </p>
-                </div>
-                <span aria-hidden className="w-px self-stretch bg-[#F0F0F0]" />
-                <div>
-                  <p className="text-2xl font-bold text-[#A72F3B]">۷ روز</p>
-                  <p className="mt-0.5 text-sm text-[#898989]">ضمانت بازگشت</p>
-                </div>
-                <span aria-hidden className="w-px self-stretch bg-[#F0F0F0]" />
-                <div>
-                  <p className="text-2xl font-bold text-[#A72F3B]">۲۴/۷</p>
-                  <p className="mt-0.5 text-sm text-[#898989]">
-                    پشتیبانی همراه
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* پنل گرافیکی */}
-            <div className="relative min-h-[300px] overflow-hidden rounded-3xl bg-gradient-to-br from-[#A72F3B] to-[#641C23] p-10">
+          <dl className="divide-y divide-[#F0F0F0] border-y border-[#F0F0F0]">
+            {[
+              {
+                term: "اصالت",
+                en: "Authenticity",
+                desc: "هر محصول اصل است و با فاکتور رسمی و ضمانت اصالت به دست شما می‌رسد. همان که می‌بینید، همان که می‌رسد.",
+              },
+              {
+                term: "شفافیت",
+                en: "Transparency",
+                desc: "قیمت‌گذاری بی‌واسطه و روشن؛ بدون هزینه‌ی پنهان و بدون فاصله بین آنچه می‌گوییم و آنچه می‌فروشیم.",
+              },
+              {
+                term: "همراهی",
+                en: "Support",
+                desc: "از لحظه‌ی انتخاب تا پس از خرید کنار شماییم. پشتیبانی واقعی، نه فقط یک شماره‌ی تماس.",
+              },
+            ].map((row) => (
               <div
-                aria-hidden
-                className="absolute inset-0 opacity-25"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 30% 20%, #C9A227 0, transparent 45%), radial-gradient(circle at 80% 85%, #DCACB1 0, transparent 40%)",
-                }}
-              />
-              {/* نقش هندسی ظریف */}
-              <svg
-                aria-hidden
-                className="absolute inset-0 h-full w-full text-white/10"
-                viewBox="0 0 400 400"
-                fill="none"
-                preserveAspectRatio="xMidYMid slice"
+                key={row.term}
+                className="group grid grid-cols-1 gap-3 py-8 sm:grid-cols-12 sm:gap-8 sm:py-10"
               >
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="120"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                />
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="80"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                />
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="160"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                />
-              </svg>
-              {/* نقل‌قول روی پنل */}
-              <div className="relative flex h-full flex-col justify-end">
-                <span
-                  aria-hidden
-                  className="text-6xl font-serif leading-none text-[#F4B740]"
-                >
-                  ”
-                </span>
-                <p className="mt-2 text-xl font-medium leading-9 text-white sm:text-2xl">
-                  کیفیت برای ما شعار نیست؛ تعهد است.
-                </p>
-                <div className="mt-5 flex items-center gap-3">
-                  <span
-                    aria-hidden
-                    className="block h-px w-8 bg-[#F4B740]/70"
-                  />
-                  <span className="text-[13px] font-medium tracking-[0.2em] text-[#F4B740]">
-                    تیم پترا
+                <div className="sm:col-span-4">
+                  <h3 className="text-2xl font-bold tracking-tight text-[#242424] transition-colors group-hover:text-[#A72F3B] sm:text-3xl">
+                    {row.term}
+                  </h3>
+                  <span className="mt-1 block text-xs font-medium uppercase tracking-[0.2em] text-[#C9A227]">
+                    {row.en}
                   </span>
                 </div>
+                <dd className="text-base leading-8 text-[#656565] sm:col-span-8 sm:pt-1.5 sm:text-lg sm:leading-9">
+                  {row.desc}
+                </dd>
               </div>
-            </div>
-          </div>
+            ))}
+          </dl>
         </section>
 
-        {/* ═══════════ کارت‌های ناوبری ═══════════ */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {/* محصولات */}
-            <Link
-              href="/search"
-              className="group relative overflow-hidden rounded-3xl bg-[#A72F3B] p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#A72F3B]/15 sm:p-10"
-            >
-              <div
-                aria-hidden
-                className="absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 80% 20%, #C9A227 0, transparent 45%)",
-                }}
-              />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15 text-white">
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="mt-5 text-xl font-bold text-white">
+        {/* ═══════════ دعوت پایانی ═══════════ */}
+        <section className="mx-auto max-w-4xl px-6 pb-24">
+          <div className="relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-bl from-[#A72F3B] via-[#86262F] to-[#641C23] px-8 py-16 sm:px-14 sm:py-20">
+            {/* بافت تزئینی */}
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10 opacity-25"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 15% 20%, #C9A227 0, transparent 42%), radial-gradient(circle at 88% 85%, #DCACB1 0, transparent 45%)",
+              }}
+            />
+            {/* حلقه‌ی بزرگ تزئینی */}
+            <div
+              aria-hidden
+              className="absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full border border-white/10"
+            />
+
+            <div className="relative max-w-lg">
+              <span className="text-[12px] font-medium tracking-[0.3em] text-[#F4B740]">
+                پترا، در یک قدمی شما
+              </span>
+              <h2 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-white sm:text-[2.5rem] sm:leading-[1.15]">
+                چیزی را پیدا کنید
+                <br /> که مناسب شماست
+              </h2>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/search"
+                  className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-[#A72F3B] shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:bg-[#F6EAEB]"
+                >
                   مشاهده محصولات
-                </h3>
-                <p className="mt-2 max-w-xs text-sm leading-7 text-white/75">
-                  مجموعه‌ی متنوع پترا را ببینید و چیزی را پیدا کنید که مناسب
-                  شماست.
-                </p>
-                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
-                  همین حالا ببینید
+                </Link>
+                <Link
+                  href="/contact"
+                  className="group inline-flex items-center gap-1.5 rounded-full px-7 py-3.5 text-sm font-semibold text-white ring-1 ring-inset ring-white/40 transition-colors hover:bg-white/10"
+                >
+                  تماس با ما
                   <svg
                     className="h-4 w-4 transition-transform group-hover:-translate-x-1"
                     viewBox="0 0 24 24"
@@ -321,52 +262,9 @@ export default function AboutPage() {
                   >
                     <path d="M15 18l-6-6 6-6" />
                   </svg>
-                </span>
+                </Link>
               </div>
-            </Link>
-
-            {/* تماس */}
-            <Link
-              href="/contact"
-              className="group relative overflow-hidden rounded-3xl border border-[#F0F0F0] bg-white p-8 transition-all hover:-translate-y-1 hover:border-[#DCACB1] hover:shadow-xl hover:shadow-[#A72F3B]/5 sm:p-10"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F6EAEB] text-[#A72F3B]">
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
-                  />
-                </svg>
-              </div>
-              <h3 className="mt-5 text-xl font-bold text-[#242424]">
-                تماس با ما
-              </h3>
-              <p className="mt-2 max-w-xs text-sm leading-7 text-[#656565]">
-                سوالی دارید؟ تیم پشتیبانی پترا آماده‌ی راهنمایی و پاسخ به شماست.
-              </p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#A72F3B]">
-                با ما حرف بزنید
-                <svg
-                  className="h-4 w-4 transition-transform group-hover:-translate-x-1"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </span>
-            </Link>
+            </div>
           </div>
         </section>
       </div>
