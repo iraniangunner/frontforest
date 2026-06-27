@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { CategoriesSection } from "../_components/home";
 import HeroCarousel from "../_components/home/HeroCarousel";
 import CarouselSection from "../_components/home/CarouselSection";
+import PromoBanner from "../_components/home/PromoBanner";
 
 export const revalidate = 60;
 
@@ -35,6 +36,15 @@ export default function HomePage() {
           href="/search?sort=newest"
         />
       </Suspense>
+
+      <PromoBanner
+        title="مجموعه‌ی کامل پترا را کشف کنید"
+        subtitle="بهترین محصولات با کیفیت بالا، قیمت منصفانه و ضمانت اصالت — همه یک‌جا."
+        ctaText="مشاهده محصولات"
+        href="/search"
+        secondaryText="درباره‌ی ما"
+        secondaryHref="/about"
+      />
 
       {/* پرفروش‌ترین‌ها */}
       <Suspense fallback={pulse(320)}>
