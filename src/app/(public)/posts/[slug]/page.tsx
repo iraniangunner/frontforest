@@ -6,6 +6,7 @@ import PostHero from "@/app/_components/posts/PostHero";
 import PostMeta from "@/app/_components/posts/PostMeta";
 import PostBody from "@/app/_components/posts/PostBody";
 import PostComments from "@/app/_components/posts/PostComments";
+import LatestPostsSidebar from "@/app/_components/posts/LatestPostsSidebar";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,7 +16,7 @@ async function getPost(slug: string) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/posts/${slug}`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 } },
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -29,7 +30,7 @@ async function getComments(slug: string) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/posts/${slug}/comments`,
-      { next: { revalidate: 30 } }
+      { next: { revalidate: 30 } },
     );
     if (!res.ok) return [];
     const data = await res.json();
@@ -103,25 +104,37 @@ export default async function PostPage({ params }: Props) {
   return (
     <>
       <PostJsonLd post={post} slug={slug} />
-      <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="min-h-screen bg-[#FAFAFA]" dir="rtl">
         <PostHero title={post.title} thumbnail={post.thumbnail} />
-        <div className="max-w-3xl mx-auto px-4 py-8">
-          <PostMeta
-            author={post.author}
-            publishedAt={post.published_at}
-            views={post.views}
-            commentsCount={comments.length}
-          />
-          <PostBody excerpt={post.excerpt} body={post.body} />
-          <PostComments slug={slug} comments={comments} />
-          <div className="mt-8">
-            <Link
-              href="/posts"
-              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-teal-600 transition group"
-            >
-              <HiArrowRight className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-              بازگشت به اخبار
-            </Link>
+
+        {/* ── چیدمان دو ستونه: محتوا + sidebar ── */}
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* محتوای اصلی */}
+            <div className="flex-1 min-w-0">
+              <PostMeta
+                author={post.author}
+                publishedAt={post.published_at}
+                views={post.views}
+                commentsCount={comments.length}
+              />
+              <PostBody excerpt={post.excerpt} body={post.body} />
+              <PostComments slug={slug} comments={comments} />
+              <div className="mt-8">
+                <Link
+                  href="/posts"
+                  className="inline-flex items-center gap-2 text-sm text-[#656565] hover:text-[#A72F3B] transition-colors group"
+                >
+                  <HiArrowRight className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                  بازگشت به اخبار
+                </Link>
+              </div>
+            </div>
+
+            {/* Sidebar — آخرین مقالات */}
+            <div className="lg:w-80 flex-shrink-0">
+              <LatestPostsSidebar currentSlug={slug} />
+            </div>
           </div>
         </div>
       </div>

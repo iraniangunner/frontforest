@@ -36,7 +36,7 @@ export default function PostsFilter({
       if (v && v !== "all") sp.set(k, v);
       else sp.delete(k);
     });
-    sp.delete("page"); // reset page on filter change
+    sp.delete("page");
     startTransition(() => {
       router.push(`${pathname}?${sp.toString()}`);
     });
@@ -46,19 +46,19 @@ export default function PostsFilter({
   const handleCategory = (key: string) => updateURL({ search, category: key });
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <div className="bg-white border-b border-[#F0F0F0]">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between py-7">
           <div>
-            <h1 className="text-2xl font-extrabold text-gray-900">
+            <h1 className="text-2xl font-extrabold text-[#242424]">
               اخبار و مقالات
             </h1>
-            <p className="text-gray-400 text-xs mt-0.5">
+            <p className="text-[#AFAFAF] text-xs mt-0.5">
               {total.toLocaleString("fa-IR")} مطلب
             </p>
           </div>
           <div className="relative">
-            <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <HiSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#AFAFAF]" />
             <input
               type="text"
               value={search}
@@ -67,7 +67,7 @@ export default function PostsFilter({
                 if (e.key === "Enter") handleSearch();
               }}
               placeholder="جستجو..."
-              className="pr-9 pl-4 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-teal-500 w-48"
+              className="pr-9 pl-4 py-2 text-sm border border-[#EDEDED] rounded-lg outline-none focus:ring-2 focus:ring-[#A72F3B]/30 w-48"
             />
           </div>
         </div>
@@ -78,8 +78,8 @@ export default function PostsFilter({
               onClick={() => handleCategory(cat.key)}
               className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 currentCategory === cat.key
-                  ? "border-teal-600 text-teal-600"
-                  : "border-transparent text-gray-500 hover:text-gray-800"
+                  ? "border-[#A72F3B] text-[#A72F3B]"
+                  : "border-transparent text-[#656565] hover:text-[#242424]"
               }`}
             >
               {cat.label}

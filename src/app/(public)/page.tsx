@@ -37,14 +37,14 @@ export default function HomePage() {
         />
       </Suspense>
 
-      <PromoBanner
+      {/* <PromoBanner
         title="مجموعه‌ی کامل پترا را کشف کنید"
         subtitle="بهترین محصولات با کیفیت بالا، قیمت منصفانه و ضمانت اصالت — همه یک‌جا."
         ctaText="مشاهده محصولات"
         href="/search"
         secondaryText="درباره‌ی ما"
         secondaryHref="/about"
-      />
+      /> */}
 
       {/* پرفروش‌ترین‌ها */}
       <Suspense fallback={pulse(320)}>

@@ -10,8 +10,7 @@ import PostsCard from "@/app/_components/posts/PostsCard";
 
 export const metadata: Metadata = {
   title: "اخبار و مقالات | فروشگاه پترا",
-  description:
-    "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فروشگاه پترا",
+  description: "آخرین اخبار، مقالات، آموزش‌ها و معرفی محصولات فروشگاه پترا",
   keywords: "اخبار فروشگاه پترا، مقالات، آموزش، معرفی محصول",
   openGraph: {
     title: "اخبار و مقالات | فروشگاه پترا",
@@ -51,14 +50,14 @@ interface PageProps {
 
 function HeroSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
+    <div className="bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] animate-pulse">
       <div className="grid grid-cols-2">
-        <div className="aspect-[16/10] bg-gray-100" />
+        <div className="aspect-[16/10] bg-[#F5F5F5]" />
         <div className="p-8 space-y-4">
-          <div className="h-2 bg-gray-100 rounded w-1/4" />
-          <div className="h-7 bg-gray-100 rounded" />
-          <div className="h-7 bg-gray-100 rounded w-4/5" />
-          <div className="h-4 bg-gray-100 rounded" />
+          <div className="h-2 bg-[#F5F5F5] rounded w-1/4" />
+          <div className="h-7 bg-[#F5F5F5] rounded" />
+          <div className="h-7 bg-[#F5F5F5] rounded w-4/5" />
+          <div className="h-4 bg-[#F5F5F5] rounded" />
         </div>
       </div>
     </div>
@@ -67,12 +66,12 @@ function HeroSkeleton() {
 
 function CardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 animate-pulse">
-      <div className="aspect-[16/10] bg-gray-100" />
+    <div className="bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] animate-pulse">
+      <div className="aspect-[16/10] bg-[#F5F5F5]" />
       <div className="p-5 space-y-3">
-        <div className="h-2 bg-gray-100 rounded w-1/4" />
-        <div className="h-4 bg-gray-100 rounded" />
-        <div className="h-4 bg-gray-100 rounded w-3/4" />
+        <div className="h-2 bg-[#F5F5F5] rounded w-1/4" />
+        <div className="h-4 bg-[#F5F5F5] rounded" />
+        <div className="h-4 bg-[#F5F5F5] rounded w-3/4" />
       </div>
     </div>
   );
@@ -80,8 +79,8 @@ function CardSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="text-center py-24 bg-white rounded-2xl border border-gray-100">
-      <p className="text-gray-400 text-lg mb-2">مطلبی یافت نشد</p>
+    <div className="text-center py-24 bg-white rounded-2xl border border-[#F0F0F0]">
+      <p className="text-[#AFAFAF] text-lg mb-2">مطلبی یافت نشد</p>
     </div>
   );
 }
@@ -108,11 +107,11 @@ export default async function PostsPage({ searchParams }: PageProps) {
   return (
     <>
       <PostsJsonLd />
-      <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="min-h-screen bg-[#FAFAFA]" dir="rtl">
         {/* Filter — client component */}
         <Suspense
           fallback={
-            <div className="h-32 bg-white border-b border-gray-100 animate-pulse" />
+            <div className="h-32 bg-white border-b border-[#F0F0F0] animate-pulse" />
           }
         >
           <PostsFilter
@@ -136,11 +135,11 @@ export default async function PostsPage({ searchParams }: PageProps) {
 
               {page === 1 && rest.length > 0 && (
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-gray-200" />
-                  <span className="text-xs text-gray-400 font-medium">
+                  <div className="flex-1 h-px bg-[#EDEDED]" />
+                  <span className="text-xs text-[#AFAFAF] font-medium">
                     سایر مطالب
                   </span>
-                  <div className="flex-1 h-px bg-gray-200" />
+                  <div className="flex-1 h-px bg-[#EDEDED]" />
                 </div>
               )}
 
