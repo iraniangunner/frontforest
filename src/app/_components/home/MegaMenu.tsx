@@ -2,6 +2,7 @@
 
 // app/(public)/_components/MegaMenu.tsx
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HiChevronLeft, HiChevronDown, HiViewGrid } from "react-icons/hi";
@@ -16,6 +17,7 @@ interface MegaMenuCategory {
   id: number;
   name: string;
   slug: string;
+  icon_image?: string | null;
   children?: MegaMenuChild[];
 }
 
@@ -27,7 +29,7 @@ export default function MegaMenu({ categories }: Props) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeParent, setActiveParent] = useState<MegaMenuCategory | null>(
-    categories[0] || null,
+    categories[0] || null
   );
   const closeTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -55,7 +57,7 @@ export default function MegaMenu({ categories }: Props) {
             }`}
             aria-hidden="true"
           />,
-          document.body,
+          document.body
         )}
 
       <div
@@ -103,9 +105,38 @@ export default function MegaMenu({ categories }: Props) {
                   <Link
                     href={`/products/${cat.slug}`}
                     onClick={() => setOpen(false)}
-                    className="flex-1 text-right"
+                    className="flex-1 flex items-center gap-2.5 text-right min-w-0"
                   >
-                    {cat.name}
+                    {/* آیکن دسته */}
+                    {cat.icon_image ? (
+                      <span
+                        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg overflow-hidden transition-colors ${
+                          activeParent?.id === cat.id
+                            ? "bg-[#F6EAEB]"
+                            : "bg-white border border-[#F0F0F0]"
+                        }`}
+                      >
+                        <Image
+                          src={cat.icon_image}
+                          width={40}
+                          height={40}
+                          alt=""
+                          className="h-5 w-5 object-contain"
+                          loading="lazy"
+                        />
+                      </span>
+                    ) : (
+                      <span
+                        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-colors ${
+                          activeParent?.id === cat.id
+                            ? "bg-[#F6EAEB] text-[#A72F3B]"
+                            : "bg-white border border-[#F0F0F0] text-[#AFAFAF]"
+                        }`}
+                      >
+                        {cat.name.charAt(0)}
+                      </span>
+                    )}
+                    <span className="truncate">{cat.name}</span>
                   </Link>
                   {cat.children && cat.children.length > 0 && (
                     <HiChevronLeft
