@@ -2,14 +2,28 @@
 
 // app/search/_components/SearchToolbar.tsx
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HiViewGrid, HiViewList, HiAdjustments, HiX } from "react-icons/hi";
 import SearchFilter from "./SearchFilter";
 import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
 
+interface MenuChild {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+interface MenuParent {
+  id: number;
+  name: string;
+  slug: string;
+  children?: MenuChild[];
+}
+
 interface Props {
   total: number;
   priceRange: { min: number; max: number };
+  menu: MenuParent[];
 }
 
 const SORT = [
@@ -22,16 +36,39 @@ const SORT = [
 
 const PER_PAGE = [12, 24, 36, 48];
 
-export default function SearchToolbar({ total, priceRange }: Props) {
+export default function SearchToolbar({ total, priceRange, menu }: Props) {
   const sp = useSearchParams();
   const { push, clearAll, isPending } = useSearchFilterPush();
-  const [drawer, setDrawer] = useState(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const openDrawer = () => {
+    const p = new URLSearchParams(sp.toString());
+    p.set("filter", "1");
+    router.push(`${pathname}?${p.toString()}`, {
+      scroll: false,
+    });
+  };
 
   const view = sp.get("view") || "grid";
   // پیش‌فرض پرفروش‌ترین
   const sort = sp.get("sort") || "best-selling";
   const perPage = sp.get("per_page") || "12";
   const q = sp.get("q") || "";
+
+  const selectedCats = sp.getAll("categories[]");
+
+  const catName = (slug: string) => {
+    for (const p of menu) {
+      if (p.slug === slug) return p.name;
+
+      const child = p.children?.find((c) => c.slug === slug);
+      if (child) return child.name;
+    }
+
+    return slug;
+  };
 
   const set = (key: string, val: string) => push({ [key]: val || null });
 
@@ -40,11 +77,25 @@ export default function SearchToolbar({ total, priceRange }: Props) {
   const setSort = (val: string) =>
     push({ sort: val === "best-selling" ? null : val });
 
-  const chips: { key: string; label: string }[] = [
+  const chips: {
+    key: string;
+    value?: string;
+    label: string;
+  }[] = [
+    q ? { key: "q", label: `جستجو: ${q}` } : null,
+
+    ...selectedCats.map((slug) => ({
+      key: "categories[]",
+      value: slug,
+      label: catName(slug),
+    })),
+
     sp.get("on_sale") === "1" ? { key: "on_sale", label: "تخفیف‌دار" } : null,
+
     sp.get("in_stock") === "1"
       ? { key: "in_stock", label: "موجود در انبار" }
       : null,
+
     sp.get("min_price") || sp.get("max_price")
       ? {
           key: "price",
@@ -55,19 +106,35 @@ export default function SearchToolbar({ total, priceRange }: Props) {
           ).toLocaleString("fa-IR")} ت`,
         }
       : null,
-    sp.get("min_rating")
-      ? { key: "min_rating", label: `${sp.get("min_rating")}★+` }
-      : null,
-  ].filter(Boolean) as { key: string; label: string }[];
 
-  const removeChip = (key: string) => {
+    sp.get("min_rating")
+      ? {
+          key: "min_rating",
+          label: `${sp.get("min_rating")}★+`,
+        }
+      : null,
+  ].filter(Boolean) as {
+    key: string;
+    value?: string;
+    label: string;
+  }[];
+
+  const removeChip = (key: string, value?: string) => {
     if (key === "price") {
-      push({ min_price: null, max_price: null });
+      push({
+        min_price: null,
+        max_price: null,
+      });
+    } else if (key === "categories[]") {
+      push({
+        "categories[]": selectedCats.filter((s) => s !== value),
+      });
     } else {
-      push({ [key]: null });
+      push({
+        [key]: null,
+      });
     }
   };
-
   return (
     <>
       <div
@@ -138,7 +205,7 @@ export default function SearchToolbar({ total, priceRange }: Props) {
 
             {/* فیلتر موبایل */}
             <button
-              onClick={() => setDrawer(true)}
+              onClick={openDrawer}
               className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-[#EDEDED] rounded-lg text-sm text-[#656565] hover:border-[#DCACB1]"
             >
               <HiAdjustments className="w-4 h-4" />
@@ -183,7 +250,7 @@ export default function SearchToolbar({ total, priceRange }: Props) {
             {chips.map((c, i) => (
               <button
                 key={i}
-                onClick={() => removeChip(c.key)}
+                onClick={() => removeChip(c.key, c.value)}
                 className="flex items-center gap-1 px-2.5 py-1 bg-[#F6EAEB] text-[#A72F3B] text-xs font-medium rounded-full border border-[#EDD5D8] hover:bg-[#EDD5D8] transition-colors"
               >
                 {c.label} <HiX className="w-3 h-3" />
@@ -198,22 +265,6 @@ export default function SearchToolbar({ total, priceRange }: Props) {
           </div>
         )}
       </div>
-
-      {drawer && (
-        <div className="fixed inset-0 z-50 flex lg:hidden" dir="rtl">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setDrawer(false)}
-          />
-          <div className="relative mr-auto w-72 max-w-[85vw] h-full bg-white shadow-2xl flex flex-col">
-            <SearchFilter
-              priceRange={priceRange}
-              isMobile
-              onClose={() => setDrawer(false)}
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 }

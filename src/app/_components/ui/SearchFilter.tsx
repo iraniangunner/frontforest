@@ -24,6 +24,7 @@ interface MenuChild {
   slug: string;
   products_count?: number;
 }
+
 interface MenuParent {
   id: number;
   name: string;
@@ -34,12 +35,14 @@ interface MenuParent {
 }
 
 interface Props {
+  menu: MenuParent[];
   priceRange: { min: number; max: number };
   onClose?: () => void;
   isMobile?: boolean;
 }
 
 export default function SearchFilter({
+  menu,
   priceRange,
   onClose,
   isMobile = false,
@@ -55,30 +58,8 @@ export default function SearchFilter({
   ]);
 
   // ── منوی دسته‌بندی ──
-  const [menu, setMenu] = useState<MenuParent[]>([]);
-  const [menuLoading, setMenuLoading] = useState(true);
-  const [openParent, setOpenParent] = useState<number | null>(null);
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories/menu`,
-          { cache: "no-store" },
-        );
-        const json = await res.json();
-        if (alive) setMenu(json?.data || []);
-      } catch {
-        if (alive) setMenu([]);
-      } finally {
-        if (alive) setMenuLoading(false);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const [openParent, setOpenParent] = useState<number | null>(null);
 
   const q = sp.get("q") || "";
   const on_sale = sp.get("on_sale") === "1";
@@ -92,7 +73,7 @@ export default function SearchFilter({
   useEffect(() => {
     if (!menu.length || selectedCats.length === 0) return;
     const owner = menu.find((p) =>
-      p.children?.some((c) => selectedCats.includes(c.slug)),
+      p.children?.some((c) => selectedCats.includes(c.slug))
     );
     if (owner) setOpenParent((cur) => (cur === null ? owner.id : cur));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,7 +96,7 @@ export default function SearchFilter({
   // اول والد را بردار، بعد فرزند را اضافه کن تا والد uncheck و فرزند checked شود.
   const toggleChild = (childSlug: string) => {
     const parent = menu.find((p) =>
-      p.children?.some((c) => c.slug === childSlug),
+      p.children?.some((c) => c.slug === childSlug)
     );
     const parentSlug = parent?.slug;
 
@@ -153,7 +134,7 @@ export default function SearchFilter({
     } else {
       // تیک «همه»: والد را اضافه کن و فرزندانِ همین والد را از انتخاب پاک کن
       const withoutChildren = selectedCats.filter(
-        (s) => !childSlugs.includes(s),
+        (s) => !childSlugs.includes(s)
       );
       push({
         "categories[]": Array.from(new Set([...withoutChildren, parent.slug])),
@@ -195,16 +176,19 @@ export default function SearchFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString(
+            "fa-IR"
+          )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
   ].filter(Boolean) as { key: string; value?: string; label: string }[];
 
   const activeCount = chips.length;
+
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
     );
   const isOpen = (id: string) => openSecs.includes(id);
 
@@ -298,7 +282,7 @@ export default function SearchFilter({
       )}
 
       <div className={isMobile ? "flex-1 overflow-y-auto" : ""}>
-        {!menuLoading && menu.length > 0 && (
+        {menu.length > 0 && (
           <div className="border-b border-[#F0F0F0]">
             <SecHead
               id="categories"
@@ -320,7 +304,7 @@ export default function SearchFilter({
                       parent.children?.map((c) => c.slug) || [];
                     const wholeChecked = isParentWholeSelected(parent);
                     const selInParent = childSlugs.filter((s) =>
-                      selectedCats.includes(s),
+                      selectedCats.includes(s)
                     ).length;
                     const badge = wholeChecked ? 1 : selInParent;
 
@@ -331,7 +315,7 @@ export default function SearchFilter({
                           type="button"
                           onClick={() =>
                             setOpenParent((cur) =>
-                              cur === parent.id ? null : parent.id,
+                              cur === parent.id ? null : parent.id
                             )
                           }
                           className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-[#F8F8F8] transition-colors"
@@ -442,7 +426,7 @@ export default function SearchFilter({
                                   {child.products_count !== undefined && (
                                     <span className="text-[11px] text-[#AFAFAF]">
                                       {child.products_count.toLocaleString(
-                                        "fa-IR",
+                                        "fa-IR"
                                       )}
                                     </span>
                                   )}
@@ -476,7 +460,9 @@ export default function SearchFilter({
                   }`}
                 >
                   <HiTag
-                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
+                    className={`w-4 h-4 ${
+                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
+                    }`}
                   />
                   تخفیف‌دار
                 </button>
@@ -490,7 +476,9 @@ export default function SearchFilter({
                   }`}
                 >
                   <HiShoppingBag
-                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
+                    className={`w-4 h-4 ${
+                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
+                    }`}
                   />
                   موجود
                 </button>
@@ -565,7 +553,9 @@ export default function SearchFilter({
                     {Array.from({ length: 5 }).map((_, i) => (
                       <HiStar
                         key={i}
-                        className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
+                        className={`w-3.5 h-3.5 ${
+                          i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
+                        }`}
                       />
                     ))}
                   </div>

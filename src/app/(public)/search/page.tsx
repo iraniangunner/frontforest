@@ -3,10 +3,11 @@ import Pagination from "@/app/_components/ui/Pagination";
 import SearchFilter from "@/app/_components/ui/SearchFilter";
 import SearchToolbar from "@/app/_components/ui/SearchToolbar";
 import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
-import { publicProductsAPI } from "@/lib/api";
+import { categoriesAPI, publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import { Metadata } from "next";
 import { Suspense } from "react";
+import SearchFilterDrawerWrapper from "@/app/_components/ui/SearchFilterDrawerWrapper";
 
 export const metadata: Metadata = {
   title: "نتایج جستجو | فروشگاه پترا",
@@ -20,7 +21,7 @@ interface PageProps {
 
 // ── URL searchParams → FilterParams ─────────────────────────────────────────
 function parseParams(
-  sp: Record<string, string | string[] | undefined>,
+  sp: Record<string, string | string[] | undefined>
 ): FilterParams {
   const p: FilterParams = {};
 
@@ -145,7 +146,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const filters = parseParams(sp);
   const view = (sp.view as "grid" | "list") || "grid";
 
-  const productsRes = await publicProductsAPI.getAll(buildApiParams(filters));
+  const [productsRes, menuRes] = await Promise.all([
+    publicProductsAPI.getAll(buildApiParams(filters)),
+    categoriesAPI.getMenu(),
+  ]);
+
   const products = productsRes.data.data || [];
   const meta = productsRes.data.meta || {
     current_page: 1,
@@ -153,6 +158,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     total: 0,
     price_range: null,
   };
+  const menu = menuRes.data.data || [];
 
   const priceRange: { min: number; max: number } =
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
@@ -185,45 +191,51 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 </div>
               }
             >
-              <SearchFilter priceRange={priceRange} />
+              <SearchFilter priceRange={priceRange} menu={menu} />
             </Suspense>
           </aside>
 
           {/* ── محتوا ── */}
-          <main className="flex-1 min-w-0 space-y-4">
-            <Suspense
-              fallback={
-                <div className="h-14 bg-white rounded-2xl border border-[#F0F0F0] animate-pulse" />
-              }
-            >
-              <SearchToolbar total={meta.total || 0} priceRange={priceRange} />
-            </Suspense>
-
-            <Suspense
-              key={JSON.stringify(filters)}
-              fallback={<ProductsSkeleton view={view} />}
-            >
-              {products.length === 0 ? (
-                <EmptyState />
-              ) : (
-                <ProductsGridWrapper
-                  products={products}
-                  view={view}
-                  isPending={false}
-                />
-              )}
-            </Suspense>
-
-            {(meta.last_page || 1) > 1 && (
-              <Suspense>
-                <Pagination
-                  currentPage={meta.current_page || 1}
-                  lastPage={meta.last_page || 1}
-                  basePath="/search"
+          <SearchFilterDrawerWrapper priceRange={priceRange} menu={menu}>
+            <main className="flex-1 min-w-0 space-y-4">
+              <Suspense
+                fallback={
+                  <div className="h-14 bg-white rounded-2xl border border-[#F0F0F0] animate-pulse" />
+                }
+              >
+                <SearchToolbar
+                  menu={menu}
+                  total={meta.total || 0}
+                  priceRange={priceRange}
                 />
               </Suspense>
-            )}
-          </main>
+
+              <Suspense
+                key={JSON.stringify(filters)}
+                fallback={<ProductsSkeleton view={view} />}
+              >
+                {products.length === 0 ? (
+                  <EmptyState />
+                ) : (
+                  <ProductsGridWrapper
+                    products={products}
+                    view={view}
+                    isPending={false}
+                  />
+                )}
+              </Suspense>
+
+              {(meta.last_page || 1) > 1 && (
+                <Suspense>
+                  <Pagination
+                    currentPage={meta.current_page || 1}
+                    lastPage={meta.last_page || 1}
+                    basePath="/search"
+                  />
+                </Suspense>
+              )}
+            </main>
+          </SearchFilterDrawerWrapper>
         </div>
       </div>
     </div>
