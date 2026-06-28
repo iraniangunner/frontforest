@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [
+     remotePatterns: [
       {
         protocol: "https",
         hostname: "petra.pmk-co.com",
         pathname: "/storage/**",
+      },
+
+      {
+        protocol: "https",
+        hostname: "s3.ir-thr-at1.arvanstorage.ir",
+        pathname: "/petra-images/**",
       },
     ],
   },
