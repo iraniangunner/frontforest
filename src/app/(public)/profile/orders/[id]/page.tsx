@@ -19,6 +19,7 @@ import {
   HiHashtag,
   HiUpload,
   HiX,
+  HiDownload,
 } from "react-icons/hi";
 import { ordersAPI, checkoutAPI } from "@/lib/api";
 import toast from "react-hot-toast";
@@ -473,6 +474,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (orderId) loadOrder();
@@ -534,6 +536,33 @@ export default function OrderDetailPage() {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    if (!order) return;
+    setDownloading(true);
+    try {
+      const res = await ordersAPI.downloadInvoice(order.id);
+      // ساخت لینک دانلود از blob دریافتی
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${order.order_number}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      let msg = "خطا در دانلود فاکتور";
+      try {
+        const text = await err.response?.data?.text?.();
+        if (text) msg = JSON.parse(text)?.message || msg;
+      } catch {}
+      toast.error(msg);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="flex items-center justify-center py-24">
@@ -545,6 +574,15 @@ export default function OrderDetailPage() {
 
   const statusConfig = STATUS[order.status] || STATUS.pending;
   const StatusIcon = statusConfig.icon;
+
+  // فاکتور فقط برای سفارش‌هایی که پرداخت شده‌اند (و مراحل بعد) در دسترس است.
+  const canDownloadInvoice = [
+    "paid",
+    "processing",
+    "shipped",
+    "delivered",
+    "returned",
+  ].includes(order.status);
 
   return (
     <div>
@@ -612,6 +650,19 @@ export default function OrderDetailPage() {
               {confirming ? "..." : "✅ تایید دریافت کالا"}
             </button>
           )}
+
+          {/* دانلود فاکتور — فقط برای سفارش‌های پرداخت‌شده */}
+          {canDownloadInvoice && (
+            <button
+              onClick={handleDownloadInvoice}
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-[#A72F3B] text-[#A72F3B] rounded-xl text-sm font-medium hover:bg-[#F6EAEB] disabled:opacity-50 transition-colors"
+            >
+              <HiDownload className="w-4 h-4" />
+              {downloading ? "در حال دریافت..." : "دانلود فاکتور"}
+            </button>
+          )}
+
           <ReturnButton order={order} />
         </div>
       </div>

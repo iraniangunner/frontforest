@@ -373,6 +373,12 @@ export const ordersAPI = {
 
   confirmDelivery: (id: number) =>
     api.post(`/orders/${id}/confirm-delivery`, {}, { requiresAuth: true }),
+
+  downloadInvoice: (id: number | string) =>
+    api.get(`/orders/${id}/invoice`, {
+      requiresAuth: true,
+      responseType: "blob",
+    } as any),
 };
 
 // Favorites API
