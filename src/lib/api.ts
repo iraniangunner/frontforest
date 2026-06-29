@@ -373,10 +373,6 @@ export const ordersAPI = {
 
   confirmDelivery: (id: number) =>
     api.post(`/orders/${id}/confirm-delivery`, {}, { requiresAuth: true }),
-
-  // Check if component is purchased
-  // check: (componentId: number) =>
-  //   api.get(`/purchases/check/${componentId}`, { requiresAuth: true } as any),
 };
 
 // Favorites API
@@ -392,10 +388,6 @@ export const favoritesAPI = {
 
   toggle: (componentId: number) =>
     api.post(`/favorites/${componentId}/toggle`, {}, { requiresAuth: true }),
-
-  // Check if component is favorite
-  // check: (componentId: number) =>
-  //   api.get(`/favorites/check/${componentId}`, { requiresAuth: true }),
 };
 
 export const contactAPI = {
