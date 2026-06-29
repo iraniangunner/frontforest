@@ -17,6 +17,8 @@ import {
 import PriceRangeSlider from "./PriceRangeSlider";
 import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
 import Image from "next/image";
+import { useContext } from "react";
+import { FilterContext } from "./ProductsGridWrapper";
 
 interface MenuChild {
   id: number;
@@ -48,7 +50,11 @@ export default function SearchFilter({
   isMobile = false,
 }: Props) {
   const sp = useSearchParams();
-  const { push, clearAll } = useSearchFilterPush();
+  // const { push, clearAll } = useSearchFilterPush();
+
+const ctx = useContext(FilterContext);
+const fallback = useSearchFilterPush();
+const { push, clearAll, isPending } = ctx ?? fallback;
 
   const [openSecs, setOpenSecs] = useState<string[]>([
     "categories",

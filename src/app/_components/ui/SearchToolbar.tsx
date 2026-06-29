@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HiViewGrid, HiViewList, HiAdjustments, HiX } from "react-icons/hi";
 import SearchFilter from "./SearchFilter";
 import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
+import { useContext } from "react";
+import { FilterContext } from "./ProductsGridWrapper";
 
 interface MenuChild {
   id: number;
@@ -38,7 +40,10 @@ const PER_PAGE = [12, 24, 36, 48];
 
 export default function SearchToolbar({ total, priceRange, menu }: Props) {
   const sp = useSearchParams();
-  const { push, clearAll, isPending } = useSearchFilterPush();
+  // const { push, clearAll, isPending } = useSearchFilterPush();
+   const ctx = useContext(FilterContext);
+   const fallback = useSearchFilterPush();
+   const { push, clearAll, isPending } = ctx ?? fallback;
 
   const router = useRouter();
   const pathname = usePathname();

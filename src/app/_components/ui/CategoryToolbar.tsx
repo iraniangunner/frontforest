@@ -9,6 +9,8 @@ import {
 } from "next/navigation";
 import { HiViewGrid, HiViewList, HiAdjustments, HiX } from "react-icons/hi";
 import { useCategoryFilterPush } from "@/hooks/useCategoryFilterPush";
+import { useContext } from "react";
+import { FilterContext } from "./ProductsGridWrapper";
 
 interface SiblingCategory {
   id: number;
@@ -44,7 +46,10 @@ export default function CategoryToolbar({
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { push, clearAll, isPending } = useCategoryFilterPush(parentSlug);
+  // const { push, clearAll, isPending } = useCategoryFilterPush(parentSlug);
+  const ctx = useContext(FilterContext);
+  const fallback = useCategoryFilterPush(parentSlug);
+  const { push, clearAll, isPending } = ctx ?? fallback;
 
   const openDrawer = () => {
     const p = new URLSearchParams(sp.toString());
@@ -68,7 +73,7 @@ export default function CategoryToolbar({
     typeof params?.child === "string" ? params.child : undefined;
   const querySlugs = sp.getAll("categories[]");
   const selected = Array.from(
-    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs)
+    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs),
   );
 
   const getSiblingName = (slug: string) =>
@@ -88,9 +93,9 @@ export default function CategoryToolbar({
       ? {
           key: "price",
           label: `${Number(
-            sp.get("min_price") || priceRange.min
+            sp.get("min_price") || priceRange.min,
           ).toLocaleString("fa-IR")} — ${Number(
-            sp.get("max_price") || priceRange.max
+            sp.get("max_price") || priceRange.max,
           ).toLocaleString("fa-IR")} ت`,
         }
       : null,

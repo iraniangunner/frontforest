@@ -14,6 +14,8 @@ import {
 } from "react-icons/hi";
 import PriceRangeSlider from "./PriceRangeSlider";
 import { useCategoryFilterPush } from "@/hooks/useCategoryFilterPush";
+import { useContext } from "react";
+import { FilterContext } from "./ProductsGridWrapper";
 
 interface SiblingCategory {
   id: number;
@@ -39,7 +41,11 @@ export default function CategoryFilter({
 }: Props) {
   const sp = useSearchParams();
   const params = useParams();
-  const { push, clearAll } = useCategoryFilterPush(parentSlug);
+  // const { push, clearAll } = useCategoryFilterPush(parentSlug);
+
+  const ctx = useContext(FilterContext);
+const fallback = useCategoryFilterPush(parentSlug);
+const { push, clearAll, isPending } = ctx ?? fallback;
 
   const [openSecs, setOpenSecs] = useState<string[]>([
     "status",
