@@ -1,10 +1,8 @@
 "use client";
 
 // app/search/_components/SearchToolbar.tsx
-import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HiViewGrid, HiViewList, HiAdjustments, HiX } from "react-icons/hi";
-import SearchFilter from "./SearchFilter";
 import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
 import { useContext } from "react";
 import { FilterContext } from "./ProductsGridWrapper";

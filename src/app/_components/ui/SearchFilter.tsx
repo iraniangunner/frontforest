@@ -52,9 +52,9 @@ export default function SearchFilter({
   const sp = useSearchParams();
   // const { push, clearAll } = useSearchFilterPush();
 
-const ctx = useContext(FilterContext);
-const fallback = useSearchFilterPush();
-const { push, clearAll, isPending } = ctx ?? fallback;
+  const ctx = useContext(FilterContext);
+  const fallback = useSearchFilterPush();
+  const { push, clearAll, isPending } = ctx ?? fallback;
 
   const [openSecs, setOpenSecs] = useState<string[]>([
     "categories",
@@ -79,7 +79,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
   useEffect(() => {
     if (!menu.length || selectedCats.length === 0) return;
     const owner = menu.find((p) =>
-      p.children?.some((c) => selectedCats.includes(c.slug))
+      p.children?.some((c) => selectedCats.includes(c.slug)),
     );
     if (owner) setOpenParent((cur) => (cur === null ? owner.id : cur));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,7 +102,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
   // اول والد را بردار، بعد فرزند را اضافه کن تا والد uncheck و فرزند checked شود.
   const toggleChild = (childSlug: string) => {
     const parent = menu.find((p) =>
-      p.children?.some((c) => c.slug === childSlug)
+      p.children?.some((c) => c.slug === childSlug),
     );
     const parentSlug = parent?.slug;
 
@@ -140,7 +140,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
     } else {
       // تیک «همه»: والد را اضافه کن و فرزندانِ همین والد را از انتخاب پاک کن
       const withoutChildren = selectedCats.filter(
-        (s) => !childSlugs.includes(s)
+        (s) => !childSlugs.includes(s),
       );
       push({
         "categories[]": Array.from(new Set([...withoutChildren, parent.slug])),
@@ -183,7 +183,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
       ? {
           key: "price",
           label: `${min_price.toLocaleString(
-            "fa-IR"
+            "fa-IR",
           )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
@@ -194,7 +194,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
 
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
   const isOpen = (id: string) => openSecs.includes(id);
 
@@ -310,7 +310,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                       parent.children?.map((c) => c.slug) || [];
                     const wholeChecked = isParentWholeSelected(parent);
                     const selInParent = childSlugs.filter((s) =>
-                      selectedCats.includes(s)
+                      selectedCats.includes(s),
                     ).length;
                     const badge = wholeChecked ? 1 : selInParent;
 
@@ -321,7 +321,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                           type="button"
                           onClick={() =>
                             setOpenParent((cur) =>
-                              cur === parent.id ? null : parent.id
+                              cur === parent.id ? null : parent.id,
                             )
                           }
                           className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-[#F8F8F8] transition-colors"
@@ -432,7 +432,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                                   {child.products_count !== undefined && (
                                     <span className="text-[11px] text-[#AFAFAF]">
                                       {child.products_count.toLocaleString(
-                                        "fa-IR"
+                                        "fa-IR",
                                       )}
                                     </span>
                                   )}

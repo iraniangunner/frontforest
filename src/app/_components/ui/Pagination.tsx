@@ -1,179 +1,3 @@
-// "use client";
-
-// import { useRouter, useSearchParams } from "next/navigation";
-// import {
-//   HiChevronRight,
-//   HiChevronLeft,
-//   HiDotsHorizontal,
-// } from "react-icons/hi";
-
-// interface PaginationProps {
-//   currentPage: number;
-//   lastPage: number;
-//   onPageChange?: (page: number) => void;
-//   basePath?: string;
-//   preserveParams?: boolean;
-// }
-
-// export default function Pagination({
-//   currentPage,
-//   lastPage,
-//   onPageChange,
-//   basePath = "",
-//   preserveParams = true,
-// }: PaginationProps) {
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-
-//   if (lastPage <= 1) return null;
-
-//   const handlePageChange = (page: number) => {
-//     if (onPageChange) {
-//       onPageChange(page);
-//       return;
-//     }
-
-//     const params = new URLSearchParams(
-//       preserveParams ? searchParams.toString() : "",
-//     );
-
-//     if (page > 1) {
-//       params.set("page", String(page));
-//     } else {
-//       params.delete("page");
-//     }
-
-//     const queryString = params.toString();
-//     const url = queryString ? `${basePath}?${queryString}` : basePath;
-
-//     router.push(url);
-//     window.scrollTo({ top: 0, behavior: "smooth" });
-//   };
-
-//   const getPageNumbers = () => {
-//     const pages: (number | string)[] = [];
-//     const showPages = 5;
-//     const halfShow = Math.floor(showPages / 2);
-
-//     let start = Math.max(1, currentPage - halfShow);
-//     let end = Math.min(lastPage, currentPage + halfShow);
-
-//     if (currentPage <= halfShow) {
-//       end = Math.min(lastPage, showPages);
-//     }
-//     if (currentPage > lastPage - halfShow) {
-//       start = Math.max(1, lastPage - showPages + 1);
-//     }
-
-//     if (start > 1) {
-//       pages.push(1);
-//       if (start > 2) pages.push("...");
-//     }
-
-//     for (let i = start; i <= end; i++) {
-//       pages.push(i);
-//     }
-
-//     if (end < lastPage) {
-//       if (end < lastPage - 1) pages.push("...");
-//       pages.push(lastPage);
-//     }
-
-//     return pages;
-//   };
-
-//   return (
-//     <div className="flex flex-col items-center gap-4">
-//       <p className="text-sm text-[#898989]">
-//         صفحه{" "}
-//         <span className="font-bold text-[#656565]">
-//           {currentPage.toLocaleString("fa-IR")}
-//         </span>{" "}
-//         از{" "}
-//         <span className="font-bold text-[#656565]">
-//           {lastPage.toLocaleString("fa-IR")}
-//         </span>
-//       </p>
-
-//       <div className="inline-flex items-center gap-1 p-1.5 bg-white rounded-2xl border border-[#F0F0F0] shadow-sm">
-//         <button
-//           onClick={() => handlePageChange(currentPage - 1)}
-//           disabled={currentPage === 1}
-//           className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
-//         >
-//           <HiChevronRight className="w-5 h-5" />
-//           <span className="hidden sm:inline">قبلی</span>
-//         </button>
-
-//         <div className="w-px h-6 bg-[#EDEDED] mx-1" />
-
-//         <div className="flex items-center gap-1">
-//           {getPageNumbers().map((page, index) =>
-//             page === "..." ? (
-//               <span
-//                 key={`dots-${index}`}
-//                 className="w-10 h-10 flex items-center justify-center text-[#AFAFAF]"
-//               >
-//                 <HiDotsHorizontal className="w-5 h-5" />
-//               </span>
-//             ) : (
-//               <button
-//                 key={page}
-//                 onClick={() => handlePageChange(page as number)}
-//                 className={`relative min-w-[40px] h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${
-//                   currentPage === page
-//                     ? "text-white"
-//                     : "text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B]"
-//                 }`}
-//               >
-//                 {currentPage === page && (
-//                   <span className="absolute inset-0 bg-gradient-to-r from-[#A72F3B] to-[#86262F] rounded-xl shadow-lg shadow-[#A72F3B]/30" />
-//                 )}
-//                 <span className="relative z-10">
-//                   {(page as number).toLocaleString("fa-IR")}
-//                 </span>
-//               </button>
-//             ),
-//           )}
-//         </div>
-
-//         <div className="w-px h-6 bg-[#EDEDED] mx-1" />
-
-//         <button
-//           onClick={() => handlePageChange(currentPage + 1)}
-//           disabled={currentPage === lastPage}
-//           className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-[#656565] hover:bg-[#F6EAEB] hover:text-[#A72F3B] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
-//         >
-//           <span className="hidden sm:inline">بعدی</span>
-//           <HiChevronLeft className="w-5 h-5" />
-//         </button>
-//       </div>
-
-//       {lastPage > 10 && (
-//         <div className="flex items-center gap-2">
-//           <span className="text-sm text-[#898989]">رفتن به صفحه:</span>
-//           <input
-//             type="number"
-//             min={1}
-//             max={lastPage}
-//             placeholder="..."
-//             className="w-16 px-3 py-1.5 text-sm text-center border-2 border-[#EDEDED] rounded-lg focus:border-[#A72F3B] focus:ring-2 focus:ring-[#A72F3B]/20 transition-all duration-200 outline-none"
-//             onKeyDown={(e) => {
-//               if (e.key === "Enter") {
-//                 const value = parseInt((e.target as HTMLInputElement).value);
-//                 if (value >= 1 && value <= lastPage) {
-//                   handlePageChange(value);
-//                   (e.target as HTMLInputElement).value = "";
-//                 }
-//               }
-//             }}
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -203,9 +27,6 @@ export default function Pagination({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // اگر داخل FilterContext.Provider باشیم، از push مشترک استفاده می‌کنیم
-  // تا تغییر صفحه هم isPending را فعال کند و گرید skeleton نشان دهد.
-  // اگر نبود (هرجای دیگر که Pagination استفاده شود)، رفتار قبلی حفظ می‌شود.
   const ctx = useContext(FilterContext);
 
   if (lastPage <= 1) return null;
@@ -216,14 +37,12 @@ export default function Pagination({
       return;
     }
 
-    // مسیر ترجیحی: اگر context هست، از push آن استفاده کن (isPending فعال می‌شود)
     if (ctx) {
       ctx.push({ page: page > 1 ? String(page) : null });
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    // fallback: رفتار اصلی (router.push معمولی)
     const params = new URLSearchParams(
       preserveParams ? searchParams.toString() : "",
     );

@@ -43,7 +43,7 @@ export default function CategoryFilter({
   const params = useParams();
   // const { push, clearAll } = useCategoryFilterPush(parentSlug);
 
-  const ctx = useContext(FilterContext);
+const ctx = useContext(FilterContext);
 const fallback = useCategoryFilterPush(parentSlug);
 const { push, clearAll, isPending } = ctx ?? fallback;
 
