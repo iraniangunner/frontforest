@@ -1,8 +1,7 @@
 "use client";
 
-// app/search/_components/SearchFilter.tsx
+// app/_components/ui/SearchFilter.tsx
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   HiChevronDown,
   HiCheck,
@@ -14,11 +13,9 @@ import {
   HiViewGrid,
   HiSearch,
 } from "react-icons/hi";
-import PriceRangeSlider from "./PriceRangeSlider";
-import { useSearchFilterPush } from "@/hooks/useSearchFilterPush";
 import Image from "next/image";
-import { useContext } from "react";
-import { FilterContext } from "./ProductsGridWrapper";
+import PriceRangeSlider from "./PriceRangeSlider";
+import { useFilter } from "./FilterProvider";
 
 interface MenuChild {
   id: number;
@@ -49,12 +46,8 @@ export default function SearchFilter({
   onClose,
   isMobile = false,
 }: Props) {
-  const sp = useSearchParams();
-  // const { push, clearAll } = useSearchFilterPush();
-
-  const ctx = useContext(FilterContext);
-  const fallback = useSearchFilterPush();
-  const { push, clearAll, isPending } = ctx ?? fallback;
+  const { get, getAll, push, clearAll, closeDrawer } = useFilter();
+  const handleClose = onClose ?? closeDrawer;
 
   const [openSecs, setOpenSecs] = useState<string[]>([
     "categories",
@@ -62,24 +55,20 @@ export default function SearchFilter({
     "price",
     "rating",
   ]);
-
-  // ── منوی دسته‌بندی ──
-
   const [openParent, setOpenParent] = useState<number | null>(null);
 
-  const q = sp.get("q") || "";
-  const on_sale = sp.get("on_sale") === "1";
-  const in_stock = sp.get("in_stock") === "1";
-  const min_price = +(sp.get("min_price") || priceRange.min);
-  const max_price = +(sp.get("max_price") || priceRange.max);
-  const min_rating = sp.get("min_rating") || "";
-  const selectedCats = sp.getAll("categories[]");
+  const q = get("q") || "";
+  const on_sale = get("on_sale") === "1";
+  const in_stock = get("in_stock") === "1";
+  const min_price = +(get("min_price") || priceRange.min);
+  const max_price = +(get("max_price") || priceRange.max);
+  const min_rating = get("min_rating") || "";
+  const selectedCats = getAll("categories[]");
 
-  // وقتی دسته‌ای انتخاب شده، والدِ مربوط را باز نگه دار
   useEffect(() => {
     if (!menu.length || selectedCats.length === 0) return;
     const owner = menu.find((p) =>
-      p.children?.some((c) => selectedCats.includes(c.slug)),
+      p.children?.some((c) => selectedCats.includes(c.slug))
     );
     if (owner) setOpenParent((cur) => (cur === null ? owner.id : cur));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,50 +86,30 @@ export default function SearchFilter({
       max_price: max < priceRange.max ? String(max) : null,
     });
 
-  // ── دسته‌بندی: انتخاب/حذف یک فرزند ──
-  // اگر والدِ این فرزند به‌صورت «همه» انتخاب شده بود (slug والد در URL است)،
-  // اول والد را بردار، بعد فرزند را اضافه کن تا والد uncheck و فرزند checked شود.
   const toggleChild = (childSlug: string) => {
     const parent = menu.find((p) =>
-      p.children?.some((c) => c.slug === childSlug),
+      p.children?.some((c) => c.slug === childSlug)
     );
     const parentSlug = parent?.slug;
-
     let next: string[];
     if (selectedCats.includes(childSlug)) {
-      // برداشتن فرزند
       next = selectedCats.filter((s) => s !== childSlug);
     } else {
-      // اضافه‌کردن فرزند + حذف slug والد (اگر «همه» فعال بود)
       next = [...selectedCats.filter((s) => s !== parentSlug), childSlug];
     }
     push({ "categories[]": Array.from(new Set(next)) });
   };
 
-  // وضعیت «همه‌ی والد»:
-  //  - allChecked: همه‌ی فرزندان این والد در URL هستند
-  //  - برای تیک‌زدن «همه»: همه‌ی فرزندان اضافه می‌شوند
-  //    (طبق خواسته، تیکِ خود فرزندها هم نمایش داده می‌شود چون در selected هستند)
-  // ولی طبق درخواست تو:
-  //  «همه» که تیک خورد → فرزندها تیک نخورند، فقط نتیجه کاملِ والد بیاد.
-  //  این یعنی به‌جای اضافه‌کردن تک‌تک فرزندان، خودِ slugِ والد را می‌فرستیم.
-  //  بک‌اند tو (inCategories با whereIn) اگر slug والد را بگیرد،
-  //  چون والد parent_id ندارد، باید children را هم پوشش دهد →
-  //  برای همین والد را به همراه فرزندان نمی‌فرستیم، فقط والد را می‌فرستیم.
   const isParentWholeSelected = (parent: MenuParent) =>
     selectedCats.includes(parent.slug);
 
   const toggleWholeParent = (parent: MenuParent) => {
     const childSlugs = parent.children?.map((c) => c.slug) || [];
     if (isParentWholeSelected(parent)) {
-      // برداشتن والد
-      push({
-        "categories[]": selectedCats.filter((s) => s !== parent.slug),
-      });
+      push({ "categories[]": selectedCats.filter((s) => s !== parent.slug) });
     } else {
-      // تیک «همه»: والد را اضافه کن و فرزندانِ همین والد را از انتخاب پاک کن
       const withoutChildren = selectedCats.filter(
-        (s) => !childSlugs.includes(s),
+        (s) => !childSlugs.includes(s)
       );
       push({
         "categories[]": Array.from(new Set([...withoutChildren, parent.slug])),
@@ -148,7 +117,6 @@ export default function SearchFilter({
     }
   };
 
-  // نام نمایشی یک slug (والد یا فرزند)
   const catName = (slug: string) => {
     for (const p of menu) {
       if (p.slug === slug) return p.name;
@@ -159,15 +127,11 @@ export default function SearchFilter({
   };
 
   const removeChip = (key: string, value?: string) => {
-    if (key === "price") {
-      push({ min_price: null, max_price: null });
-    } else if (key === "categories[]") {
+    if (key === "price") push({ min_price: null, max_price: null });
+    else if (key === "categories[]")
       push({ "categories[]": selectedCats.filter((s) => s !== value) });
-    } else if (key === "q") {
-      push({ q: null });
-    } else {
-      push({ [key]: null });
-    }
+    else if (key === "q") push({ q: null });
+    else push({ [key]: null });
   };
 
   const chips: { key: string; value?: string; label: string }[] = [
@@ -183,7 +147,7 @@ export default function SearchFilter({
       ? {
           key: "price",
           label: `${min_price.toLocaleString(
-            "fa-IR",
+            "fa-IR"
           )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
@@ -191,12 +155,11 @@ export default function SearchFilter({
   ].filter(Boolean) as { key: string; value?: string; label: string }[];
 
   const activeCount = chips.length;
-
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
     );
-  const isOpen = (id: string) => openSecs.includes(id);
+  const isSecOpen = (id: string) => openSecs.includes(id);
 
   const SecHead = ({
     id,
@@ -218,7 +181,7 @@ export default function SearchFilter({
       </div>
       <HiChevronDown
         className={`w-4 h-4 text-[#AFAFAF] transition-transform duration-200 ${
-          isOpen(id) ? "rotate-180" : ""
+          isSecOpen(id) ? "rotate-180" : ""
         }`}
       />
     </button>
@@ -253,10 +216,10 @@ export default function SearchFilter({
               حذف همه
             </button>
           )}
-          {isMobile && onClose && (
+          {isMobile && (
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 text-[#AFAFAF] hover:text-[#242424] rounded-lg"
             >
               <HiX className="w-4 h-4" />
@@ -265,8 +228,7 @@ export default function SearchFilter({
         </div>
       </div>
 
-      {/* chips فعال (شامل عبارت سرچ q) */}
-      {chips.length > 0 && (
+      {/* {chips.length > 0 && (
         <div className="px-3 py-2 border-b border-[#F0F0F0] flex flex-wrap gap-1.5">
           {chips.map((c, i) => (
             <button
@@ -285,7 +247,7 @@ export default function SearchFilter({
             </button>
           ))}
         </div>
-      )}
+      )} */}
 
       <div className={isMobile ? "flex-1 overflow-y-auto" : ""}>
         {menu.length > 0 && (
@@ -301,7 +263,7 @@ export default function SearchFilter({
                 ) : undefined
               }
             />
-            {isOpen("categories") && (
+            {isSecOpen("categories") && (
               <div className="pb-2">
                 <div className="max-h-[360px] overflow-y-auto">
                   {menu.map((parent) => {
@@ -310,18 +272,17 @@ export default function SearchFilter({
                       parent.children?.map((c) => c.slug) || [];
                     const wholeChecked = isParentWholeSelected(parent);
                     const selInParent = childSlugs.filter((s) =>
-                      selectedCats.includes(s),
+                      selectedCats.includes(s)
                     ).length;
                     const badge = wholeChecked ? 1 : selInParent;
 
                     return (
                       <div key={parent.id}>
-                        {/* ردیف والد */}
                         <button
                           type="button"
                           onClick={() =>
                             setOpenParent((cur) =>
-                              cur === parent.id ? null : parent.id,
+                              cur === parent.id ? null : parent.id
                             )
                           }
                           className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-[#F8F8F8] transition-colors"
@@ -362,63 +323,38 @@ export default function SearchFilter({
                           />
                         </button>
 
-                        {/* زیرمجموعه‌ها */}
                         {pOpen && (
                           <div className="px-3 pb-2 pt-0.5 bg-[#FCFCFC]">
-                            {/* همه‌ی والد — حالا چک‌باکس */}
                             {childSlugs.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => toggleWholeParent(parent)}
-                                className="flex items-center gap-2.5 w-full py-2 px-2 rounded-lg hover:bg-[#F6EAEB] transition-colors mb-0.5 group"
-                              >
-                                <span
-                                  className={`w-[18px] h-[18px] rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                                    wholeChecked
-                                      ? "bg-[#A72F3B] border-[#A72F3B]"
-                                      : "border-[#CBCBCB] group-hover:border-[#AFAFAF]"
-                                  }`}
-                                >
-                                  {wholeChecked && (
-                                    <HiCheck className="w-3 h-3 text-white" />
-                                  )}
-                                </span>
-                                <span
-                                  className={`text-[13px] font-medium ${
-                                    wholeChecked
-                                      ? "text-[#A72F3B]"
-                                      : "text-[#A72F3B]"
-                                  }`}
-                                >
+                              <label className="flex items-center gap-2.5 w-full py-2 px-2 rounded-lg hover:bg-[#F6EAEB] transition-colors mb-0.5 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={wholeChecked}
+                                  onChange={() => toggleWholeParent(parent)}
+                                  className="w-[18px] h-[18px] rounded accent-[#A72F3B] cursor-pointer"
+                                />
+                                <span className="text-[13px] font-medium text-[#A72F3B]">
                                   همه‌ی {parent.name}
                                 </span>
-                              </button>
+                              </label>
                             )}
 
                             {parent.children?.map((child) => {
-                              // وقتی «همه» تیک است، فرزندها تیک نمی‌خورند (طبق خواسته)
                               const checked =
                                 !wholeChecked &&
                                 selectedCats.includes(child.slug);
                               return (
-                                <button
+                                <label
                                   key={child.id}
-                                  type="button"
-                                  onClick={() => toggleChild(child.slug)}
-                                  className="flex items-center justify-between w-full py-2 px-2 rounded-lg hover:bg-[#F8F8F8] transition-colors group"
+                                  className="flex items-center justify-between w-full py-2 px-2 rounded-lg hover:bg-[#F8F8F8] transition-colors cursor-pointer"
                                 >
                                   <div className="flex items-center gap-2.5">
-                                    <span
-                                      className={`w-[18px] h-[18px] rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                                        checked
-                                          ? "bg-[#A72F3B] border-[#A72F3B]"
-                                          : "border-[#CBCBCB] group-hover:border-[#AFAFAF]"
-                                      }`}
-                                    >
-                                      {checked && (
-                                        <HiCheck className="w-3 h-3 text-white" />
-                                      )}
-                                    </span>
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => toggleChild(child.slug)}
+                                      className="w-[18px] h-[18px] rounded accent-[#A72F3B] cursor-pointer"
+                                    />
                                     <span
                                       className={`text-[13px] transition-colors ${
                                         checked
@@ -432,11 +368,11 @@ export default function SearchFilter({
                                   {child.products_count !== undefined && (
                                     <span className="text-[11px] text-[#AFAFAF]">
                                       {child.products_count.toLocaleString(
-                                        "fa-IR",
+                                        "fa-IR"
                                       )}
                                     </span>
                                   )}
-                                </button>
+                                </label>
                               );
                             })}
                           </div>
@@ -453,7 +389,7 @@ export default function SearchFilter({
         {/* وضعیت */}
         <div className="border-b border-[#F0F0F0]">
           <SecHead id="status" label="وضعیت" />
-          {isOpen("status") && (
+          {isSecOpen("status") && (
             <div className="px-4 pb-4">
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -493,6 +429,7 @@ export default function SearchFilter({
           )}
         </div>
 
+        {/* قیمت */}
         <div className="border-b border-[#F0F0F0]">
           <SecHead
             id="price"
@@ -503,7 +440,7 @@ export default function SearchFilter({
               ) : undefined
             }
           />
-          {isOpen("price") && (
+          {isSecOpen("price") && (
             <div className="px-4 pb-4">
               <PriceRangeSlider
                 globalMin={priceRange.min}
@@ -516,6 +453,7 @@ export default function SearchFilter({
           )}
         </div>
 
+        {/* امتیاز */}
         <div>
           <SecHead
             id="rating"
@@ -526,56 +464,52 @@ export default function SearchFilter({
               ) : undefined
             }
           />
-          {isOpen("rating") && (
+          {isSecOpen("rating") && (
             <div className="px-4 pb-4 space-y-1">
               {[
                 { value: 5, label: "۵ ستاره" },
                 { value: 4, label: "۴ ستاره و بالاتر" },
                 { value: 3, label: "۳ ستاره و بالاتر" },
                 { value: 2, label: "۲ ستاره و بالاتر" },
-              ].map((r) => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => toggleRating(r.value)}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl border transition-all ${
-                    min_rating === String(r.value)
-                      ? "border-[#F6E2BE] bg-[#FBEFD7]"
-                      : "border-transparent hover:border-[#EDEDED] hover:bg-[#F8F8F8]"
-                  }`}
-                >
-                  <span
-                    className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                      min_rating === String(r.value)
-                        ? "border-[#A9791C] bg-[#A9791C]"
-                        : "border-[#CBCBCB]"
+              ].map((r) => {
+                const active = min_rating === String(r.value);
+                return (
+                  <label
+                    key={r.value}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
+                      active
+                        ? "border-[#F6E2BE] bg-[#FBEFD7]"
+                        : "border-transparent hover:border-[#EDEDED] hover:bg-[#F8F8F8]"
                     }`}
                   >
-                    {min_rating === String(r.value) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                    )}
-                  </span>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <HiStar
-                        key={i}
-                        className={`w-3.5 h-3.5 ${
-                          i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span
-                    className={`text-xs mr-auto ${
-                      min_rating === String(r.value)
-                        ? "text-[#A9791C] font-medium"
-                        : "text-[#898989]"
-                    }`}
-                  >
-                    {r.label}
-                  </span>
-                </button>
-              ))}
+                    <input
+                      type="radio"
+                      name="search_min_rating"
+                      checked={active}
+                      onChange={() => toggleRating(r.value)}
+                      onClick={() => active && toggleRating(r.value)}
+                      className="w-4 h-4 accent-[#A9791C] cursor-pointer"
+                    />
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <HiStar
+                          key={i}
+                          className={`w-3.5 h-3.5 ${
+                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className={`text-xs mr-auto ${
+                        active ? "text-[#A9791C] font-medium" : "text-[#898989]"
+                      }`}
+                    >
+                      {r.label}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           )}
         </div>
@@ -585,7 +519,7 @@ export default function SearchFilter({
         <div className="px-4 py-3 border-t border-[#F0F0F0]">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="w-full py-3 bg-[#A72F3B] text-white text-sm font-semibold rounded-xl hover:bg-[#86262F] transition-colors"
           >
             نمایش نتایج

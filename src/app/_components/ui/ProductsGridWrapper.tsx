@@ -1,31 +1,12 @@
 "use client";
 
-// app/products/_components/ProductsGridWrapper.tsx
+// app/_components/ui/ProductsGridWrapper.tsx
+// گرید محصولات. هنگام لودِ فیلتر/سورت/صفحه (isPending از FilterProvider) skeleton نشان می‌دهد.
 
-import { createContext, useContext } from "react";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types";
+import { useFilter } from "./FilterProvider";
 
-interface FilterCtx {
-  isPending: boolean;
-  push: (updates: Record<string, string | string[] | null>) => void;
-  clearAll: (keepKeys?: string[]) => void;
-}
-
-export const FilterContext = createContext<FilterCtx | null>(null);
-
-export const useFilterCtx = () => {
-  const ctx = useContext(FilterContext);
-  if (!ctx)
-    throw new Error("useFilterCtx must be used within FilterContext.Provider");
-  return ctx;
-};
-
-// سازگاری با کد قبلی: هوک ساده که فقط isPending را می‌دهد.
-export const useFilterPending = () =>
-  useContext(FilterContext)?.isPending ?? false;
-
-// ── Skeleton ──
 function GridSkeleton({ view }: { view: "grid" | "list" }) {
   if (view === "list")
     return (
@@ -33,7 +14,7 @@ function GridSkeleton({ view }: { view: "grid" | "list" }) {
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-xl p-4 flex gap-4 border border-[#F0F0F0] animate-pulse"
+            className="bg-white rounded-2xl p-4 flex gap-4 border border-[#F0F0F0] animate-pulse"
           >
             <div className="w-20 h-20 rounded-xl bg-[#F5F5F5] flex-shrink-0" />
             <div className="flex-1 space-y-2 py-1">
@@ -55,7 +36,7 @@ function GridSkeleton({ view }: { view: "grid" | "list" }) {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white rounded-xl overflow-hidden border border-[#F0F0F0] animate-pulse"
+          className="bg-white rounded-2xl overflow-hidden border border-[#F0F0F0] animate-pulse"
         >
           <div className="aspect-square bg-[#F5F5F5]" />
           <div className="p-3 space-y-2">
@@ -73,10 +54,9 @@ function GridSkeleton({ view }: { view: "grid" | "list" }) {
   );
 }
 
-// ── Empty state ──
 function EmptyState() {
   return (
-    <div className="bg-white rounded-xl border border-dashed border-[#EDEDED] py-20 text-center">
+    <div className="bg-white rounded-2xl border border-dashed border-[#EDEDED] py-20 text-center">
       <p className="text-5xl mb-4">📦</p>
       <h3 className="font-semibold text-[#242424] text-lg mb-1">
         محصولی یافت نشد
@@ -89,12 +69,10 @@ function EmptyState() {
 interface Props {
   products: Product[];
   view: "grid" | "list";
-
-  isPending?: boolean;
 }
 
 export default function ProductsGridWrapper({ products, view }: Props) {
-  const isPending = useFilterPending();
+  const { isPending } = useFilter();
 
   return (
     <div className="relative">

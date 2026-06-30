@@ -1,0 +1,131 @@
+"use client";
+
+// app/_components/ui/FilterProvider.tsx
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useTransition,
+  ReactNode,
+} from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+
+type Updates = Record<string, string | string[] | null>;
+
+interface FilterContextValue {
+  // خواندن مقادیر (از state خوش‌بینانه — فوری)
+  get: (key: string) => string | null;
+  getAll: (key: string) => string[];
+  // نوشتن
+  push: (updates: Updates) => void;
+  clearAll: () => void;
+  isPending: boolean;
+  // drawer موبایل (کاملاً client-side، مستقل از URL)
+  drawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
+}
+
+const FilterContext = createContext<FilterContextValue | null>(null);
+
+export const useFilter = () => {
+  const ctx = useContext(FilterContext);
+  if (!ctx) throw new Error("useFilter must be used within <FilterProvider>");
+  return ctx;
+};
+
+// نسخه‌ی امن: اگر خارج از Provider بود null می‌دهد (برای کامپوننت‌هایی که هر دو جا رندر می‌شوند).
+export const useFilterSafe = () => useContext(FilterContext);
+
+export function FilterProvider({
+  children,
+  preserveOnClear = [],
+}: {
+  children: ReactNode;
+  /** کلیدهایی که هنگام «پاک‌کردن همه» باید حفظ شوند (مثلاً ["q"] در صفحه‌ی جستجو) */
+  preserveOnClear?: string[];
+}) {
+  const realSp = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  // state خوش‌بینانه — مقدار اولیه از URL.
+  const [params, setParams] = useState(
+    () => new URLSearchParams(realSp.toString())
+  );
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
+
+  // وقتی URL واقعی عوض شد (پایان navigation یا back/forward)، state را هماهنگ کن.
+  useEffect(() => {
+    setParams(new URLSearchParams(realSp.toString()));
+  }, [realSp]);
+
+  const navigate = useCallback(
+    (next: URLSearchParams) => {
+      setParams(next); // ← فوری: UI بلافاصله به‌روز می‌شود (checkbox آنی)
+      const qs = next.toString();
+      startTransition(() => {
+        // ← پس‌زمینه: داده‌ی جدید از سرور. isPending در این مدت true است.
+        router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      });
+    },
+    [pathname, router]
+  );
+
+  const push = useCallback(
+    (updates: Updates) => {
+      const next = new URLSearchParams(paramsRef.current.toString());
+      for (const [key, value] of Object.entries(updates)) {
+        next.delete(key);
+        if (Array.isArray(value)) {
+          value.forEach((v) => next.append(key, v));
+        } else if (value !== null && value !== "") {
+          next.set(key, value);
+        }
+      }
+      // هر تغییر فیلتری → بازگشت به صفحه‌ی ۱ (مگر خودِ pagination صریحاً page بفرستد)
+      if (!("page" in updates)) next.delete("page");
+      navigate(next);
+    },
+    [navigate]
+  );
+
+  const clearAll = useCallback(() => {
+    const next = new URLSearchParams();
+    preserveOnClear.forEach((k) => {
+      paramsRef.current.getAll(k).forEach((v) => next.append(k, v));
+    });
+    navigate(next);
+  }, [navigate, preserveOnClear]);
+
+  // ── drawer موبایل ──
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
+  const get = useCallback((key: string) => params.get(key), [params]);
+  const getAll = useCallback((key: string) => params.getAll(key), [params]);
+
+  return (
+    <FilterContext.Provider
+      value={{
+        get,
+        getAll,
+        push,
+        clearAll,
+        isPending,
+        drawerOpen,
+        openDrawer,
+        closeDrawer,
+      }}
+    >
+      {children}
+    </FilterContext.Provider>
+  );
+}

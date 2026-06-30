@@ -1,13 +1,13 @@
 "use client";
 
+// app/_components/ui/Pagination.tsx
 import { useRouter, useSearchParams } from "next/navigation";
-import { useContext } from "react";
 import {
   HiChevronRight,
   HiChevronLeft,
   HiDotsHorizontal,
 } from "react-icons/hi";
-import { FilterContext } from "./ProductsGridWrapper";
+import { useFilterSafe } from "./FilterProvider";
 
 interface PaginationProps {
   currentPage: number;
@@ -26,8 +26,7 @@ export default function Pagination({
 }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const ctx = useContext(FilterContext);
+  const filter = useFilterSafe();
 
   if (lastPage <= 1) return null;
 
@@ -36,27 +35,20 @@ export default function Pagination({
       onPageChange(page);
       return;
     }
-
-    if (ctx) {
-      ctx.push({ page: page > 1 ? String(page) : null });
+    // اگر داخل FilterProvider هستیم، از push آن استفاده کن (optimistic + skeleton).
+    if (filter) {
+      filter.push({ page: page > 1 ? String(page) : null });
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-
+    // fallback
     const params = new URLSearchParams(
-      preserveParams ? searchParams.toString() : "",
+      preserveParams ? searchParams.toString() : ""
     );
-
-    if (page > 1) {
-      params.set("page", String(page));
-    } else {
-      params.delete("page");
-    }
-
-    const queryString = params.toString();
-    const url = queryString ? `${basePath}?${queryString}` : basePath;
-
-    router.push(url);
+    if (page > 1) params.set("page", String(page));
+    else params.delete("page");
+    const qs = params.toString();
+    router.push(qs ? `${basePath}?${qs}` : basePath);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -64,31 +56,20 @@ export default function Pagination({
     const pages: (number | string)[] = [];
     const showPages = 5;
     const halfShow = Math.floor(showPages / 2);
-
     let start = Math.max(1, currentPage - halfShow);
     let end = Math.min(lastPage, currentPage + halfShow);
-
-    if (currentPage <= halfShow) {
-      end = Math.min(lastPage, showPages);
-    }
-    if (currentPage > lastPage - halfShow) {
+    if (currentPage <= halfShow) end = Math.min(lastPage, showPages);
+    if (currentPage > lastPage - halfShow)
       start = Math.max(1, lastPage - showPages + 1);
-    }
-
     if (start > 1) {
       pages.push(1);
       if (start > 2) pages.push("...");
     }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
+    for (let i = start; i <= end; i++) pages.push(i);
     if (end < lastPage) {
       if (end < lastPage - 1) pages.push("...");
       pages.push(lastPage);
     }
-
     return pages;
   };
 
@@ -143,7 +124,7 @@ export default function Pagination({
                   {(page as number).toLocaleString("fa-IR")}
                 </span>
               </button>
-            ),
+            )
           )}
         </div>
 

@@ -1,11 +1,13 @@
 "use client";
 
-// app/products/_components/CategoryFilter.tsx
+// app/_components/ui/CategoryFilter.tsx
+// همه‌ی مقادیر از FilterProvider (optimistic) خوانده می‌شوند → تیک‌ها آنی اعمال می‌شوند.
+// دسته‌بندی‌ها با input[type=checkbox] واقعی.
+
 import { useState } from "react";
-import { useSearchParams, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   HiChevronDown,
-  HiCheck,
   HiX,
   HiTag,
   HiShoppingBag,
@@ -13,9 +15,7 @@ import {
   HiAdjustments,
 } from "react-icons/hi";
 import PriceRangeSlider from "./PriceRangeSlider";
-import { useCategoryFilterPush } from "@/hooks/useCategoryFilterPush";
-import { useContext } from "react";
-import { FilterContext } from "./ProductsGridWrapper";
+import { useFilter } from "./FilterProvider";
 
 interface SiblingCategory {
   id: number;
@@ -34,18 +34,14 @@ interface Props {
 
 export default function CategoryFilter({
   siblings,
-  parentSlug,
   priceRange,
   onClose,
   isMobile = false,
 }: Props) {
-  const sp = useSearchParams();
   const params = useParams();
-  // const { push, clearAll } = useCategoryFilterPush(parentSlug);
-
-const ctx = useContext(FilterContext);
-const fallback = useCategoryFilterPush(parentSlug);
-const { push, clearAll, isPending } = ctx ?? fallback;
+  const { get, getAll, push, clearAll, closeDrawer } = useFilter();
+  // اگر onClose از بیرون داده نشد، از context استفاده کن (drawer موبایل).
+  const handleClose = onClose ?? closeDrawer;
 
   const [openSecs, setOpenSecs] = useState<string[]>([
     "status",
@@ -56,16 +52,16 @@ const { push, clearAll, isPending } = ctx ?? fallback;
 
   const routeChild =
     typeof params?.child === "string" ? params.child : undefined;
-  const querySlugs = sp.getAll("categories[]");
+  const querySlugs = getAll("categories[]");
   const selected = Array.from(
-    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs),
+    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs)
   );
 
-  const on_sale = sp.get("on_sale") === "1";
-  const in_stock = sp.get("in_stock") === "1";
-  const min_price = +(sp.get("min_price") || priceRange.min);
-  const max_price = +(sp.get("max_price") || priceRange.max);
-  const min_rating = sp.get("min_rating") || "";
+  const on_sale = get("on_sale") === "1";
+  const in_stock = get("in_stock") === "1";
+  const min_price = +(get("min_price") || priceRange.min);
+  const max_price = +(get("max_price") || priceRange.max);
+  const min_rating = get("min_rating") || "";
 
   const toggleSibling = (slug: string) =>
     push({
@@ -106,7 +102,9 @@ const { push, clearAll, isPending } = ctx ?? fallback;
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString(
+            "fa-IR"
+          )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -115,9 +113,9 @@ const { push, clearAll, isPending } = ctx ?? fallback;
   const activeCount = chips.length;
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
     );
-  const isOpen = (id: string) => openSecs.includes(id);
+  const isSecOpen = (id: string) => openSecs.includes(id);
 
   const SecHead = ({
     id,
@@ -139,7 +137,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
       </div>
       <HiChevronDown
         className={`w-4 h-4 text-[#AFAFAF] transition-transform duration-200 ${
-          isOpen(id) ? "rotate-180" : ""
+          isSecOpen(id) ? "rotate-180" : ""
         }`}
       />
     </button>
@@ -175,10 +173,10 @@ const { push, clearAll, isPending } = ctx ?? fallback;
               حذف همه
             </button>
           )}
-          {isMobile && onClose && (
+          {isMobile && (
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 text-[#AFAFAF] hover:text-[#242424] rounded-lg"
             >
               <HiX className="w-4 h-4" />
@@ -188,7 +186,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
       </div>
 
       {/* chips */}
-      {chips.length > 0 && (
+      {/* {chips.length > 0 && (
         <div className="px-3 py-2 border-b border-[#F0F0F0] flex flex-wrap gap-1.5">
           {chips.map((c, i) => (
             <button
@@ -202,13 +200,13 @@ const { push, clearAll, isPending } = ctx ?? fallback;
             </button>
           ))}
         </div>
-      )}
+      )} */}
 
       <div className={isMobile ? "flex-1 overflow-y-auto" : ""}>
         {/* وضعیت */}
         <div className="border-b border-[#F0F0F0]">
           <SecHead id="status" label="وضعیت" />
-          {isOpen("status") && (
+          {isSecOpen("status") && (
             <div className="px-4 pb-4">
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -221,7 +219,9 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                   }`}
                 >
                   <HiTag
-                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
+                    className={`w-4 h-4 ${
+                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
+                    }`}
                   />
                   تخفیف‌دار
                 </button>
@@ -235,7 +235,9 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                   }`}
                 >
                   <HiShoppingBag
-                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
+                    className={`w-4 h-4 ${
+                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
+                    }`}
                   />
                   موجود
                 </button>
@@ -244,7 +246,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
           )}
         </div>
 
-        {/* دسته‌بندی */}
+        {/* دسته‌بندی — input[type=checkbox] واقعی */}
         {siblings.length > 0 && (
           <div className="border-b border-[#F0F0F0]">
             <SecHead
@@ -258,29 +260,22 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                 ) : undefined
               }
             />
-            {isOpen("categories") && (
+            {isSecOpen("categories") && (
               <div className="px-4 pb-4 space-y-0.5">
                 {siblings.map((sib) => {
                   const checked = selected.includes(sib.slug);
                   return (
-                    <button
+                    <label
                       key={sib.id}
-                      type="button"
-                      onClick={() => toggleSibling(sib.slug)}
-                      className="flex items-center justify-between w-full py-2 px-1 rounded-lg hover:bg-[#F8F8F8] transition-colors group"
+                      className="flex items-center justify-between w-full py-2 px-1 rounded-lg hover:bg-[#F8F8F8] transition-colors cursor-pointer group"
                     >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-4 h-4 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                            checked
-                              ? "bg-[#A72F3B] border-[#A72F3B]"
-                              : "border-[#CBCBCB] group-hover:border-[#AFAFAF]"
-                          }`}
-                        >
-                          {checked && (
-                            <HiCheck className="w-2.5 h-2.5 text-white" />
-                          )}
-                        </span>
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleSibling(sib.slug)}
+                          className="w-4 h-4 rounded border-[#CBCBCB] text-[#A72F3B] focus:ring-[#A72F3B]/30 focus:ring-2 cursor-pointer accent-[#A72F3B]"
+                        />
                         <span
                           className={`text-sm transition-colors ${
                             checked
@@ -296,7 +291,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
                           {sib.products_count.toLocaleString("fa-IR")}
                         </span>
                       )}
-                    </button>
+                    </label>
                   );
                 })}
               </div>
@@ -315,7 +310,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
               ) : undefined
             }
           />
-          {isOpen("price") && (
+          {isSecOpen("price") && (
             <div className="px-4 pb-4">
               <PriceRangeSlider
                 globalMin={priceRange.min}
@@ -339,54 +334,52 @@ const { push, clearAll, isPending } = ctx ?? fallback;
               ) : undefined
             }
           />
-          {isOpen("rating") && (
+          {isSecOpen("rating") && (
             <div className="px-4 pb-4 space-y-1">
               {[
                 { value: 5, label: "۵ ستاره" },
                 { value: 4, label: "۴ ستاره و بالاتر" },
                 { value: 3, label: "۳ ستاره و بالاتر" },
                 { value: 2, label: "۲ ستاره و بالاتر" },
-              ].map((r) => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => toggleRating(r.value)}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl border transition-all ${
-                    min_rating === String(r.value)
-                      ? "border-[#F6E2BE] bg-[#FBEFD7]"
-                      : "border-transparent hover:border-[#EDEDED] hover:bg-[#F8F8F8]"
-                  }`}
-                >
-                  <span
-                    className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
-                      min_rating === String(r.value)
-                        ? "border-[#A9791C] bg-[#A9791C]"
-                        : "border-[#CBCBCB]"
+              ].map((r) => {
+                const active = min_rating === String(r.value);
+                return (
+                  <label
+                    key={r.value}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
+                      active
+                        ? "border-[#F6E2BE] bg-[#FBEFD7]"
+                        : "border-transparent hover:border-[#EDEDED] hover:bg-[#F8F8F8]"
                     }`}
                   >
-                    {min_rating === String(r.value) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                    )}
-                  </span>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <HiStar
-                        key={i}
-                        className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
-                      />
-                    ))}
-                  </div>
-                  <span
-                    className={`text-xs mr-auto ${
-                      min_rating === String(r.value)
-                        ? "text-[#A9791C] font-medium"
-                        : "text-[#898989]"
-                    }`}
-                  >
-                    {r.label}
-                  </span>
-                </button>
-              ))}
+                    <input
+                      type="radio"
+                      name="min_rating"
+                      checked={active}
+                      onChange={() => toggleRating(r.value)}
+                      onClick={() => active && toggleRating(r.value)}
+                      className="w-4 h-4 accent-[#A9791C] cursor-pointer"
+                    />
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <HiStar
+                          key={i}
+                          className={`w-3.5 h-3.5 ${
+                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className={`text-xs mr-auto ${
+                        active ? "text-[#A9791C] font-medium" : "text-[#898989]"
+                      }`}
+                    >
+                      {r.label}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           )}
         </div>
@@ -397,7 +390,7 @@ const { push, clearAll, isPending } = ctx ?? fallback;
         <div className="px-4 py-3 border-t border-[#F0F0F0]">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="w-full py-3 bg-[#A72F3B] text-white text-sm font-semibold rounded-xl hover:bg-[#86262F] transition-colors"
           >
             نمایش نتایج
