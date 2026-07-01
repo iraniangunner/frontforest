@@ -17,28 +17,28 @@ import YandexMetrica from "./_components/analytics/YandexMetrica";
 const iranyekan = localFont({
   src: [
     {
-      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Black.woff2",
-      weight: "100",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Bold.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Light.woff2",
       weight: "300",
       style: "normal",
     },
     {
-      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-ExtraBlack.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Light.woff2",
-      weight: "600",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Bold.woff2",
+      weight: "700",
       style: "normal",
     },
     {
-      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Regular.woff2",
-      weight: "700",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Black.woff2",
+      weight: "900",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-ExtraBlack.woff2",
+      weight: "950",
       style: "normal",
     },
   ],
