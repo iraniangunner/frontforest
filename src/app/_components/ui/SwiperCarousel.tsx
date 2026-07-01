@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+// import { Navigation } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import { Product } from "@/types";
 import ProductCard from "./ProductCard";
@@ -78,7 +78,7 @@ export function SwiperCarousel({ products }: Props) {
             setIsEnd(swiper.isEnd);
           }}
           onBreakpoint={(swiper) => checkArrows(swiper)}
-          modules={[Navigation]}
+          // modules={[Navigation]}
           spaceBetween={16}
           grabCursor
           slidesPerView={1}

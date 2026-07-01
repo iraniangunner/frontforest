@@ -13,7 +13,7 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        yekanbakh: ['var(--font-yekanbakh)'],
+        iranyekan: ['var(--font-iranyekan)'],
       },
     },
   },

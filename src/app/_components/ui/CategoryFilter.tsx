@@ -103,7 +103,6 @@ export default function CategoryFilter({
   const toggleBool = (k: "on_sale" | "in_stock", cur: boolean) =>
     push({ [k]: cur ? null : "1" });
 
-
   const toggleRating = (r: number) =>
     push({ min_rating: min_rating === String(r) ? null : String(r) });
 
@@ -134,7 +133,9 @@ export default function CategoryFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString(
+            "fa-IR"
+          )} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -242,29 +243,33 @@ export default function CategoryFilter({
                 <button
                   type="button"
                   onClick={() => toggleBool("on_sale", on_sale)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     on_sale
                       ? "border-[#F3C5C9] bg-[#FBEAEA] text-[#C30000]"
                       : "border-[#EDEDED] bg-white text-[#898989] hover:border-[#DCACB1]"
                   }`}
                 >
-                  <HiTag
-                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
-                  />
+                  {/* <HiTag
+                    className={`w-4 h-4 ${
+                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
+                    }`}
+                  /> */}
                   تخفیف‌دار
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleBool("in_stock", in_stock)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     in_stock
                       ? "border-[#DCACB1] bg-[#F6EAEB] text-[#A72F3B]"
                       : "border-[#EDEDED] bg-white text-[#898989] hover:border-[#DCACB1]"
                   }`}
                 >
-                  <HiShoppingBag
-                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
-                  />
+                  {/* <HiShoppingBag
+                    className={`w-4 h-4 ${
+                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
+                    }`}
+                  /> */}
                   موجود
                 </button>
               </div>
@@ -390,7 +395,9 @@ export default function CategoryFilter({
                       {Array.from({ length: 5 }).map((_, i) => (
                         <HiStar
                           key={i}
-                          className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
+                          className={`w-3.5 h-3.5 ${
+                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
+                          }`}
                         />
                       ))}
                     </div>

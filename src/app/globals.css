@@ -10,7 +10,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-yekanbakh), Arial, Helvetica, sans-serif;
+  font-family: var(--font-iranyekan), Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {

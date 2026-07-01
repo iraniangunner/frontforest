@@ -13,40 +13,36 @@ import Script from "next/script";
 import { Suspense } from "react";
 import YandexMetrica from "./_components/analytics/YandexMetrica";
 
-const yekanbakh = localFont({
+
+const iranyekan = localFont({
   src: [
     {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Thin.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Black.woff2",
       weight: "100",
       style: "normal",
     },
     {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Light.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Bold.woff2",
       weight: "300",
       style: "normal",
     },
     {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Regular.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-ExtraBlack.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-SemiBold.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Light.woff2",
       weight: "600",
       style: "normal",
     },
     {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Bold.woff2",
+      path: "../../public/fonts/iranyekan/IRANYekanXFaNum-Regular.woff2",
       weight: "700",
       style: "normal",
     },
-    {
-      path: "../../public/fonts/yekanbakh/YekanBakhFaNum-Black.woff2",
-      weight: "900",
-      style: "normal",
-    },
   ],
-  variable: "--font-yekanbakh",
+  variable: "--font-iranyekan",
   display: "swap",
 });
 
@@ -122,7 +118,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${yekanbakh.variable} antialiased`}>
+      <body className={`${iranyekan.variable} antialiased`}>
         <noscript>
           <div>
             <img

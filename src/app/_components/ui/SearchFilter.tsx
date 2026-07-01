@@ -395,33 +395,33 @@ export default function SearchFilter({
                 <button
                   type="button"
                   onClick={() => toggleBool("on_sale", on_sale)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     on_sale
                       ? "border-[#F3C5C9] bg-[#FBEAEA] text-[#C30000]"
                       : "border-[#EDEDED] bg-white text-[#898989] hover:border-[#DCACB1]"
                   }`}
                 >
-                  <HiTag
+                  {/* <HiTag
                     className={`w-4 h-4 ${
                       on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
                     }`}
-                  />
+                  /> */}
                   تخفیف‌دار
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleBool("in_stock", in_stock)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                     in_stock
                       ? "border-[#DCACB1] bg-[#F6EAEB] text-[#A72F3B]"
                       : "border-[#EDEDED] bg-white text-[#898989] hover:border-[#DCACB1]"
                   }`}
                 >
-                  <HiShoppingBag
+                  {/* <HiShoppingBag
                     className={`w-4 h-4 ${
                       in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
                     }`}
-                  />
+                  /> */}
                   موجود
                 </button>
               </div>
