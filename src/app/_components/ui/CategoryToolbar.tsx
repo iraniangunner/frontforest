@@ -32,10 +32,12 @@ const PER_PAGE = [12, 24, 36, 48];
 export default function CategoryToolbar({
   total,
   siblings,
+  parentSlug,
   priceRange,
 }: Props) {
   const params = useParams();
-  const { get, getAll, push, clearAll, isPending, openDrawer } = useFilter();
+  const { get, getAll, push, pushTo, clearAll, isPending, openDrawer } =
+    useFilter();
 
   const view = get("view") || "grid";
   const sort = get("sort") || "best-selling";
@@ -55,6 +57,34 @@ export default function CategoryToolbar({
 
   const getSiblingName = (slug: string) =>
     siblings.find((s) => s.slug === slug)?.name || slug;
+
+  // برداشتن یک دسته — همیشه query، مسیر ثابت (نرم، بدون refresh).
+  const removeCategory = (slug: string) => {
+    const unique = Array.from(new Set(selected.filter((s) => s !== slug)));
+
+    // اگر روی مسیر child هستیم → انتقال به والد با query
+    if (routeChild) {
+      const sp = new URLSearchParams();
+      [
+        "on_sale",
+        "in_stock",
+        "min_price",
+        "max_price",
+        "min_rating",
+        "sort",
+        "per_page",
+        "view",
+      ].forEach((k) => {
+        const v = get(k);
+        if (v) sp.set(k, v);
+      });
+      unique.forEach((s) => sp.append("categories[]", s));
+      pushTo(`/products/${parentSlug}`, sp);
+      return;
+    }
+
+    push({ "categories[]": unique });
+  };
 
   const chips: { key: string; value?: string; label: string }[] = [
     ...selected.map((v) => ({
@@ -82,8 +112,8 @@ export default function CategoryToolbar({
   ].filter(Boolean) as { key: string; value?: string; label: string }[];
 
   const removeChip = (key: string, value?: string) => {
-    if (key === "categories[]") {
-      push({ "categories[]": selected.filter((v) => v !== value) });
+    if (key === "categories[]" && value) {
+      removeCategory(value);
     } else if (key === "price") {
       push({ min_price: null, max_price: null });
     } else {

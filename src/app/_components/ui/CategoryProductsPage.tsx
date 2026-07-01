@@ -1,7 +1,6 @@
 // app/_components/ui/CategoryProductsPage.tsx  (SERVER COMPONENT)
 import Pagination from "@/app/_components/ui/Pagination";
 import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
-import { publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import { Suspense } from "react";
 import CategoryFilter from "./CategoryFilter";
@@ -32,7 +31,7 @@ interface Props {
 
 function parseParams(
   sp: Record<string, string | string[] | undefined>,
-  forcedCategorySlugs: string[]
+  forcedCategorySlugs: string[],
 ): FilterParams {
   const p: FilterParams = {};
   const cats = sp["categories[]"];
@@ -140,21 +139,49 @@ export default async function CategoryProductsPage({
   basePath,
 }: Props) {
   const forcedCategorySlugs = Array.from(
-    new Set([category.slug, ...(category.children?.map((c) => c.slug) || [])])
+    new Set([category.slug, ...(category.children?.map((c) => c.slug) || [])]),
   );
   const filters = parseParams(searchParams, forcedCategorySlugs);
   const view = (searchParams.view as "grid" | "list") || "grid";
 
-  const productsRes = await publicProductsAPI.getAll(buildApiParams(filters));
-  const products = productsRes.data.data || [];
-  const meta = productsRes.data.meta || {
+  const params = buildApiParams(filters);
+
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value == null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((v) => url.searchParams.append(key, String(v)));
+    } else {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const res = await fetch(url.toString(), {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+
+  const productsRes = await res.json();
+
+  const products = productsRes.data || [];
+  const meta = productsRes.meta || {
     current_page: 1,
     last_page: 1,
     total: 0,
     price_range: null,
   };
-  const priceRange: { min: number; max: number } =
+
+  const priceRange =
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
+
   const siblings = parentCategory.children || [];
 
   return (

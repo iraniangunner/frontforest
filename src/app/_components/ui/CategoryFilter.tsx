@@ -34,12 +34,13 @@ interface Props {
 
 export default function CategoryFilter({
   siblings,
+  parentSlug,
   priceRange,
   onClose,
   isMobile = false,
 }: Props) {
   const params = useParams();
-  const { get, getAll, push, clearAll, closeDrawer } = useFilter();
+  const { get, getAll, push, pushTo, clearAll, closeDrawer } = useFilter();
   // اگر onClose از بیرون داده نشد، از context استفاده کن (drawer موبایل).
   const handleClose = onClose ?? closeDrawer;
 
@@ -63,15 +64,45 @@ export default function CategoryFilter({
   const max_price = +(get("max_price") || priceRange.max);
   const min_rating = get("min_rating") || "";
 
-  const toggleSibling = (slug: string) =>
-    push({
-      "categories[]": selected.includes(slug)
-        ? selected.filter((s) => s !== slug)
-        : [...selected, slug],
-    });
+  // toggle یک دسته — قانون یکدست و ساده:
+  //   همیشه همه‌ی دسته‌ها در query و مسیر ثابت (/products/parent) می‌ماند.
+  //   پس هیچ تغییر route/refresh رخ نمی‌دهد؛ فقط query عوض می‌شود (نرم + optimistic).
+  //   اگر کاربر با لینک مستقیم روی /products/parent/child باشد (routeChild)، اولین
+  //   toggle او را به /products/parent با query منتقل می‌کند (یک‌بار، تمیز).
+  const toggleSibling = (slug: string) => {
+    const next = selected.includes(slug)
+      ? selected.filter((s) => s !== slug)
+      : [...selected, slug];
+    const unique = Array.from(new Set(next));
+
+    // اگر روی مسیر child هستیم، باید به والد منتقل شویم (چون slug در path است).
+    if (routeChild) {
+      const sp = new URLSearchParams();
+      [
+        "on_sale",
+        "in_stock",
+        "min_price",
+        "max_price",
+        "min_rating",
+        "sort",
+        "per_page",
+        "view",
+      ].forEach((k) => {
+        const v = get(k);
+        if (v) sp.set(k, v);
+      });
+      unique.forEach((s) => sp.append("categories[]", s));
+      pushTo(`/products/${parentSlug}`, sp);
+      return;
+    }
+
+    // حالت عادی: فقط query عوض می‌شود، مسیر ثابت می‌ماند → نرم و بدون refresh.
+    push({ "categories[]": unique });
+  };
 
   const toggleBool = (k: "on_sale" | "in_stock", cur: boolean) =>
     push({ [k]: cur ? null : "1" });
+
 
   const toggleRating = (r: number) =>
     push({ min_rating: min_rating === String(r) ? null : String(r) });
@@ -83,8 +114,9 @@ export default function CategoryFilter({
     });
 
   const removeChip = (key: string, value?: string) => {
-    if (key === "categories[]") {
-      push({ "categories[]": selected.filter((s) => s !== value) });
+    if (key === "categories[]" && value) {
+      // از toggleSibling استفاده می‌کنیم تا حالت routeChild (در path) هم درست پاک شود
+      toggleSibling(value);
     } else if (key === "price") {
       push({ min_price: null, max_price: null });
     } else {
@@ -102,9 +134,7 @@ export default function CategoryFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString(
-            "fa-IR"
-          )} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -219,9 +249,7 @@ export default function CategoryFilter({
                   }`}
                 >
                   <HiTag
-                    className={`w-4 h-4 ${
-                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
                   />
                   تخفیف‌دار
                 </button>
@@ -235,9 +263,7 @@ export default function CategoryFilter({
                   }`}
                 >
                   <HiShoppingBag
-                    className={`w-4 h-4 ${
-                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
                   />
                   موجود
                 </button>
@@ -364,9 +390,7 @@ export default function CategoryFilter({
                       {Array.from({ length: 5 }).map((_, i) => (
                         <HiStar
                           key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
-                          }`}
+                          className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
                         />
                       ))}
                     </div>

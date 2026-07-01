@@ -1,7 +1,5 @@
 "use client";
 
-// app/_components/ui/FilterProvider.tsx
-
 import {
   createContext,
   useContext,
@@ -22,6 +20,7 @@ interface FilterContextValue {
   getAll: (key: string) => string[];
   // نوشتن
   push: (updates: Updates) => void;
+  pushTo: (targetPath: string, params: URLSearchParams) => void;
   clearAll: () => void;
   isPending: boolean;
   // drawer موبایل (کاملاً client-side، مستقل از URL)
@@ -56,7 +55,7 @@ export function FilterProvider({
 
   // state خوش‌بینانه — مقدار اولیه از URL.
   const [params, setParams] = useState(
-    () => new URLSearchParams(realSp.toString())
+    () => new URLSearchParams(realSp.toString()),
   );
   const paramsRef = useRef(params);
   paramsRef.current = params;
@@ -75,7 +74,23 @@ export function FilterProvider({
         router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
       });
     },
-    [pathname, router]
+    [pathname, router],
+  );
+
+  // مثل navigate ولی به یک مسیر دلخواه (برای تغییر route دسته‌بندی:
+  // /products/parent ↔ /products/parent/child). همچنان optimistic + transition
+  // است؛ پس checkbox آنی اعمال می‌شود و skeleton (isPending) هم نشان داده می‌شود.
+  const pushTo = useCallback(
+    (targetPath: string, next: URLSearchParams) => {
+      setParams(next); // ← فوری (optimistic)
+      const qs = next.toString();
+      startTransition(() => {
+        router.push(qs ? `${targetPath}?${qs}` : targetPath, {
+          scroll: false,
+        });
+      });
+    },
+    [router],
   );
 
   const push = useCallback(
@@ -93,7 +108,7 @@ export function FilterProvider({
       if (!("page" in updates)) next.delete("page");
       navigate(next);
     },
-    [navigate]
+    [navigate],
   );
 
   const clearAll = useCallback(() => {
@@ -118,6 +133,7 @@ export function FilterProvider({
         get,
         getAll,
         push,
+        pushTo,
         clearAll,
         isPending,
         drawerOpen,

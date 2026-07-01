@@ -5,7 +5,6 @@ import SearchToolbar from "@/app/_components/ui/SearchToolbar";
 import ProductsGridWrapper from "@/app/_components/ui/ProductsGridWrapper";
 import { FilterProvider } from "@/app/_components/ui/FilterProvider";
 import FilterDrawer from "@/app/_components/ui/FilterDrawer";
-import { categoriesAPI, publicProductsAPI } from "@/lib/api";
 import { FilterParams } from "@/types";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -21,7 +20,7 @@ interface PageProps {
 }
 
 function parseParams(
-  sp: Record<string, string | string[] | undefined>
+  sp: Record<string, string | string[] | undefined>,
 ): FilterParams {
   const p: FilterParams = {};
   if (sp.q && typeof sp.q === "string") p.q = sp.q;
@@ -89,20 +88,60 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const filters = parseParams(sp);
   const view = (sp.view as "grid" | "list") || "grid";
 
+  const params = buildApiParams(filters);
+
+  const productsUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value == null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((v) => productsUrl.searchParams.append(key, String(v)));
+    } else {
+      productsUrl.searchParams.append(key, String(value));
+    }
+  });
+
   const [productsRes, menuRes] = await Promise.all([
-    publicProductsAPI.getAll(buildApiParams(filters)),
-    categoriesAPI.getMenu(),
+    fetch(productsUrl.toString(), {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/menu`, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    }),
   ]);
 
-  const products = productsRes.data.data || [];
-  const meta = productsRes.data.meta || {
+  if (!productsRes.ok) {
+    throw new Error(`Products request failed: ${productsRes.status}`);
+  }
+
+  if (!menuRes.ok) {
+    throw new Error(`Menu request failed: ${menuRes.status}`);
+  }
+
+  const [productsData, menuData] = await Promise.all([
+    productsRes.json(),
+    menuRes.json(),
+  ]);
+
+  const products = productsData.data || [];
+
+  const meta = productsData.meta || {
     current_page: 1,
     last_page: 1,
     total: 0,
     price_range: null,
   };
-  const menu = menuRes.data.data || [];
-  const priceRange: { min: number; max: number } =
+
+  const menu = menuData.data || [];
+
+  const priceRange =
     meta.price_range?.max > 0 ? meta.price_range : { min: 0, max: 10_000_000 };
 
   return (
