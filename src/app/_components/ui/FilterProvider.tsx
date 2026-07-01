@@ -1,5 +1,7 @@
 "use client";
 
+// app/_components/ui/FilterProvider.tsx
+
 import {
   createContext,
   useContext,
@@ -25,6 +27,7 @@ interface FilterContextValue {
   isPending: boolean;
   // drawer موبایل (کاملاً client-side، مستقل از URL)
   drawerOpen: boolean;
+  drawerJustOpened: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
 }
@@ -39,6 +42,13 @@ export const useFilter = () => {
 
 // نسخه‌ی امن: اگر خارج از Provider بود null می‌دهد (برای کامپوننت‌هایی که هر دو جا رندر می‌شوند).
 export const useFilterSafe = () => useContext(FilterContext);
+
+// وضعیت باز/بسته‌ی drawer در سطح ماژول نگه داشته می‌شود تا اگر Provider به‌خاطر
+// تغییر route ری‌مانت شد (مثلاً /products/parent/child → /products/parent)، drawer بسته نشود.
+let moduleDrawerOpen = false;
+// آیا drawer «همین الان» باز شده (کلیک واقعی)؟ برای اینکه انیمیشن ورود فقط یک‌بار
+// اجرا شود و با ری‌مانتِ ناشی از تغییر route دوباره پخش نشود.
+let moduleJustOpened = false;
 
 export function FilterProvider({
   children,
@@ -55,7 +65,7 @@ export function FilterProvider({
 
   // state خوش‌بینانه — مقدار اولیه از URL.
   const [params, setParams] = useState(
-    () => new URLSearchParams(realSp.toString()),
+    () => new URLSearchParams(realSp.toString())
   );
   const paramsRef = useRef(params);
   paramsRef.current = params;
@@ -74,7 +84,7 @@ export function FilterProvider({
         router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
       });
     },
-    [pathname, router],
+    [pathname, router]
   );
 
   // مثل navigate ولی به یک مسیر دلخواه (برای تغییر route دسته‌بندی:
@@ -90,7 +100,7 @@ export function FilterProvider({
         });
       });
     },
-    [router],
+    [router]
   );
 
   const push = useCallback(
@@ -108,7 +118,7 @@ export function FilterProvider({
       if (!("page" in updates)) next.delete("page");
       navigate(next);
     },
-    [navigate],
+    [navigate]
   );
 
   const clearAll = useCallback(() => {
@@ -120,9 +130,25 @@ export function FilterProvider({
   }, [navigate, preserveOnClear]);
 
   // ── drawer موبایل ──
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const openDrawer = useCallback(() => setDrawerOpen(true), []);
-  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  // مقدار را در یک متغیر ماژول نگه می‌داریم تا اگر Provider به‌خاطر تغییر route
+  // ری‌مانت شد، وضعیت باز/بسته‌ی drawer از بین نرود.
+  const [drawerOpen, setDrawerOpen] = useState(moduleDrawerOpen);
+  // انیمیشن ورود فقط هنگام باز شدن واقعی. مقدار اولیه از فلگ ماژول:
+  //   • باز شدن واقعی (openDrawer) → justOpened=true → انیمیت کن
+  //   • ری‌مانت ناشی از تغییر route (drawer از قبل باز) → moduleJustOpened=false → انیمیت نکن
+  const [justOpened, setJustOpened] = useState(moduleJustOpened);
+  moduleJustOpened = false; // بعد از خواندن مقدار اولیه، فلگ را خاموش کن
+
+  const openDrawer = useCallback(() => {
+    moduleDrawerOpen = true;
+    setJustOpened(true); // این یک باز شدن واقعی است → انیمیت کن
+    setDrawerOpen(true);
+  }, []);
+  const closeDrawer = useCallback(() => {
+    moduleDrawerOpen = false;
+    setJustOpened(false);
+    setDrawerOpen(false);
+  }, []);
 
   const get = useCallback((key: string) => params.get(key), [params]);
   const getAll = useCallback((key: string) => params.getAll(key), [params]);
@@ -137,6 +163,7 @@ export function FilterProvider({
         clearAll,
         isPending,
         drawerOpen,
+        drawerJustOpened: justOpened,
         openDrawer,
         closeDrawer,
       }}
