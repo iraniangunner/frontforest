@@ -1,7 +1,10 @@
 "use client";
 
-// app/products/_components/PriceRangeSlider.tsx
-import { useState, useEffect, useRef, useCallback } from "react";
+// app/_components/ui/PriceRangeSlider.tsx
+
+import * as Slider from "@radix-ui/react-slider";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFilterSafe } from "./FilterProvider";
 
 interface Props {
   globalMin: number;
@@ -11,7 +14,23 @@ interface Props {
   onChange: (min: number, max: number) => void;
 }
 
-const fmt = (n: number) => Number(Math.round(n)).toLocaleString("fa-IR");
+const faToEn = (s: string) =>
+  s.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+const digits = (s: string) => faToEn(s).replace(/[^\d]/g, "");
+const fmt = (n: number) => Math.round(n).toLocaleString("fa-IR");
+const fmtStr = (s: string) => (s ? Number(s).toLocaleString("fa-IR") : "");
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.max(lo, Math.min(v, hi));
+
+function PriceSkeleton() {
+  return (
+    <div className="space-y-2 animate-pulse" dir="rtl">
+      <div className="h-11 bg-[#F5F5F5] rounded-xl" />
+      <div className="h-11 bg-[#F5F5F5] rounded-xl" />
+      <div className="h-1.5 bg-[#F0F0F0] rounded-full mt-3" />
+    </div>
+  );
+}
 
 export default function PriceRangeSlider({
   globalMin,
@@ -20,203 +39,194 @@ export default function PriceRangeSlider({
   currentMax,
   onChange,
 }: Props) {
-  const range = Math.max(globalMax - globalMin, 1);
-  const toPercent = (val: number) =>
-    Math.min(100, Math.max(0, Math.round(((val - globalMin) / range) * 100)));
-  const toValue = (pct: number) => Math.round(globalMin + (pct / 100) * range);
+  const isPending = useFilterSafe()?.isPending ?? false;
 
-  const [lo, setLo] = useState(() => toPercent(currentMin));
-  const [hi, setHi] = useState(() => toPercent(currentMax));
-  const timer = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    setLo(toPercent(currentMin));
-    setHi(toPercent(currentMax));
-  }, [currentMin, currentMax, globalMin, globalMax]);
-
-  const commit = useCallback(
-    (l: number, h: number) => {
-      clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        onChange(toValue(l), toValue(h));
-      }, 600);
-    },
-    [globalMin, globalMax, onChange],
+  const [val, setVal] = useState<[number, number]>([
+    clamp(currentMin, globalMin, globalMax),
+    clamp(currentMax, globalMin, globalMax),
+  ]);
+  const [minStr, setMinStr] = useState(
+    currentMin > globalMin ? String(currentMin) : "",
+  );
+  const [maxStr, setMaxStr] = useState(
+    currentMax < globalMax ? String(currentMax) : "",
   );
 
-  const handleLo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Math.min(+e.target.value, hi - 2);
-    setLo(v);
-    commit(v, hi);
+  const dragging = useRef(false);
+  const editing = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+
+  // بازه‌ای که آخرین‌بار بر اساسش تصمیم گرفتیم (برای تشخیص «بازه عوض شد»).
+  const seenRange = useRef({ min: globalMin, max: globalMax });
+
+  const send = useCallback(
+    (mn: number, mx: number) => onChange(mn, mx),
+    [onChange],
+  );
+
+  // مقداردهی state داخلی به یک بازه‌ی مشخص (اسلایدر + ورودی‌ها).
+  const setLocal = useCallback(
+    (mn: number, mx: number) => {
+      setVal([mn, mx]);
+      setMinStr(mn > globalMin ? String(mn) : "");
+      setMaxStr(mx < globalMax ? String(mx) : "");
+    },
+    [globalMin, globalMax],
+  );
+
+  // ── تنها منبعِ هماهنگی با بیرون ──
+  useEffect(() => {
+    // موقع تعامل کاربر یا لود، دست نزن (تا نپرد / پرشِ بازه دیده نشود).
+    if (dragging.current || editing.current || isPending) return;
+
+    const prevRange = seenRange.current;
+    const rangeChanged =
+      globalMin !== prevRange.min || globalMax !== prevRange.max;
+
+    // مقدار هدف: قیمت فعلی، محدودشده به بازه‌ی مجاز.
+    let targetMin = clamp(currentMin, globalMin, globalMax);
+    let targetMax = clamp(currentMax, globalMin, globalMax);
+
+    if (rangeChanged) {
+      seenRange.current = { min: globalMin, max: globalMax };
+
+      const hadFilter =
+        currentMin > prevRange.min || currentMax < prevRange.max;
+      const overlaps = currentMin <= globalMax && currentMax >= globalMin;
+
+      // بدون هم‌پوشانی و با فیلترِ قبلی → ریست به کل بازه.
+      if (hadFilter && !overlaps) {
+        targetMin = globalMin;
+        targetMax = globalMax;
+      }
+
+      // اگر مقدارِ هدف با آنچه در URL است فرق دارد، به بیرون بفرست تا هماهنگ شود.
+      if (targetMin !== currentMin || targetMax !== currentMax) {
+        setLocal(targetMin, targetMax);
+        send(targetMin, targetMax);
+        return;
+      }
+    }
+
+    // در حالت عادی فقط state داخلی را با props هماهنگ کن.
+    setLocal(targetMin, targetMax);
+  }, [currentMin, currentMax, globalMin, globalMax, isPending, setLocal, send]);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  // skeleton فقط وقتی بازه در حال تغییر است (تغییر دسته/سورت)، نه تغییر خودِ قیمت.
+  const showSkeleton =
+    isPending &&
+    (globalMin !== seenRange.current.min ||
+      globalMax !== seenRange.current.max);
+
+  // ── اسلایدر ──
+  const onSlide = (v: number[]) => {
+    setVal([v[0], v[1]]);
+    setMinStr(v[0] > globalMin ? String(v[0]) : "");
+    setMaxStr(v[1] < globalMax ? String(v[1]) : "");
   };
-  const handleHi = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Math.max(+e.target.value, lo + 2);
-    setHi(v);
-    commit(lo, v);
+  const onSlideCommit = (v: number[]) => {
+    dragging.current = false;
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => send(v[0], v[1]), 300);
   };
 
-  const isFiltered = toValue(lo) > globalMin || toValue(hi) < globalMax;
+  // ── ورودی‌ها ──
+  const applyInputs = () => {
+    editing.current = false;
+    let mn = minStr ? +minStr : globalMin;
+    let mx = maxStr ? +maxStr : globalMax;
+    mn = clamp(mn, globalMin, globalMax);
+    mx = clamp(mx, globalMin, globalMax);
+    if (mn > mx) [mn, mx] = [mx, mn];
+    setLocal(mn, mx);
+    if (mn !== currentMin || mx !== currentMax) send(mn, mx);
+  };
+  const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+  };
 
-  // در RTL: نوار پرشده باید از سمت راست (lo) تا چپ (hi) باشد.
-  // با direction:rtl روی کانتینر، right=0 سمت راست است؛ پس:
-  // fill: از right=lo% تا left=(100-hi)%
+  const isFiltered = val[0] > globalMin || val[1] < globalMax;
+
+  if (showSkeleton) return <PriceSkeleton />;
+  if (globalMax <= globalMin) return null;
+
   return (
-    <>
-      <style>{`
-        .prs-range {
-          position: absolute;
-          inset-inline: 0;
-          width: 100%;
-          height: 6px;
-          margin: 0;
-          background: transparent;
-          -webkit-appearance: none;
-          appearance: none;
-          pointer-events: none;
-          outline: none;
-          direction: rtl;
-        }
-        .prs-range::-webkit-slider-thumb {
-          -webkit-appearance: none; pointer-events: all;
-          width: 20px; height: 20px; border-radius: 50%;
-          background: #ffffff; border: 3px solid #A72F3B; cursor: pointer;
-          box-shadow: 0 2px 6px rgba(167,47,59,0.25);
-          transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
-          margin-top: -7px;
-        }
-        .prs-range::-webkit-slider-thumb:hover {
-          transform: scale(1.15); border-color: #86262F;
-          box-shadow: 0 3px 10px rgba(167,47,59,0.35);
-        }
-        .prs-range::-webkit-slider-thumb:active {
-          transform: scale(1.25); box-shadow: 0 0 0 6px rgba(167,47,59,0.12);
-        }
-        .prs-range::-webkit-slider-runnable-track {
-          height: 6px; background: transparent; border-radius: 9999px;
-        }
-        .prs-range::-moz-range-thumb {
-          pointer-events: all; width: 20px; height: 20px; border-radius: 50%;
-          background: #ffffff; border: 3px solid #A72F3B; cursor: pointer;
-          box-shadow: 0 2px 6px rgba(167,47,59,0.25);
-        }
-        .prs-range::-moz-range-track {
-          height: 6px; background: transparent; border-radius: 9999px;
-        }
-      `}</style>
-
-      <div className="space-y-4">
-        {/* ── باکس‌های از / تا — برچسب بیرون، عدد داخل ── */}
-        <div className="flex items-stretch gap-2">
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-[#898989] mb-1 px-1">از</p>
-            <div
-              className={`rounded-xl border px-2 py-2.5 text-center transition-colors ${isFiltered && lo > 0 ? "border-[#DCACB1] bg-[#F6EAEB]" : "border-[#EDEDED] bg-[#F8F8F8]"}`}
-            >
-              <p
-                className={`text-sm font-bold leading-tight whitespace-nowrap ${isFiltered && lo > 0 ? "text-[#A72F3B]" : "text-[#242424]"}`}
-              >
-                {fmt(toValue(lo))}
-              </p>
-            </div>
-          </div>
-          <span className="text-[#CBCBCB] text-sm self-end pb-3">—</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-[#898989] mb-1 px-1">تا</p>
-            <div
-              className={`rounded-xl border px-2 py-2.5 text-center transition-colors ${isFiltered && hi < 100 ? "border-[#DCACB1] bg-[#F6EAEB]" : "border-[#EDEDED] bg-[#F8F8F8]"}`}
-            >
-              <p
-                className={`text-sm font-bold leading-tight whitespace-nowrap ${isFiltered && hi < 100 ? "text-[#A72F3B]" : "text-[#242424]"}`}
-              >
-                {fmt(toValue(hi))}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── تراک اسلایدر (direction:rtl) ── */}
-        <div style={{ position: "relative", height: "24px", direction: "rtl" }}>
-          {/* track background */}
-          <div
-            style={{
-              position: "absolute",
-              insetInline: 0,
-              top: "50%",
-              transform: "translateY(-50%)",
-              height: "6px",
-              background: "#F0F0F0",
-              borderRadius: "9999px",
-              pointerEvents: "none",
-            }}
-          />
-          {/* track fill (maroon) — از راست(lo) تا چپ(hi) */}
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              transform: "translateY(-50%)",
-              height: "6px",
-              background: "linear-gradient(90deg,#86262F,#A72F3B)",
-              borderRadius: "9999px",
-              right: `${lo}%`,
-              left: `${100 - hi}%`,
-              pointerEvents: "none",
-            }}
-          />
-          {/* min thumb */}
+    <div className="space-y-3" dir="rtl">
+      {/* ── دو ورودی زیر هم ── */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 rounded-xl border border-[#EDEDED] bg-[#F8F8F8] px-3 py-2.5 focus-within:border-[#DCACB1] focus-within:ring-2 focus-within:ring-[#A72F3B]/20 transition-colors">
+          <span className="text-xs text-[#898989] w-7 flex-shrink-0">از</span>
           <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={lo}
-            onChange={handleLo}
-            className="prs-range"
-            style={{
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: lo > 88 ? 5 : 3,
-            }}
-            aria-label="حداقل قیمت"
+            type="text"
+            inputMode="numeric"
+            value={fmtStr(minStr)}
+            onFocus={() => (editing.current = true)}
+            onChange={(e) => setMinStr(digits(e.target.value))}
+            onBlur={applyInputs}
+            onKeyDown={onKey}
+            placeholder={fmt(globalMin)}
+            className="flex-1 min-w-0 bg-transparent text-sm font-bold text-[#242424] outline-none placeholder:text-[#CBCBCB] placeholder:font-normal"
           />
-          {/* max thumb */}
+          <span className="text-xs text-[#AFAFAF] flex-shrink-0">تومان</span>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-xl border border-[#EDEDED] bg-[#F8F8F8] px-3 py-2.5 focus-within:border-[#DCACB1] focus-within:ring-2 focus-within:ring-[#A72F3B]/20 transition-colors">
+          <span className="text-xs text-[#898989] w-7 flex-shrink-0">تا</span>
           <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={hi}
-            onChange={handleHi}
-            className="prs-range"
-            style={{ top: "50%", transform: "translateY(-50%)", zIndex: 4 }}
-            aria-label="حداکثر قیمت"
+            type="text"
+            inputMode="numeric"
+            value={fmtStr(maxStr)}
+            onFocus={() => (editing.current = true)}
+            onChange={(e) => setMaxStr(digits(e.target.value))}
+            onBlur={applyInputs}
+            onKeyDown={onKey}
+            placeholder={fmt(globalMax)}
+            className="flex-1 min-w-0 bg-transparent text-sm font-bold text-[#242424] outline-none placeholder:text-[#CBCBCB] placeholder:font-normal"
           />
+          <span className="text-xs text-[#AFAFAF] flex-shrink-0">تومان</span>
         </div>
-
-        {/* ── اعداد min/max ── */}
-        <div
-          className="flex justify-between text-xs text-[#CBCBCB] px-0.5"
-          dir="rtl"
-        >
-          <span>{fmt(globalMin)}</span>
-          <span>{fmt(globalMax)}</span>
-        </div>
-
-        {/* ── دکمه حذف فیلتر — داخل، تمام‌عرض، مرتب ── */}
-        {isFiltered && (
-          <button
-            type="button"
-            onClick={() => {
-              setLo(0);
-              setHi(100);
-              onChange(globalMin, globalMax);
-            }}
-            className="w-full flex items-center justify-center gap-1 py-2 rounded-xl border border-[#EDEDED] text-xs text-[#898989] hover:text-[#C30000] hover:border-[#F3C5C9] hover:bg-[#FBEAEA] transition-colors"
-          >
-            × حذف فیلتر قیمت
-          </button>
-        )}
       </div>
-    </>
+
+      {/* ── اسلایدر ── */}
+      <Slider.Root
+        dir="rtl"
+        min={globalMin}
+        max={globalMax}
+        step={1000}
+        value={val}
+        onPointerDown={() => (dragging.current = true)}
+        onValueChange={onSlide}
+        onValueCommit={onSlideCommit}
+        className="relative flex h-6 w-full touch-none select-none items-center"
+      >
+        <Slider.Track className="relative h-[6px] grow rounded-full bg-[#F0F0F0]">
+          <Slider.Range className="absolute h-full rounded-full bg-gradient-to-r from-[#86262F] to-[#A72F3B]" />
+        </Slider.Track>
+        <Slider.Thumb className="block h-5 w-5 rounded-full border-[3px] border-[#A72F3B] bg-white shadow-md outline-none transition hover:scale-110 active:scale-125" />
+        <Slider.Thumb className="block h-5 w-5 rounded-full border-[3px] border-[#A72F3B] bg-white shadow-md outline-none transition hover:scale-110 active:scale-125" />
+      </Slider.Root>
+
+      <div className="flex justify-between text-xs text-[#CBCBCB] px-0.5">
+        <span>{fmt(globalMin)}</span>
+        <span>{fmt(globalMax)}</span>
+      </div>
+
+      {isFiltered && (
+        <button
+          onClick={() => {
+            clearTimeout(timer.current);
+            dragging.current = false;
+            editing.current = false;
+            setLocal(globalMin, globalMax);
+            send(globalMin, globalMax);
+          }}
+          className="w-full rounded-xl border border-[#EDEDED] py-2 text-xs text-[#898989] transition-colors hover:border-[#F3C5C9] hover:bg-[#FBEAEA] hover:text-[#C30000]"
+        >
+          × حذف فیلتر قیمت
+        </button>
+      )}
+    </div>
   );
 }

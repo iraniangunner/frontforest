@@ -1,17 +1,18 @@
 "use client";
 
 // app/_components/ui/SearchFilter.tsx
+// ساختار یکسان با CategoryFilter (هدر، chips، وضعیت، قیمت، امتیاز، فوتر).
+// تنها تفاوت: بخش دسته‌بندی درختی است (منوی والد/فرزند) به‌جای لیست تخت.
+
 import { useState, useEffect } from "react";
 import {
   HiChevronDown,
-  HiCheck,
   HiX,
   HiTag,
   HiShoppingBag,
   HiStar,
   HiAdjustments,
   HiViewGrid,
-  HiSearch,
 } from "react-icons/hi";
 import Image from "next/image";
 import PriceRangeSlider from "./PriceRangeSlider";
@@ -57,7 +58,6 @@ export default function SearchFilter({
   ]);
   const [openParent, setOpenParent] = useState<number | null>(null);
 
-  const q = get("q") || "";
   const on_sale = get("on_sale") === "1";
   const in_stock = get("in_stock") === "1";
   const min_price = +(get("min_price") || priceRange.min);
@@ -68,7 +68,7 @@ export default function SearchFilter({
   useEffect(() => {
     if (!menu.length || selectedCats.length === 0) return;
     const owner = menu.find((p) =>
-      p.children?.some((c) => selectedCats.includes(c.slug))
+      p.children?.some((c) => selectedCats.includes(c.slug)),
     );
     if (owner) setOpenParent((cur) => (cur === null ? owner.id : cur));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,9 +86,10 @@ export default function SearchFilter({
       max_price: max < priceRange.max ? String(max) : null,
     });
 
+  // ── دسته‌بندی درختی (قیمت هنگام تغییر دسته پاک می‌شود) ──
   const toggleChild = (childSlug: string) => {
     const parent = menu.find((p) =>
-      p.children?.some((c) => c.slug === childSlug)
+      p.children?.some((c) => c.slug === childSlug),
     );
     const parentSlug = parent?.slug;
     let next: string[];
@@ -97,7 +98,9 @@ export default function SearchFilter({
     } else {
       next = [...selectedCats.filter((s) => s !== parentSlug), childSlug];
     }
-    push({ "categories[]": Array.from(new Set(next)) });
+    push({
+      "categories[]": Array.from(new Set(next)),
+    });
   };
 
   const isParentWholeSelected = (parent: MenuParent) =>
@@ -106,10 +109,12 @@ export default function SearchFilter({
   const toggleWholeParent = (parent: MenuParent) => {
     const childSlugs = parent.children?.map((c) => c.slug) || [];
     if (isParentWholeSelected(parent)) {
-      push({ "categories[]": selectedCats.filter((s) => s !== parent.slug) });
+      push({
+        "categories[]": selectedCats.filter((s) => s !== parent.slug),
+      });
     } else {
       const withoutChildren = selectedCats.filter(
-        (s) => !childSlugs.includes(s)
+        (s) => !childSlugs.includes(s),
       );
       push({
         "categories[]": Array.from(new Set([...withoutChildren, parent.slug])),
@@ -129,13 +134,13 @@ export default function SearchFilter({
   const removeChip = (key: string, value?: string) => {
     if (key === "price") push({ min_price: null, max_price: null });
     else if (key === "categories[]")
-      push({ "categories[]": selectedCats.filter((s) => s !== value) });
-    else if (key === "q") push({ q: null });
+      push({
+        "categories[]": selectedCats.filter((s) => s !== value),
+      });
     else push({ [key]: null });
   };
 
   const chips: { key: string; value?: string; label: string }[] = [
-    q ? { key: "q", label: `جستجو: ${q}` } : null,
     ...selectedCats.map((slug) => ({
       key: "categories[]",
       value: slug,
@@ -146,9 +151,7 @@ export default function SearchFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString(
-            "fa-IR"
-          )} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -157,7 +160,7 @@ export default function SearchFilter({
   const activeCount = chips.length;
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
   const isSecOpen = (id: string) => openSecs.includes(id);
 
@@ -196,6 +199,7 @@ export default function SearchFilter({
       }`}
       dir="rtl"
     >
+      {/* هدر */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#F0F0F0]">
         <div className="flex items-center gap-2">
           <HiAdjustments className="w-4 h-4 text-[#898989]" />
@@ -228,6 +232,7 @@ export default function SearchFilter({
         </div>
       </div>
 
+      {/* chips */}
       {/* {chips.length > 0 && (
         <div className="px-3 py-2 border-b border-[#F0F0F0] flex flex-wrap gap-1.5">
           {chips.map((c, i) => (
@@ -235,13 +240,8 @@ export default function SearchFilter({
               key={i}
               type="button"
               onClick={() => removeChip(c.key, c.value)}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border transition-colors ${
-                c.key === "q"
-                  ? "bg-[#F6EAEB] text-[#A72F3B] border-[#DCACB1] hover:bg-[#EDD5D8]"
-                  : "bg-[#F5F5F5] text-[#656565] border-[#EDEDED] hover:bg-[#EDEDED]"
-              }`}
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#F5F5F5] text-[#656565] text-xs rounded-full hover:bg-[#EDEDED] border border-[#EDEDED] transition-colors"
             >
-              {c.key === "q" && <HiSearch className="w-3 h-3" />}
               {c.label}
               <HiX className="w-3 h-3 opacity-60" />
             </button>
@@ -250,11 +250,12 @@ export default function SearchFilter({
       )} */}
 
       <div className={isMobile ? "flex-1 overflow-y-auto" : ""}>
+        {/* دسته‌بندی درختی */}
         {menu.length > 0 && (
           <div className="border-b border-[#F0F0F0]">
             <SecHead
               id="categories"
-              label="انتخاب دسته‌بندی"
+              label="دسته‌بندی"
               extra={
                 selectedCats.length > 0 ? (
                   <span className="text-xs text-[#A72F3B] font-medium">
@@ -272,7 +273,7 @@ export default function SearchFilter({
                       parent.children?.map((c) => c.slug) || [];
                     const wholeChecked = isParentWholeSelected(parent);
                     const selInParent = childSlugs.filter((s) =>
-                      selectedCats.includes(s)
+                      selectedCats.includes(s),
                     ).length;
                     const badge = wholeChecked ? 1 : selInParent;
 
@@ -282,7 +283,7 @@ export default function SearchFilter({
                           type="button"
                           onClick={() =>
                             setOpenParent((cur) =>
-                              cur === parent.id ? null : parent.id
+                              cur === parent.id ? null : parent.id,
                             )
                           }
                           className="flex items-center justify-between w-full px-4 py-2.5 hover:bg-[#F8F8F8] transition-colors"
@@ -368,7 +369,7 @@ export default function SearchFilter({
                                   {child.products_count !== undefined && (
                                     <span className="text-[11px] text-[#AFAFAF]">
                                       {child.products_count.toLocaleString(
-                                        "fa-IR"
+                                        "fa-IR",
                                       )}
                                     </span>
                                   )}
@@ -402,9 +403,7 @@ export default function SearchFilter({
                   }`}
                 >
                   {/* <HiTag
-                    className={`w-4 h-4 ${
-                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
                   /> */}
                   تخفیف‌دار
                 </button>
@@ -418,9 +417,7 @@ export default function SearchFilter({
                   }`}
                 >
                   {/* <HiShoppingBag
-                    className={`w-4 h-4 ${
-                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
                   /> */}
                   موجود
                 </button>
@@ -494,9 +491,7 @@ export default function SearchFilter({
                       {Array.from({ length: 5 }).map((_, i) => (
                         <HiStar
                           key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
-                          }`}
+                          className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
                         />
                       ))}
                     </div>
@@ -515,6 +510,7 @@ export default function SearchFilter({
         </div>
       </div>
 
+      {/* فوتر موبایل */}
       {isMobile && (
         <div className="px-4 py-3 border-t border-[#F0F0F0]">
           <button

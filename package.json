@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.7",
+    "@radix-ui/react-slider": "^1.4.2",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
     "embla-carousel-react": "^8.6.0",

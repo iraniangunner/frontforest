@@ -70,9 +70,9 @@ export default function SearchToolbar({ total, priceRange, menu }: Props) {
       ? {
           key: "price",
           label: `${Number(get("min_price") || priceRange.min).toLocaleString(
-            "fa-IR"
+            "fa-IR",
           )} — ${Number(get("max_price") || priceRange.max).toLocaleString(
-            "fa-IR"
+            "fa-IR",
           )} ت`,
         }
       : null,
@@ -84,7 +84,10 @@ export default function SearchToolbar({ total, priceRange, menu }: Props) {
   const removeChip = (key: string, value?: string) => {
     if (key === "price") push({ min_price: null, max_price: null });
     else if (key === "categories[]")
-      push({ "categories[]": selectedCats.filter((s) => s !== value) });
+      // قیمت هم پاک می‌شود چون بازه‌ی دسته‌ی جدید فرق دارد.
+      push({
+        "categories[]": selectedCats.filter((s) => s !== value),
+      });
     else push({ [key]: null });
   };
 

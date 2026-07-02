@@ -1,8 +1,6 @@
 "use client";
 
 // app/_components/ui/CategoryFilter.tsx
-// همه‌ی مقادیر از FilterProvider (optimistic) خوانده می‌شوند → تیک‌ها آنی اعمال می‌شوند.
-// دسته‌بندی‌ها با input[type=checkbox] واقعی.
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
@@ -55,7 +53,7 @@ export default function CategoryFilter({
     typeof params?.child === "string" ? params.child : undefined;
   const querySlugs = getAll("categories[]");
   const selected = Array.from(
-    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs)
+    new Set(routeChild ? [routeChild, ...querySlugs] : querySlugs),
   );
 
   const on_sale = get("on_sale") === "1";
@@ -76,6 +74,7 @@ export default function CategoryFilter({
     const unique = Array.from(new Set(next));
 
     // اگر روی مسیر child هستیم، باید به والد منتقل شویم (چون slug در path است).
+    // قیمت را حفظ می‌کنیم تا PriceRangeSlider بعداً clamp/ریست کند.
     if (routeChild) {
       const sp = new URLSearchParams();
       [
@@ -97,6 +96,8 @@ export default function CategoryFilter({
     }
 
     // حالت عادی: فقط query عوض می‌شود، مسیر ثابت می‌ماند → نرم و بدون refresh.
+    // قیمت را دستکاری نمی‌کنیم؛ PriceRangeSlider بعد از رسیدن بازه‌ی جدید خودش
+    // clamp می‌کند (اگر هم‌پوشانی دارد) یا ریست می‌کند (اگر ندارد).
     push({ "categories[]": unique });
   };
 
@@ -133,9 +134,7 @@ export default function CategoryFilter({
     min_price > priceRange.min || max_price < priceRange.max
       ? {
           key: "price",
-          label: `${min_price.toLocaleString(
-            "fa-IR"
-          )} — ${max_price.toLocaleString("fa-IR")} ت`,
+          label: `${min_price.toLocaleString("fa-IR")} — ${max_price.toLocaleString("fa-IR")} ت`,
         }
       : null,
     min_rating ? { key: "min_rating", label: `${min_rating}★+` } : null,
@@ -144,7 +143,7 @@ export default function CategoryFilter({
   const activeCount = chips.length;
   const togSec = (id: string) =>
     setOpenSecs((p) =>
-      p.includes(id) ? p.filter((x) => x !== id) : [...p, id]
+      p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
   const isSecOpen = (id: string) => openSecs.includes(id);
 
@@ -250,9 +249,7 @@ export default function CategoryFilter({
                   }`}
                 >
                   {/* <HiTag
-                    className={`w-4 h-4 ${
-                      on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${on_sale ? "text-[#C30000]" : "text-[#AFAFAF]"}`}
                   /> */}
                   تخفیف‌دار
                 </button>
@@ -266,9 +263,7 @@ export default function CategoryFilter({
                   }`}
                 >
                   {/* <HiShoppingBag
-                    className={`w-4 h-4 ${
-                      in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"
-                    }`}
+                    className={`w-4 h-4 ${in_stock ? "text-[#A72F3B]" : "text-[#AFAFAF]"}`}
                   /> */}
                   موجود
                 </button>
@@ -395,9 +390,7 @@ export default function CategoryFilter({
                       {Array.from({ length: 5 }).map((_, i) => (
                         <HiStar
                           key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"
-                          }`}
+                          className={`w-3.5 h-3.5 ${i < r.value ? "text-[#F4B740]" : "text-[#EDEDED]"}`}
                         />
                       ))}
                     </div>
